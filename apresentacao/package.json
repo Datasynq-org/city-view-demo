@@ -6,7 +6,9 @@
   "scripts": {
     "amostras": "node src/amostras.js",
     "render": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/render.ps1",
-    "fontes": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/instalar-fontes.ps1"
+    "fontes": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/instalar-fontes.ps1",
+    "build": "node src/build.js",
+    "build:render": "node src/build.js && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/render.ps1 -Arquivos out/CityView_Apresentacao.pptx"
   },
   "engines": {
     "node": ">=22"

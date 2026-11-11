@@ -14,4 +14,7 @@ lugar real reconhecível, pessoa, texto ou marca. No slide, levam a legenda
 | `teste-01-capa-cidade` | Seedream 5.0 Pro (`seedream_v5_pro`), 2k | 16:9 | `1b56f505-4c78-4845-90ff-470b23292065` | 164079 | 11/11/2026 | Teste. Boa para a capa |
 | `teste-02-silos` | Seedream 5.0 Pro (`seedream_v5_pro`), 2k | 16:9 | `d9f2cd90-cf57-4558-98ce-d717d200a814` | 205650 | 11/11/2026 | Teste. Saíram 9 colunas (o prompt pedia 7), e duas linhas âmbar chegam a ligar colunas |
 
-Custo: 2,5 créditos por imagem. Saldo depois do teste: 15,22.
+| `divisoria-proposta` | Seedream 5.0 Pro (`seedream_v5_pro`), 2k, referência de estilo: `teste-01-capa-cidade` | 16:9 | `a28f28c5-984d-4524-9960-c3c5f9fbd0d1` | 722809 | 11/11/2026 | Deck, slide 9 |
+| `encerramento` | Seedream 5.0 Pro (`seedream_v5_pro`), 2k, referência de estilo: `teste-01-capa-cidade` | 16:9 | `9ad1ee48-d2d0-4836-9f43-73eea6116bbe` | 742545 | 11/11/2026 | Deck, slide 18 |
+
+Custo: 2,5 créditos por imagem. Saldo depois do teste: 15,22. Depois das imagens do deck: 10,22.
