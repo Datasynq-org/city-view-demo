@@ -531,6 +531,41 @@ severidade, sempre acompanhada de texto.
 - "Observabilidade cidadã" é um adendo, um módulo para o cidadão ver a gestão
   ([4.7](#47-a-visão-do-cidadão-sobre-a-gestão)).
 
+### 7.9 Rascunho de fluxo e roteiro, anterior à demo exploratória
+
+*Acréscimo de 11/11/2026.* A equipe trouxe um rascunho feito depois da conversa
+com o Daniel e antes da demo exploratória do `City-view`. Ele está transcrito,
+com as imagens originais, em
+[CV-REF-002](CV-REF-002-rascunho-fluxo-e-roteiro.md). Em resumo:
+
+- **Cinco camadas:**
+  1. canais do cidadão;
+  2. ponte de abertura de demandas;
+  3. conectores com os legados;
+  4. data lake com o incidente único;
+  5. camada de inteligência.
+
+  Delas saem **três visões**: governadora (sala de situação), gestores (um
+  painel por área) e cidadão (transparência). Cada item vem marcado como
+  "existe" ou "proposta".
+- **O caso da pedra na via** como possível slide de abertura: vários relatos no
+  mesmo ponto mais um roubo de veículo viram um só incidente, de segurança e
+  não de trânsito.
+- **Um roteiro de pitch em seis passos:** problema, exemplos da cidade,
+  solução, prova (Águas Claras), o que a governadora ganha, implantação em
+  ondas.
+
+O papel dele é servir de **checagem de completude** para a apresentação e,
+depois, para a demo. A seção 4 do CV-REF-002 confere cada "existe" com o que se
+sabe hoje. Os pontos que pedem cuidado:
+- o Instagram está travado na Meta;
+- o IluminaDF tem envio desligado;
+- o "ADM 24h" não foi identificado;
+- a ordem das ondas e o DETRAN não vieram do Daniel;
+- a pedra na via não está confirmada e supõe dados da PMDF que não existem.
+
+**[Equipe]**
+
 ---
 
 ## 8. Números públicos já levantados
@@ -634,6 +669,7 @@ As outras grafias erradas da transcrição estão no cabeçalho da
 | [CV-SPEC-000 Documento Magno](CV-SPEC-000-documento-magno.md) | Este documento |
 | [CV-ATA-001 Conversa com o Daniel](fonte/CV-ATA-001-conversa-daniel-2026-11-10.md) | A transcrição da conversa de 10/11/2026, fonte primária |
 | [CV-REF-001 Histórico dos projetos](CV-REF-001-historico-dos-projetos.md) | De onde o projeto veio: dfac, Zela DF, primeira tentativa do CityView |
+| [CV-REF-002 Rascunho do fluxo e do roteiro](CV-REF-002-rascunho-fluxo-e-roteiro.md) | *Acréscimo de 11/11/2026.* Fluxograma em camadas, caso da pedra na via e roteiro de seis passos, anteriores à demo exploratória, conferidos com o que se sabe hoje |
 
 Os nomes seguem o formato `CV-<TIPO>-<NNN>-<slug>.md`. Tipos em uso: `SPEC`
 (o magno), `ATA` (registro de conversa) e `REF` (documento de referência). A
@@ -647,3 +683,4 @@ versão fica dentro do documento, nunca no nome do arquivo.
 | --- | --- |
 | 11/11/2026 | Criação. Substitui o magno v1.1 (10/11/2026), descartado. Reúne a conversa com o Daniel por tema, os exemplos, o que já existe, as ideias da equipe (marcadas como tais), números públicos com fonte e as perguntas em aberto. Incorpora as leituras da equipe de 11/11/2026: grafia "Viewtinet", centralização das demandas, polícia e telefonia como exemplos, ausência de prazo, papel do caso Águas Claras e "observabilidade cidadã" como adendo |
 | 11/11/2026 | Leitura dos repositórios `City-view` e `dfac-agentic-saas`. Seção 3: a apresentação começa do zero, com o motivo e a ordem (apresentação concisa → incremento → demo). Seção 6: a apresentação de 14 slides da primeira tentativa como referência; o pitch do Zela DF nunca foi mostrado. Seção 6.2: o Portal do Cidadão já tem conexão por extensão com login manual; a prioridade por recorrência já existe no dfac desde 01/10/2026 |
+| 11/11/2026 | Seção 7.9 e seção 11: o rascunho de fluxo em camadas e de roteiro, anterior à demo exploratória, registrado em CV-REF-002 como checagem de completude |

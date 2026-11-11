@@ -1,0 +1,17 @@
+{
+  "name": "city-view-apresentacao",
+  "private": true,
+  "description": "Gera a apresentação do City View (.pptx editável) e as amostras de estética",
+  "type": "commonjs",
+  "scripts": {
+    "amostras": "node src/amostras.js",
+    "render": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/render.ps1",
+    "fontes": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/instalar-fontes.ps1"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "pptxgenjs": "3.12.0"
+  }
+}
