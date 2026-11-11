@@ -87,6 +87,13 @@ observabilidade que vai dar uma interação para o cidadão amigável e rastreá
   **[Conversa] [Equipe]**
 - **Neste repositório** (`city-view-demo`) há só documentação. Nenhum código.
   **[Histórico]**
+- *Acréscimo de 11/11/2026:* **a apresentação começa do zero.** A primeira
+  tentativa (repositório `City-view`) chegou a ter uma apresentação de 14 slides
+  e a demo "Sala de Situação", com várias integrações. Ficou legal, mas
+  poluída. Por isso o caminho agora é o inverso: primeiro uma **apresentação
+  concisa, detalhada e completa**; depois incrementá-la; só então construir a
+  **demo**, a partir do que está levantado e documentado. A apresentação antiga
+  fica como referência do que já se tentou, não como base. **[Equipe]**
 
 ---
 
@@ -331,6 +338,14 @@ Resumo: **[Histórico]**
 | **Pesquisa de dados públicos** com fonte e data | `cityView/docs/fonte/2026-11-10-pesquisa-dados-publicos.md` | Base para qualquer número citado |
 | **Este repositório** | `city-view-demo` | Só documentação |
 
+*Acréscimo de 11/11/2026:* a primeira tentativa do CityView também deixou uma
+apresentação de 14 slides (`City-view/assets/pitch/CityView_Apresentacao.pptx`,
+roteiro em `City-view/docs/04-roteiro-do-pitch.md`). Fica como referência; a
+apresentação nova começa do zero ([seção 3](#3-momento-atual)). O pitch do Zela
+DF (`City-view/referencia/zela-df/assets/pitch`) **nunca foi mostrado a
+ninguém**; o `RESUMO.md` do Zela, que fala em "apresentação entregue ao GDF",
+está errado nesse ponto. **[Equipe]**
+
 ### 6.1 Águas Claras: um exemplo real de uma das pontas
 
 O que a ouvidoria de Águas Claras mostra: o cidadão usa um canal que centraliza
@@ -357,10 +372,26 @@ Lições que valem como conhecimento ([CV-REF-001](CV-REF-001-historico-dos-proj
 seções 2 a 4). **[Histórico]**
 
 - O Portal do Cidadão depende de sessão gov.br humana (CAPTCHA, segundo fator).
+  - *Acréscimo de 11/11/2026:* continua verdade, e o dfac já trabalha com isso
+    sem automatizar credencial. Desde 30/09/2026 um operador conecta por uma
+    extensão de Chrome/Edge, faz o login gov.br à mão no site oficial, e a
+    sessão fica compartilhada no servidor até expirar; aí alguém reconecta
+    (`dfac-agentic-saas/docs/portal-cidadao-shared-session.md` e
+    `portal-connector-extension.md`). A seção 8 do `CONTEXTO_PLATAFORMA.md` do
+    dfac, de 29/09/2026, é anterior a isso e ainda diz que o portal não funciona.
 - O Instagram ficou pronto no código e travado na verificação da Meta.
 - URLs de mídia dos canais expiram; a evidência precisa ser baixada na chegada.
 - Canal sem botão de localização precisa de alternativa por endereço.
 - Duplicata que só vira candidata para revisão humana não muda a prioridade de nada.
+  - *Acréscimo de 11/11/2026:* **desatualizado.** Desde 01/10/2026 o dfac eleva
+    a prioridade sozinho: associa relatos automaticamente quando estão a até
+    30 m (de 30 a 100 m vira candidato para revisão; acima disso, nada), 3 a 9
+    remetentes deixam a demanda em Alta, 10 ou mais em Urgente, e a prioridade
+    efetiva é a maior entre a manual e a da recorrência
+    (`dfac-agentic-saas/api/demand_recurrence.py`,
+    `docs/demand-recurrence-design.md`). A frase original veio do Zela DF
+    (`referencia/zela-df/docs/04-heranca-dfac.md`). Está no código do `main`
+    do dfac; não foi conferido se está ligado em produção.
 - Misturar a ouvidoria com módulos comerciais no mesmo banco foi um dos motivos para separar o produto.
 - Um canal de abertura de demandas, sozinho, não se vende ao governo; foi isso que levou do Zela DF ao City View.
 
@@ -615,3 +646,4 @@ versão fica dentro do documento, nunca no nome do arquivo.
 | Data | O que entrou |
 | --- | --- |
 | 11/11/2026 | Criação. Substitui o magno v1.1 (10/11/2026), descartado. Reúne a conversa com o Daniel por tema, os exemplos, o que já existe, as ideias da equipe (marcadas como tais), números públicos com fonte e as perguntas em aberto. Incorpora as leituras da equipe de 11/11/2026: grafia "Viewtinet", centralização das demandas, polícia e telefonia como exemplos, ausência de prazo, papel do caso Águas Claras e "observabilidade cidadã" como adendo |
+| 11/11/2026 | Leitura dos repositórios `City-view` e `dfac-agentic-saas`. Seção 3: a apresentação começa do zero, com o motivo e a ordem (apresentação concisa → incremento → demo). Seção 6: a apresentação de 14 slides da primeira tentativa como referência; o pitch do Zela DF nunca foi mostrado. Seção 6.2: o Portal do Cidadão já tem conexão por extensão com login manual; a prioridade por recorrência já existe no dfac desde 01/10/2026 |

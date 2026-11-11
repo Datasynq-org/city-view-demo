@@ -3,7 +3,7 @@
 | Campo | Valor |
 | --- | --- |
 | Código | CV-REF-001 |
-| Versão | 0.2 (11/11/2026) |
+| Versão | 0.3 (11/11/2026) |
 | Status | Contexto de partida do repositório `city-view-demo` |
 | Fontes | Repositórios `dfac-agentic-saas` e `cityView` (antigo `zela-df`), lidos em 11/11/2026 · [Documento Magno](CV-SPEC-000-documento-magno.md) (CV-SPEC-000) · [conversa com o Daniel](fonte/CV-ATA-001-conversa-daniel-2026-11-10.md) (CV-ATA-001) |
 | Dono | Equipe Datasynq |
@@ -94,11 +94,13 @@ Cuidados com esses números:
 ### O que se aprendeu (vale para qualquer código novo)
 
 - **Portal do Cidadão** depende de sessão gov.br humana (CAPTCHA, segundo fator). Não automatizar credencial pessoal de gov.br.
+  - *Acréscimo de 11/11/2026:* o dfac resolve isso sem automatizar credencial. Desde 30/09/2026 um operador conecta por uma extensão de Chrome/Edge (instalada por ZIP, fora da Web Store), faz o login gov.br à mão no site oficial e confirma a conta central; a sessão fica compartilhada no servidor até expirar, e então alguém reconecta. Ver `docs/portal-cidadao-shared-session.md` e `docs/portal-connector-extension.md`. A seção 8 do `CONTEXTO_PLATAFORMA.md` (29/09/2026) é anterior e ainda diz que o portal não funciona.
 - **Instagram** ficou pronto no código e travado na verificação da Meta.
 - **URLs de mídia dos canais expiram.** Baixar a evidência quando a mensagem chega, não na confirmação.
 - **Canal sem botão de localização** prende o cidadão num estágio da conversa. Sempre ter fallback por endereço.
 - **Trocar o segredo do HMAC** transforma o mesmo cidadão em duas pessoas.
 - **Prioridade por recorrência** existia como campo, mas nada a alterava. A duplicata só virava um candidato para revisão humana.
+  - *Acréscimo de 11/11/2026:* **desatualizado.** A frase veio do Zela DF (`referencia/zela-df/docs/04-heranca-dfac.md`). Desde 01/10/2026 o dfac eleva a prioridade sozinho: associação automática a até 30 m com descrição específica e tipo não genérico; de 30 a 100 m vira candidato para revisão; acima de 100 m, nada. 1–2 remetentes não elevam, 3–9 = Alta, 10+ = Urgente; prioridade efetiva = a maior entre a manual e a da recorrência; tudo com histórico e sem autorizar envio. Ver `api/demand_recurrence.py` e `docs/demand-recurrence-design.md`. Está no código do `main`; não foi conferido se está ligado em produção.
 - O dfac mistura ouvidoria com módulos comerciais no mesmo banco e nas mesmas filas. Foi um dos motivos para separar o produto.
 
 ### Onde ler mais (caminhos a partir da raiz do `dfac-agentic-saas`)
@@ -140,6 +142,10 @@ por região, sem dados de quem abriu.
 | App do cidadão | Expo: conversar, minhas demandas, mapa, perfil |
 | Painel da equipe | Vite + React: fila de revisão, encaminhamento, indicadores; conta "governadora" só com indicadores |
 | Pitch | Apresentação do Zela DF em `assets/pitch` |
+
+*Acréscimo de 11/11/2026:* o pitch do Zela DF **nunca foi mostrado a ninguém**.
+O `referencia/zela-df/RESUMO.md`, que fala em "apresentação entregue ao GDF em
+novembro de 2026", está errado nesse ponto.
 
 ### Por que não bastou
 
@@ -186,6 +192,7 @@ movido intacto para `referencia/zela-df/`, e nasceram:
 - `docs/00` a `docs/05`: contexto, visão, órgãos e fontes, Sala de Situação, roteiro do pitch e decisões (D1 a D11).
 - `docs/fonte/`: a transcrição da conversa e uma **pesquisa de dados públicos com fonte e data**.
 - `apps/sala-de-situacao`: painel de demonstração para a governadora (Vite + React + Tailwind + Recharts, mapa MapLibre com fundo da CARTO, grafo de correlações, dados simulados no navegador).
+- *Acréscimo de 11/11/2026 (faltava nesta lista):* `assets/pitch/CityView_Apresentacao.pptx`, uma apresentação de 14 slides com roteiro de fala nas notas, gerada por `assets/pitch/build.js`. A sequência e as frases estão em `docs/04-roteiro-do-pitch.md`.
 
 ### Por que recomeçar
 
@@ -193,6 +200,12 @@ A sessão do cityView acumulou código e decisões de duas fases (Zela e a
 primeira versão do City View) antes de a narrativa estar fechada. O
 `city-view-demo` recomeça com o Documento Magno como única fonte, construindo
 **primeiro a apresentação, depois a demo**, sem herdar telas nem código.
+
+*Acréscimo de 11/11/2026:* o argumento da equipe. A apresentação e a demo da
+primeira tentativa testaram várias integrações e ficaram legais, mas poluídas.
+Por isso o caminho é o inverso: primeiro uma **apresentação concisa, detalhada
+e completa**; depois incrementá-la; só então construir a **demo**, a partir do
+que está levantado e documentado.
 
 ### O que vale trazer do cityView (como conhecimento, não como código)
 
@@ -204,6 +217,7 @@ primeira versão do City View) antes de a narrativa estar fechada. O
 
 ### O que não trazer
 
+- *Acréscimo de 11/11/2026:* a apresentação de 14 slides. Ela fica como referência do que já se tentou; a nova começa do zero.
 - O código e o visual da Sala de Situação. As ideias da equipe para uma demo nova e um visual novo ("Sala de Operações") estão no magno, seção 7, e não herdam telas da Sala de Situação.
 - Os módulos comerciais do dfac, o deploy no Replit e o acoplamento a uma região.
 
@@ -266,6 +280,7 @@ sentido, uma demo) parte do magno. Nada disso tem etapa ou prazo definido.
 - Medir a adesão de Águas Claras (canal DFÁguasClaras × portal oficial), com fonte e data (magno, pergunta 9.25).
 - Confirmar com o Daniel os nomes que a transcrição pode ter errado: o projeto de Madri e o caso do ator. A empresa espanhola é a Viewtinet (informado pela equipe em 11/11/2026).
 - Confirmar o mecanismo atual de envio ao Portal do Cidadão no dfac antes de prometer esse conector.
+  - *Acréscimo de 11/11/2026:* o mecanismo está documentado no dfac (seção 2, acréscimo sobre o Portal do Cidadão): sessão compartilhada com login manual por extensão de navegador. Ainda vale conferir que está em uso em produção antes de prometer o conector.
 
 ---
 
@@ -273,5 +288,6 @@ sentido, uma demo) parte do magno. Nada disso tem etapa ou prazo definido.
 
 | Versão | Data | Mudança |
 | --- | --- | --- |
+| 0.3 | 11/11/2026 | Acréscimos datados, sem apagar texto, após leitura dos repositórios `City-view` e `dfac-agentic-saas`: conexão ao Portal do Cidadão por extensão com login manual (seção 2 e pendências); prioridade por recorrência já existe no dfac desde 01/10/2026 (seção 2); pitch do Zela DF nunca foi mostrado (seção 3); a apresentação de 14 slides da fase C e o motivo de recomeçar do zero (seção 4) |
 | 0.2 | 11/11/2026 | Recebe o código CV-REF-001 e o novo nome de arquivo. Links atualizados para CV-SPEC-000 e CV-ATA-001. Seção 5 reescrita para o novo magno (sem ordem de trabalho nem referências a requisitos, telas e regras do magno v1.1). Correções pontuais: atribuição do percentual de adesão, grafia Viewtinet |
 | 0.1 | 11/11/2026 | Primeira versão, a partir da leitura dos repositórios `dfac-agentic-saas` e `cityView` |
