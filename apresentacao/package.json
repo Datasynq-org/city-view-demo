@@ -8,6 +8,7 @@
     "render": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/render.ps1",
     "fontes": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/instalar-fontes.ps1",
     "build": "node src/build.js",
+    "pitch": "node src/pitch-deck.js",
     "build:render": "node src/build.js && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/render.ps1 -Arquivos out/CityView_Apresentacao.pptx"
   },
   "engines": {
