@@ -670,6 +670,8 @@ As outras grafias erradas da transcrição estão no cabeçalho da
 | [CV-ATA-001 Conversa com o Daniel](fonte/CV-ATA-001-conversa-daniel-2026-11-10.md) | A transcrição da conversa de 10/11/2026, fonte primária |
 | [CV-REF-001 Histórico dos projetos](CV-REF-001-historico-dos-projetos.md) | De onde o projeto veio: dfac, Zela DF, primeira tentativa do CityView |
 | [CV-REF-002 Rascunho do fluxo e do roteiro](CV-REF-002-rascunho-fluxo-e-roteiro.md) | *Acréscimo de 11/11/2026.* Fluxograma em camadas, caso da pedra na via e roteiro de seis passos, anteriores à demo exploratória, conferidos com o que se sabe hoje |
+| [CV-APR-001 Roteiro da apresentação](CV-APR-001-roteiro-da-apresentacao.md) | *Acréscimo de 11/11/2026.* Os 18 slides da apresentação base (direção visual C · Híbrida): mensagem, tela, fala, origem e momentos de demo, com checagem de completude |
+| [CV-DEM-001 Roadmap da demo](CV-DEM-001-roadmap-da-demo.md) | *Acréscimo de 11/11/2026.* Como a demo será construída em iterações (I0 a I6), a pilha, a organização do código e a decisão de reuso do motor da demo exploratória |
 
 Os nomes seguem o formato `CV-<TIPO>-<NNN>-<slug>.md`. Tipos em uso: `SPEC`
 (o magno), `ATA` (registro de conversa) e `REF` (documento de referência). A
@@ -684,3 +686,4 @@ versão fica dentro do documento, nunca no nome do arquivo.
 | 11/11/2026 | Criação. Substitui o magno v1.1 (10/11/2026), descartado. Reúne a conversa com o Daniel por tema, os exemplos, o que já existe, as ideias da equipe (marcadas como tais), números públicos com fonte e as perguntas em aberto. Incorpora as leituras da equipe de 11/11/2026: grafia "Viewtinet", centralização das demandas, polícia e telefonia como exemplos, ausência de prazo, papel do caso Águas Claras e "observabilidade cidadã" como adendo |
 | 11/11/2026 | Leitura dos repositórios `City-view` e `dfac-agentic-saas`. Seção 3: a apresentação começa do zero, com o motivo e a ordem (apresentação concisa → incremento → demo). Seção 6: a apresentação de 14 slides da primeira tentativa como referência; o pitch do Zela DF nunca foi mostrado. Seção 6.2: o Portal do Cidadão já tem conexão por extensão com login manual; a prioridade por recorrência já existe no dfac desde 01/10/2026 |
 | 11/11/2026 | Seção 7.9 e seção 11: o rascunho de fluxo em camadas e de roteiro, anterior à demo exploratória, registrado em CV-REF-002 como checagem de completude |
+| 11/11/2026 | Seção 11: o roteiro da apresentação base (CV-APR-001, 18 slides, direção visual C · Híbrida) e o roadmap da demo (CV-DEM-001, com a decisão de portar o motor da demo exploratória e refazer as telas) |

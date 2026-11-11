@@ -1,2 +1,6 @@
 node_modules/
 out/
+# originais da Higgsfield (7 MB cada) e respostas da API (trazem o ID da conta);
+# o deck usa imagens/deck/*.jpg e o registro fica em imagens/README.md
+imagens/*.png
+imagens/jobs/
