@@ -1,4 +1,6 @@
-@import "tailwindcss";
+/* source("."): o Tailwind procura as classes nesta pasta (src/), sem depender da detecção
+   automática, que se perdeu quando o servidor reiniciou durante um git checkout. */
+@import "tailwindcss" source(".");
 
 /* Dois temas com a mesma paleta de papéis. Toda cor da página (inclusive o canvas e os
    diagramas) vem destas variáveis. Escuro: a cidade à noite, numa sala de operações.
