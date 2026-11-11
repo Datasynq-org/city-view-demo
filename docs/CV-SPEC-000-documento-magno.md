@@ -673,6 +673,7 @@ As outras grafias erradas da transcrição estão no cabeçalho da
 | [CV-APR-001 Roteiro da apresentação](CV-APR-001-roteiro-da-apresentacao.md) | *Acréscimo de 11/11/2026.* Os 18 slides da apresentação base (direção visual C · Híbrida): mensagem, tela, fala, origem e momentos de demo, com checagem de completude |
 | [CV-DEM-001 Roadmap da demo](CV-DEM-001-roadmap-da-demo.md) | *Acréscimo de 11/11/2026.* Como a demo será construída em iterações (I0 a I6), a pilha, a organização do código e a decisão de reuso do motor da demo exploratória |
 | [CV-REF-003 Framework de produção de vídeo](CV-REF-003-framework-de-video.md) | *Acréscimo de 11/11/2026.* O framework dos filmes da NORNA (Higgsfield + Remotion), adotado como ferramenta principal para o vídeo do City View, com o que muda de um produto para o outro |
+| [CV-VID-001 Roteiro do vídeo](CV-VID-001-roteiro-do-video.md) | *Acréscimo de 11/11/2026.* O filme "A cidade conectada" (1min50s, 16:9), plano a plano: Brasília como rede, silos, virada em grafo e rede neural, três casos de inteligência, visões e prova. Portão 0 do framework |
 
 Os nomes seguem o formato `CV-<TIPO>-<NNN>-<slug>.md`. Tipos em uso: `SPEC`
 (o magno), `ATA` (registro de conversa) e `REF` (documento de referência). A
@@ -689,3 +690,4 @@ versão fica dentro do documento, nunca no nome do arquivo.
 | 11/11/2026 | Seção 7.9 e seção 11: o rascunho de fluxo em camadas e de roteiro, anterior à demo exploratória, registrado em CV-REF-002 como checagem de completude |
 | 11/11/2026 | Seção 11: o roteiro da apresentação base (CV-APR-001, 18 slides, direção visual C · Híbrida) e o roadmap da demo (CV-DEM-001, com a decisão de portar o motor da demo exploratória e refazer as telas) |
 | 11/11/2026 | Seção 11: o framework de produção de vídeo da NORNA (CV-REF-003), adotado pela equipe como ferramenta principal para o vídeo do City View |
+| 11/11/2026 | Seção 11: o roteiro do vídeo (CV-VID-001, r0), portão 0 do framework de vídeo |
