@@ -13,7 +13,8 @@
     "preview": "vite preview --port 4200 --strictPort",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "geo": "node scripts/gerar-ras.mjs"
+    "geo": "node scripts/gerar-ras.mjs",
+    "mancha": "node scripts/gerar-mancha.mjs"
   },
   "dependencies": {
     "@deck.gl/aggregation-layers": "9.4.1",

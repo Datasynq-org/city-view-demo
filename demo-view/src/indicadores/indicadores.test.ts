@@ -157,6 +157,32 @@ describe('série diária e chegando agora', () => {
     for (let k = 1; k < ultimos.length; k++) expect(ultimos[k - 1]!.criadoEm).toBeGreaterThanOrEqual(ultimos[k]!.criadoEm);
     expect(ultimos[0]!.criadoEm).toBe(Math.max(...base.incidentes.map((i) => i.criadoEm)));
   });
+
+  it('chegando agora dá o mesmo que ordenar a lista inteira, em qualquer ordem e com empates', () => {
+    const porOrdenacao = (lista: readonly Incidente[], n: number) => [...lista].sort((a, b) => b.criadoEm - a.criadoEm).slice(0, n);
+    // Em ordem de criação (como a base vem), embaralhada e com muitos empates de instante.
+    const embaralhada = base.incidentes.map((i, k) => ({ i, c: (k * 2654435761) % 4294967296 })).sort((a, b) => a.c - b.c).map((x) => x.i);
+    const empatada = base.incidentes.slice(0, 500).map((i, k) => ({ ...i, id: `E${k}`, criadoEm: AGORA - (k % 7) * H }));
+    for (const lista of [base.incidentes, embaralhada, empatada, [] as Incidente[], base.incidentes.slice(0, 3)]) {
+      for (const n of [0, 1, 8, 20]) expect(chegandoAgora(lista, n).map((i) => i.id)).toEqual(porOrdenacao(lista, n).map((i) => i.id));
+    }
+  });
+
+  it('a mediana rápida dá o mesmo que a mediana por ordenação comum', () => {
+    const devagar = (lista: readonly Incidente[]) => {
+      const h = lista.filter((i) => i.resolvidoEm !== undefined).map((i) => (i.resolvidoEm! - i.criadoEm) / H).sort((a, b) => a - b);
+      if (!h.length) return null;
+      const m = h.length >> 1;
+      return h.length % 2 ? h[m]! : (h[m - 1]! + h[m]!) / 2;
+    };
+    for (const lista of [base.incidentes, base.incidentes.slice(0, 1001), base.incidentes.filter((i) => i.area === 'energia'), [] as Incidente[]]) {
+      expect(tempoAteResolver(lista)).toBe(devagar(lista));
+    }
+    // Não mexe na lista que recebe.
+    const copia = base.incidentes.slice(0, 50);
+    tempoAteResolver(copia);
+    expect(copia).toEqual(base.incidentes.slice(0, 50));
+  });
 });
 
 describe('formatos', () => {

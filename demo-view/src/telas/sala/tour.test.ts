@@ -29,6 +29,12 @@ describe('tour da sala de guerra', () => {
     expect(new Set(TOUR.map((p) => p.id)).size).toBe(TOUR.length);
   });
 
+  it('usa o mapa de calor do começo ao fim: ao parar, a tela fica na leitura principal', () => {
+    expect(TOUR.every((p) => p.modo === 'calor')).toBe(true);
+    // A parada que cita "num mapa de calor" mostra um mapa de calor.
+    expect(TOUR.find((p) => p.frase.includes('mapa de calor'))?.modo).toBe('calor');
+  });
+
   it.skipIf(!atas.length)('toda frase está, palavra por palavra, na conversa de 10/11', () => {
     for (const p of TOUR) {
       const frase = p.frase.replace(/\.$/, '').toLowerCase();

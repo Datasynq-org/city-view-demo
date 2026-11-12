@@ -1,17 +1,33 @@
 @import "tailwindcss" source(".");
 
-/* Direção C: navy, teal e âmbar (apresentacao/src/tema.js do city-view-demo).
+/* Base neutra (grafite) e cor com função: o teal da marca para o que está ativo
+   ou ao vivo, o âmbar para o aviso de demonstração, o vermelho para alerta.
    As mesmas cores estão em src/ui/tokens.ts, para o mapa; mudou aqui, mude lá. */
 @theme {
-  --color-navy: #0b1e31;
-  --color-navy-2: #12293f;
-  --color-linha: #1e3852;
-  --color-teal: #0196b2;
-  --color-teal-claro: #38c3db;
-  --color-ambar: #f2a93b;
+  --color-base: #0c0e10;
+  --color-painel: #14171a;
+  --color-poco: #1b1f23;
+  --color-realce: #2b3036;
+  --color-linha: #2a2f35;
+  --color-linha-forte: #3b4148;
+  --color-texto: #d5d9dd;
+  --color-texto-2: #a4abb3;
+  --color-acento: #0196b2;
+  --color-acento-claro: #4cc3d6;
+  --color-aviso: #e9a23b;
   --color-alerta: #e5484d;
-  --color-texto: #c9d6e2;
-  --color-rotulo: #b7c6d4;
+
+  /* Escala de texto: nada abaixo de 11 px, e 11 px só para tecla e selo de fonte. */
+  --text-micro: 0.6875rem;
+  --text-micro--line-height: 0.875rem;
+  --text-rotulo: 0.75rem;
+  --text-rotulo--line-height: 1rem;
+  --text-nota: 0.8125rem;
+  --text-nota--line-height: 1.125rem;
+  --text-corpo: 0.9375rem;
+  --text-corpo--line-height: 1.25rem;
+  --text-valor: 1.875rem;
+  --text-valor--line-height: 2rem;
 
   --font-sans: Bahnschrift, "Barlow", system-ui, sans-serif;
   --font-condensada: Bahnschrift, "Barlow Condensed", "Barlow", system-ui, sans-serif;
@@ -25,11 +41,16 @@
   }
 
   body {
-    background: var(--color-navy);
+    background: var(--color-base);
     color: var(--color-texto);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     color-scheme: dark;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-acento-claro);
+    outline-offset: 1px;
   }
 }
 
@@ -43,22 +64,49 @@
     letter-spacing: 0.08em;
   }
 
-  .painel-vidro {
-    border: 1px solid rgb(255 255 255 / 0.1);
-    border-radius: 16px;
-    background: rgb(18 41 63 / 0.55);
-    box-shadow:
-      0 20px 60px rgb(0 0 0 / 0.4),
-      inset 0 1px 0 rgb(255 255 255 / 0.06);
-    -webkit-backdrop-filter: blur(18px) saturate(150%);
-    backdrop-filter: blur(18px) saturate(150%);
+  /* Título de painel: tinta neutra, com um traço do acento à esquerda. */
+  .titulo-painel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-condensada);
+    font-stretch: 75%;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    line-height: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #fff;
+  }
+  .titulo-painel::before {
+    content: "";
+    width: 2px;
+    height: 0.8125rem;
+    background: var(--color-acento);
   }
 
-  /* Onde não há desfoque, o painel fica quase opaco para o texto continuar legível. */
-  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .painel-vidro {
-      background: rgb(18 41 63 / 0.92);
-    }
+  /* Painel sobre o mapa: quase opaco, borda fina, canto pequeno. O nome da classe
+     vem da I0, quando era vidro. Sem desfoque: com o painel quase opaco ele não
+     aparecia, e o navegador o refazia a cada quadro em que o mapa se mexia. */
+  .painel-vidro {
+    border: 1px solid var(--color-linha);
+    border-radius: 6px;
+    background: rgb(20 23 26 / 0.94);
+    box-shadow: 0 10px 28px rgb(0 0 0 / 0.38);
+  }
+
+  /* Faixa do alto: a marca, a barra de comando e o selo. Em tela estreita é mais
+     alta, porque o título desce para baixo do selo. */
+  .faixa-superior {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 7rem;
+    border-bottom: 1px solid var(--color-linha);
+    background: rgb(12 14 16 / 0.92);
+    pointer-events: none;
+  }
+  @media (min-width: 1024px) {
+    .faixa-superior { height: 3.75rem; }
   }
 }
 
@@ -67,14 +115,57 @@
   font-family: var(--font-sans);
 }
 #raiz .maplibregl-ctrl-attrib {
-  background: rgb(18 41 63 / 0.8);
-  color: var(--color-rotulo);
+  background: rgb(12 14 16 / 0.82);
+  color: var(--color-texto-2);
+  font-size: 11px;
 }
 #raiz .maplibregl-ctrl-attrib a {
   color: var(--color-texto);
 }
 #raiz .maplibregl-ctrl-attrib-button {
   filter: invert(1);
+}
+
+/* Aproximar, afastar e bússola: no canto de cima da área livre do mapa, ao lado
+   da coluna da direita; com os painéis fora (telão, tour), encostam na borda. */
+#raiz .maplibregl-ctrl-top-right {
+  top: 7.5rem;
+  right: 0.25rem;
+  transition: right 0.4s ease;
+}
+@media (min-width: 1024px) {
+  #raiz .maplibregl-ctrl-top-right { top: 4.5rem; right: 22.5rem; }
+  #raiz .telao .maplibregl-ctrl-top-right,
+  #raiz .em-tour .maplibregl-ctrl-top-right { right: 0.5rem; }
+}
+#raiz .maplibregl-ctrl-group {
+  border: 1px solid var(--color-linha);
+  border-radius: 6px;
+  background: rgb(20 23 26 / 0.94);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.35);
+  overflow: hidden;
+}
+#raiz .maplibregl-ctrl-group button {
+  width: 34px;
+  height: 34px;
+  background-color: transparent;
+}
+#raiz .maplibregl-ctrl-group button + button {
+  border-top: 1px solid var(--color-linha);
+}
+#raiz .maplibregl-ctrl-group button:not(:disabled):hover {
+  background-color: var(--color-realce);
+}
+#raiz .maplibregl-ctrl-group button .maplibregl-ctrl-icon {
+  filter: invert(1) brightness(0.86);
+}
+
+/* Modo girar: arrastar gira e inclina. O cursor avisa. */
+.modo-girar .maplibregl-canvas-container.maplibregl-interactive {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cg fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22.5 14a8.5 8.5 0 1 1-2.6-6.1M20.2 3.6v4.6h-4.6' stroke='%230c0e10' stroke-width='4.5'/%3E%3Cpath d='M22.5 14a8.5 8.5 0 1 1-2.6-6.1M20.2 3.6v4.6h-4.6' stroke='%23fff' stroke-width='2'/%3E%3C/g%3E%3C/svg%3E") 14 14, grab;
+}
+.modo-girar .maplibregl-canvas-container.maplibregl-interactive.arrastando {
+  cursor: grabbing;
 }
 
 /* ---------- I1 · Sala de guerra: colunas de painéis sobre o mapa ----------
@@ -85,7 +176,7 @@
   position: absolute;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.625rem;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgb(255 255 255 / 0.15) transparent;
@@ -93,15 +184,15 @@
 .sala-esquerda { left: 1rem; right: 1rem; bottom: 2.75rem; max-height: 46vh; }
 .sala-direita, .sala-legenda { display: none; }
 @media (min-width: 1024px) {
-  .sala-esquerda { left: 1.25rem; right: auto; top: 6rem; bottom: 1.25rem; width: 23rem; max-height: none; }
-  .sala-direita { display: flex; right: 1.25rem; top: 4.25rem; bottom: 1.25rem; width: 21rem; }
-  .sala-legenda { display: block; position: absolute; left: 50%; bottom: 1.25rem; transform: translateX(-50%); }
+  .sala-esquerda { left: 1rem; right: auto; top: 4.5rem; bottom: 0.75rem; width: 23rem; max-height: none; }
+  .sala-direita { display: flex; right: 1rem; top: 4.5rem; bottom: 0.75rem; width: 21rem; }
+  /* Acima dos créditos do mapa, que ocupam o rodapé. */
+  .sala-legenda { display: block; position: absolute; left: 50%; bottom: 2.5rem; transform: translateX(-50%); }
 }
 
-/* ---------- I1 · Sala de comando: telão, tour e modos de sensor ----------
+/* ---------- I1 · Sala de comando: telão e tour ----------
    Telão (tecla H) e tour: os painéis saem e o mapa fica com a tela; no tour, a
-   legenda do tour toma o lugar da escala. Noturno e
-   térmico: filtro só no mapa (os painéis não mudam), com linhas de varredura. */
+   legenda do tour toma o lugar da escala. */
 .sala-coluna,
 .sala-legenda {
   transition: opacity 0.4s ease, transform 0.4s ease;
@@ -117,17 +208,6 @@
 .em-tour .sala-esquerda { transform: translateX(-1.5rem); }
 .telao .sala-direita,
 .em-tour .sala-direita { transform: translateX(1.5rem); }
-
-.mapa-noturno .maplibregl-canvas { filter: url(#sensor-noturno); }
-.mapa-termico .maplibregl-canvas { filter: url(#sensor-termico); }
-.varredura {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    repeating-linear-gradient(to bottom, rgb(0 0 0 / 0.22) 0 1px, transparent 1px 3px),
-    radial-gradient(ellipse at center, transparent 50%, rgb(0 0 0 / 0.6) 100%);
-}
 
 .barra-do-tour {
   transform-origin: left;

@@ -5,6 +5,9 @@
  * (`docs/fonte/CV-ATA-001-conversa-daniel-2026-11-10.md`, linhas indicadas) e
  * um texto com os números do momento. Os números são SIMULADOS; as escolas e
  * as unidades de saúde são reais.
+ *
+ * Todas as paradas usam o mapa de calor, a leitura principal da tela. Hexágonos
+ * e regiões em 3D continuam no painel de camadas, para quem quiser.
  */
 import type { CamadaContexto, Contexto } from '../../dados/contexto';
 import { estaAberto, type Incidente } from '../../dominio/incidente';
@@ -68,18 +71,18 @@ export const TOUR: Parada[] = [
     titulo: 'A cidade inteira, de uma vez',
     frase: 'Se você olha cada coisa em separado, as coisas estão funcionando. Quando você olha o todo, as coisas não estão funcionando.',
     ata: '99–101',
-    modo: 'regioes',
+    modo: 'calor',
     contexto: [],
     area: () => null,
     vista: () => null,
-    texto: (c) => `${numero(c.doPeriodo.length)} chamados (${c.nomePeriodo.toLowerCase()}) de 10 órgãos, num mapa só. Quanto mais alta e mais quente a região, mais chamados.`,
+    texto: (c) => `${numero(c.doPeriodo.length)} chamados (${c.nomePeriodo.toLowerCase()}) de 10 órgãos, num mapa só. Quanto mais clara a mancha, mais chamados naquele lugar.`,
   },
   {
     id: 'pegando',
     titulo: 'Onde as coisas estão pegando',
     frase: 'Num mapa de calor, onde as coisas estão pegando, onde as coisas estão mais tranquilas.',
     ata: '221–222',
-    modo: 'hexagonos',
+    modo: 'calor',
     contexto: [],
     area: () => null,
     vista: (c) => vistaDaRa(raMaisAberta(c.incidentes).ra, 11.4, 60, 28),

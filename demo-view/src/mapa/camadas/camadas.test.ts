@@ -2,18 +2,24 @@ import { describe, expect, it } from 'vitest';
 import { gerarBase } from '../../dados/gerador';
 import { chamadosPorRa } from '../../indicadores/indicadores';
 import { ESCALA_CONCENTRACAO } from '../../ui/tokens';
-import { anelAtivo, camadasDeChamados, camadasDeContexto, camadasDePulsos, corNaEscala, DURACAO_ANEL, MODOS, textoDaDica } from './index';
+import { anelAtivo, camadasDeChamados, camadasDeContexto, camadasDePulsos, corNaEscala, DURACAO_ANEL, MARCADAS, MODO_INICIAL, MODOS, textoDaDica } from './index';
 
 const base = gerarBase({ agora: Date.UTC(2026, 10, 12, 18, 30), dias: 28, diasDetalhados: 7 });
 const estado = { filtrados: base.incidentes, porRa: chamadosPorRa(base.incidentes), raSelecionada: null, discreto: false };
 
 describe('camadas do mapa', () => {
-  it('cada modo desenha a sua camada, por baixo dos nomes das RAs', () => {
-    for (const m of MODOS) {
-      const [camada] = camadasDeChamados({ ...estado, modo: m.id });
-      expect(camada?.id).toBe(m.id);
+  it('hexágonos e regiões desenham a sua camada, por baixo dos nomes das RAs', () => {
+    for (const modo of ['hexagonos', 'regioes'] as const) {
+      const [camada] = camadasDeChamados({ ...estado, modo });
+      expect(camada?.id).toBe(modo);
       expect((camada?.props as { beforeId?: string }).beforeId).toBe('ras-rotulos');
     }
+  });
+
+  it('o calor abre a tela e não é camada do deck.gl: quem desenha é o MapLibre', () => {
+    expect(MODO_INICIAL).toBe('calor');
+    expect(MODOS[0]?.id).toBe('calor');
+    expect(camadasDeChamados({ ...estado, modo: 'calor' })).toEqual([]);
   });
 
   it('a escala de cor vai do primeiro ao último tom, sem sair dela', () => {
@@ -35,10 +41,23 @@ describe('camadas do mapa', () => {
     expect(camadasDePulsos([], 0)).toEqual([]);
   });
 
+  it('só as chegadas mais recentes ficam marcadas, em pixels, da mais nova à mais antiga', () => {
+    const chegadas = Array.from({ length: 8 }, (_, k) => ({ id: `c${k}`, posicao: [-47.9, -15.8] as [number, number], em: k * 5000 }));
+    const pontos = camadasDePulsos(chegadas, 1e9).find((l) => l.id === 'chegadas')!;
+    const dados = pontos.props.data as { id: string }[];
+    expect(dados.map((d) => d.id)).toEqual(['c7', 'c6', 'c5']);
+    expect(dados).toHaveLength(MARCADAS);
+    // Em pixels: de perto, o ponto não vira uma bola do tamanho de um quarteirão.
+    expect((pontos.props as { radiusUnits?: string }).radiusUnits).toBe('pixels');
+    expect(camadasDePulsos(chegadas, 1e9).some((l) => l.id === 'chegadas-halo')).toBe(false);
+  });
+
   it('a dica diz o que é cada coisa, e escapa os nomes', () => {
     expect(textoDaDica('hexagonos', { colorValue: 1 })).toContain('1</strong> chamado neste');
     expect(textoDaDica('saude', [-47.9, -15.8, 'Hran', 'Hospital', null])).toContain('dado real');
     expect(textoDaDica('favelas', { properties: { nome: '<b>Sol</b>' } })).toContain('&lt;b&gt;Sol');
+    expect(textoDaDica('chegadas', { rotulo: 'Falta de energia · Ceilândia' })).toContain('acabou de chegar');
+    expect(textoDaDica('chegadas', { rotulo: 'Falta de energia · Ceilândia' })).toContain('Falta de energia · Ceilândia');
     expect(textoDaDica('nada', {})).toBeNull();
   });
 });

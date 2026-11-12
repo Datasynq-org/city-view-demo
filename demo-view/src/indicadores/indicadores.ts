@@ -54,21 +54,24 @@ export function abertosAgora(incidentes: readonly Incidente[], area: AreaId | nu
 
 const horasAteResolver = (i: Incidente) => (i.resolvidoEm === undefined ? undefined : (i.resolvidoEm - i.criadoEm) / HORA_MS);
 
-function mediana(valores: number[]): number | null {
-  if (!valores.length) return null;
-  const v = [...valores].sort((a, b) => a - b);
+/** Mediana. Ordena `v` no lugar: é um vetor numérico, que o motor ordena várias vezes mais rápido que uma lista. */
+function mediana(v: Float64Array): number | null {
+  if (!v.length) return null;
+  v.sort();
   const m = v.length >> 1;
   return v.length % 2 ? v[m]! : (v[m - 1]! + v[m]!) / 2;
 }
 
 /** Mediana, em horas, entre abrir e resolver. `null` quando nada foi resolvido. */
 export function tempoAteResolver(incidentes: readonly Incidente[]): number | null {
-  const horas: number[] = [];
+  // Roda a cada chamado que chega, sobre dezenas de milhares: sem listas intermediárias.
+  const horas = new Float64Array(incidentes.length);
+  let n = 0;
   for (const i of incidentes) {
     const h = horasAteResolver(i);
-    if (h !== undefined) horas.push(h);
+    if (h !== undefined) horas[n++] = h;
   }
-  return mediana(horas);
+  return mediana(horas.subarray(0, n));
 }
 
 /** Parte dos resolvidos que ficou dentro do prazo do tipo (0 a 1). `null` quando nada foi resolvido. */
@@ -142,9 +145,28 @@ export function tiposMaisFrequentes(incidentes: readonly Incidente[], n = 3): { 
   return [...conta].map(([tipoId, chamados]) => ({ tipoId, chamados })).sort((a, b) => b.chamados - a.chamados || a.tipoId.localeCompare(b.tipoId)).slice(0, n);
 }
 
-/** Os `n` incidentes mais recentes, do mais novo ao mais antigo. */
+/**
+ * Os `n` incidentes mais recentes, do mais novo ao mais antigo; entre dois do
+ * mesmo instante, vem antes o que estava antes na lista (como numa ordenação
+ * estável). Uma passada só, guardando os `n` melhores: ordenar a lista inteira a
+ * cada chegada pesava.
+ *
+ * A passada vai do fim para o começo. A base vem em ordem de criação; assim os
+ * `n` primeiros que aparecem já são a resposta, e o resto é descartado na hora.
+ */
 export function chegandoAgora(incidentes: readonly Incidente[], n: number): Incidente[] {
-  return [...incidentes].sort((a, b) => b.criadoEm - a.criadoEm).slice(0, n);
+  const recentes: Incidente[] = [];
+  if (n <= 0) return recentes;
+  for (let p = incidentes.length - 1; p >= 0; p--) {
+    const i = incidentes[p]!;
+    if (recentes.length === n && i.criadoEm < recentes[n - 1]!.criadoEm) continue;
+    // Entra antes dos de mesmo instante que já estão: eles vinham depois na lista.
+    let k = recentes.length;
+    while (k > 0 && recentes[k - 1]!.criadoEm <= i.criadoEm) k--;
+    recentes.splice(k, 0, i);
+    if (recentes.length > n) recentes.pop();
+  }
+  return recentes;
 }
 
 // ---------------------------------------------------------------- formatos

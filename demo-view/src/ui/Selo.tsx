@@ -4,7 +4,7 @@
  */
 export function Selo() {
   return (
-    <p className="condensado pointer-events-none fixed top-5 right-5 z-50 rounded-md bg-ambar px-3 py-1.5 text-xs text-navy shadow-lg shadow-black/30">
+    <p className="condensado pointer-events-none fixed top-4 right-4 z-50 rounded border border-aviso/70 bg-base/90 px-3 py-1.5 text-rotulo text-aviso">
       Ambiente de demonstração · dados simulados
     </p>
   );
