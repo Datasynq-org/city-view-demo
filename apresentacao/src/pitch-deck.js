@@ -53,7 +53,6 @@ pres.defineSlideMaster({
   title: 'CAPA',
   background: { color: C.fundo },
   objects: [
-    { image: { path: LOGO, x: M, y: 0.7, w: 1.96, h: 0.42 } },
     { placeholder: { options: { name: 'title', type: 'title', x: M, y: 2.55, w: CW, h: 1.3, fontSize: 80, bold: true, color: C.texto, align: 'left', valign: 'middle', margin: 0 }, text: '' } },
   ],
 });
@@ -157,7 +156,7 @@ const Y0 = 1.75; // topo do conteúdo
 {
   const s = novo('City View: a cidade inteira em um só painel');
   const lw = 7.4;
-  txt(s, 'Um painel de observabilidade e uma camada de inteligência para a governadora.', M, Y0, lw, 1.0, { fontSize: 22, color: C.teal, bold: true, lineSpacingMultiple: 1.1 });
+  txt(s, 'Um painel de observabilidade e uma camada de inteligência.', M, Y0, lw, 1.0, { fontSize: 22, color: C.teal, bold: true, lineSpacingMultiple: 1.1 });
   lista(s, [
     'Conecta os sistemas de todos os órgãos do DF em um só lugar.',
     'Transforma cada demanda em um incidente, seja de água, de luz ou de segurança.',
@@ -168,7 +167,6 @@ const Y0 = 1.75; // topo do conteúdo
   caixa(s, rx, Y0, rw, 4.4);
   rotulo(s, 'O que não é', rx + 0.35, Y0 + 0.3, rw - 0.7);
   lista(s, [
-    'Não é um WhatsApp automatizado.',
     'Não é mais um formulário.',
     'Não substitui o sistema de nenhum órgão.',
   ], rx + 0.35, Y0 + 0.8, rw - 0.7, 2.2, { espaco: 14 });
@@ -183,7 +181,7 @@ const Y0 = 1.75; // topo do conteúdo
   [
     ['1', 'Conecta', ['Integramos os sistemas que o governo já tem, sejam quais forem.', 'Em qualquer tecnologia: por API, por robô ou por arquivos.']],
     ['2', 'Entende', ['Tudo vira incidente, no mesmo formato.', 'A inteligência classifica, agrupa e cruza os incidentes de todos os órgãos.']],
-    ['3', 'Mostra', ['A governadora vê tudo em um painel.', 'Cada gestor vê a sua área.', 'O cidadão acompanha a sua demanda.']],
+    ['3', 'Mostra', ['A gestão vê tudo em um só painel.', 'Cada gestor vê a sua área.', 'O cidadão acompanha a sua demanda.']],
   ].forEach((d, i) => {
     const x = M + i * (w + g);
     caixa(s, x, Y0, w, h);
@@ -219,21 +217,19 @@ const Y0 = 1.75; // topo do conteúdo
 
 // 6 · A GOVERNADORA ---------------------------------------------------
 {
-  const s = novo('Observabilidade para a governadora');
+  const s = novo('Observabilidade: a sala de situação');
   const lw = 7.4;
-  rotulo(s, 'A sala de situação', M, Y0, lw);
   lista(s, [
     'Todos os chamados da cidade, agrupados e classificados.',
     'Um mapa de calor: onde as coisas estão pegando e onde estão tranquilas.',
     'A velocidade da gestão, medida na cidade inteira.',
-    'A informação que ela quiser, por cidade, por órgão e por assunto.',
-  ], M, Y0 + 0.5, lw, 3.6, { espaco: 14 });
+    'A informação que a gestão quiser, por cidade, por órgão e por assunto.',
+  ], M, Y0, lw, 3.6, { espaco: 14 });
   const rx = M + lw + 0.5; const rw = W - M - rx;
   caixa(s, rx, Y0, rw, 4.4);
   rotulo(s, 'Um painel para cada gestor', rx + 0.35, Y0 + 0.3, rw - 0.7);
   lista(s, ['Água e esgoto', 'Energia', 'Iluminação', 'Vias públicas', 'Limpeza urbana', 'Segurança', 'Telefonia'], rx + 0.35, Y0 + 0.8, rw - 0.7, 2.75, { fontSize: 15, espaco: 4 });
   txt(s, 'Cada um vê o que diz respeito à sua área.', rx + 0.35, Y0 + 3.65, rw - 0.7, 0.5, { fontSize: 14, color: C.suave, valign: 'middle' });
-  txt(s, 'A demonstração a seguir mostra este painel funcionando.', M, Y0 + 4.2, lw, 0.4, { fontSize: 15, bold: true, color: C.teal, valign: 'middle' });
   s.addNotes('A governadora pode ter uma sala de situação ao lado da sala dela, com um telão mostrando todos os chamados agrupados e classificados num mapa de calor: onde as coisas estão pegando e onde estão mais tranquilas. Ela passa a ter condição de ver a velocidade da gestão e como a gestão realmente está. E o gestor da CAESB quer ver o que diz respeito a ele: então há um painel para o gestor de água e esgoto, o de telefonia, o de iluminação, o de energia, o de vias públicas, e assim por diante. Aqui a apresentação passa para a demonstração.');
 }
 
@@ -241,12 +237,13 @@ const Y0 = 1.75; // topo do conteúdo
 {
   const s = novo('A velocidade da gestão, à vista');
   const lw = 7.4;
-  txt(s, 'A governadora passa a ver como a gestão realmente está.', M, Y0, lw, 0.9, { fontSize: 22, color: C.teal, bold: true, lineSpacingMultiple: 1.1 });
+  txt(s, 'O governo vê como a gestão realmente está.', M, Y0, lw, 0.9, { fontSize: 22, color: C.teal, bold: true, lineSpacingMultiple: 1.1 });
   lista(s, [
     'Quantas demandas chegam e quantas são resolvidas.',
     'Quanto tempo cada tipo de problema leva para ser resolvido.',
     'Qual órgão e qual cidade andam mais rápido, e onde está travando.',
     'Se a gestão está melhorando ou piorando, mês a mês.',
+    'Com os prazos à vista, cada setor responsável tem um incentivo claro para resolver.',
   ], M, Y0 + 1.25, lw, 3.2, { espaco: 14 });
   const rx = M + lw + 0.5; const rw = W - M - rx;
   caixa(s, rx, Y0, rw, 4.4);
@@ -265,7 +262,7 @@ const Y0 = 1.75; // topo do conteúdo
     'O cidadão registra qualquer demanda, para qualquer órgão, em um só canal.',
     'No canal que a gestão escolher: WhatsApp, SMS, Instagram.',
     'Por baixo, o City View abre a solicitação no sistema do órgão certo.',
-    'O cidadão acompanha até a solução, sem precisar descobrir aonde ir.',
+    'O City View envia ao cidadão atualizações sobre o andamento do problema, até a solução.',
   ], M, Y0, lw, 4.2, { espaco: 14 });
   const rx = M + lw + 0.5; const rw = W - M - rx;
   caixa(s, rx, Y0, rw, 4.4);
@@ -319,7 +316,7 @@ const Y0 = 1.75; // topo do conteúdo
   [
     ['1', 'O governo aponta', 'As áreas e os sistemas que quer acompanhar.'],
     ['2', 'Nós conectamos', 'Cada sistema, com o apoio de cada órgão.'],
-    ['3', 'A governadora vê', 'A cidade inteira no painel, e a velocidade da gestão.'],
+    ['3', 'O governo vê', 'A cidade inteira no painel, e a velocidade da gestão.'],
   ].forEach((d, i) => {
     const x = M + i * (w + g);
     caixa(s, x, Y0, w, h);
