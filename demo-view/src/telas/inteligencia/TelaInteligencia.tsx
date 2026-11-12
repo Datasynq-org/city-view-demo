@@ -7,12 +7,13 @@
  * confirma ou descarta. Sala de comando, só que limpa: fundo sem imagem, tom
  * neutro em tudo, cor só no que está aberto ou pede atenção. Tudo SIMULADO.
  */
+import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { agrupar, calcularLigacoes, gerarChamados, limiarDaSensibilidade, SENSIBILIDADE_PADRAO } from '../../inteligencia/agrupamento';
 import { avancar, cancelarEnvio, confirmar, decisaoDe, type Decisoes, descartar, desfazerDescarte, type MotivoDeDescarte } from '../../inteligencia/decisoes';
 import { camadasDoGrafo, camadasVivas, COR_DA_SEVERIDADE, type Etapa, ETAPAS, type Onda, prepararGrafo, zoomDoIncidente } from '../../mapa/camadas/grafo';
 import { Mapa } from '../../mapa/Mapa';
-import type { Destino } from '../../mapa/vista';
+import { type Destino, reduzMovimento } from '../../mapa/vista';
 import { parametrosDoHash } from '../../navegacao';
 import { Painel } from '../../ui/Painel';
 import { useTema } from '../../ui/tema';
@@ -236,11 +237,14 @@ export function TelaInteligencia() {
         {filaAberta ? '‹' : '›'}
       </button>
 
-      {inc && (
-        <div className="intel-coluna intel-direita">
+      {/* O insight entra pela direita e sai por onde veio; ao trocar, só o conteúdo se refaz. */}
+      <AnimatePresence>
+        {inc && (
+        <motion.div key="insight" className="intel-coluna intel-direita" initial={reduzMovimento() ? false : { x: 48, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={reduzMovimento() ? undefined : { x: 48, opacity: 0, transition: { duration: 0.2, ease: 'easeIn' } }} transition={{ duration: 0.3, ease: [0.2, 0.8, 0.2, 1] }}>
           <Insight key={inc.codigo} inc={inc} decisao={decisaoDe(decisoes, inc.codigo)} agora={agora} aoConfirmar={aoConfirmar} aoCancelar={aoCancelar} aoDescartar={aoDescartar} aoDesfazer={aoDesfazer} aoFechar={fechar} aoVerNoGrafo={vista === 'painel' ? () => { setEtapa(2); setVista('grafo'); } : undefined} />
-        </div>
-      )}
+        </motion.div>
+        )}
+      </AnimatePresence>
 
       {inc && porOrgao && (
         <div className="absolute bottom-12 left-1/2 z-20 -translate-x-1/2">

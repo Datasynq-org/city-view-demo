@@ -215,6 +215,12 @@ os insights valem (chamados, incidentes, atendimentos repetidos a menos,
 cruzamentos entre órgãos, decisões) e mostra um cartão por insight, com filtros
 por severidade, tipo de caso e órgão. Captura: `capturas/i3-painel.png`.
 
+*Acréscimo de 12/11/2026:* abrir um insight tem animação de abertura e de
+seleção. O cartão (ou a linha da fila, no grafo) escolhido ganha contorno e uma
+faixa lateral, e os outros recuam; o insight entra pela direita, com as partes
+em cascata, os números contando e as barras de confiança enchendo. Curto e
+termina; com "reduzir movimento" ligado no sistema, tudo aparece pronto.
+
 **Previsões** (feita, aguardando revisão; proposta): as próximas duas semanas
 com a margem, o que está fora do normal agora, o que deve subir e cair, onde
 reforçar as equipes e o acerto do método, medido ao prever as duas últimas

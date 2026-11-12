@@ -4,15 +4,17 @@
  * alto, o que isso soma; abaixo, um cartão por insight. Clicar abre o insight
  * explicado, onde uma pessoa confirma ou descarta.
  */
-import { useMemo, useState } from 'react';
+import { motion } from 'motion/react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { REGIAO_POR_ID } from '../../dominio/ras';
 import { type Incidente, NOME_DO_TIPO, type Resultado } from '../../inteligencia/agrupamento';
 import { type Severidade, siglaDoOrgao } from '../../inteligencia/casos';
 import { type Decisao, ROTULO_DA_SITUACAO } from '../../inteligencia/decisoes';
 import { type FiltroDeInsights, filtrarInsights, opcoesDeFiltro, type Resumo, SEM_FILTRO } from '../../inteligencia/resumo';
+import { reduzMovimento } from '../../mapa/vista';
 import { Painel } from '../../ui/Painel';
 import { useTema } from '../../ui/tema';
-import { CorDoOrgao, LegendaDasAreas } from './partes';
+import { CorDoOrgao, Faixa, LegendaDasAreas } from './partes';
 
 const n = (v: number) => Math.round(v).toLocaleString('pt-BR');
 const ROTULO: Record<Severidade, string> = { crítico: 'Crítico', sério: 'Sério', atenção: 'Atenção' };
@@ -38,14 +40,23 @@ function Opcao({ ativo, aoClicar, children }: { ativo: boolean; aoClicar: () => 
   );
 }
 
-function Cartao({ inc, decisao, ativo, aoAbrir }: { inc: Incidente; decisao: Decisao; ativo: boolean; aoAbrir: () => void }) {
+function Cartao({ inc, decisao, ativo, recuado, aoAbrir }: { inc: Incidente; decisao: Decisao; ativo: boolean; /** Outro cartão está aberto: este recua. */ recuado: boolean; aoAbrir: () => void }) {
   const relatos = inc.evidencias.filter((e) => e.fonte === 'chamado');
   const operacao = inc.evidencias.filter((e) => e.fonte === 'operação');
   const descartado = decisao.situacao === 'descartado';
   const claro = useTema() === 'claro';
+  const parado = reduzMovimento();
+  // Depois que a grade cede espaço ao insight, o cartão escolhido volta para a vista.
+  const el = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!ativo) return;
+    const t = setTimeout(() => el.current?.scrollIntoView({ block: 'nearest', behavior: parado ? 'auto' : 'smooth' }), parado ? 0 : 320);
+    return () => clearTimeout(t);
+  }, [ativo, parado]);
   return (
     <li>
-      <button type="button" onClick={aoAbrir} aria-current={ativo ? 'true' : undefined} className={`painel-vidro flex h-full w-full flex-col p-4 text-left transition-colors ${ativo ? 'border-acento-claro!' : 'hover:border-linha-forte!'} ${descartado ? 'opacity-55' : ''}`}>
+      <motion.button ref={el} type="button" onClick={aoAbrir} aria-current={ativo ? 'true' : undefined} animate={ativo && !parado ? { scale: [1, 1.018, 1] } : { scale: 1 }} transition={{ duration: 0.32, ease: 'easeOut' }} className={`painel-vidro relative flex h-full w-full flex-col overflow-hidden p-4 text-left transition-[opacity,border-color,box-shadow] duration-200 ${ativo ? 'border-acento-claro! shadow-[0_0_0_1px_var(--color-acento-claro)]' : 'hover:border-linha-forte!'} ${descartado || recuado ? 'opacity-55 hover:opacity-100' : ''}`}>
+        <Faixa ativo={ativo} />
         <span className="flex items-center justify-between gap-2">
           <span className={`condensado inline-flex items-center gap-1.5 text-micro ${COR[inc.severidade]}`}>
             <span className={`size-1.5 rounded-full ${FUNDO[inc.severidade]}`} aria-hidden="true" />
@@ -88,7 +99,7 @@ function Cartao({ inc, decisao, ativo, aoAbrir }: { inc: Incidente; decisao: Dec
             <span className={`condensado rounded border px-1.5 py-0.5 ${decisao.situacao === 'sugerido' ? 'border-dashed border-linha-forte' : descartado ? 'border-linha line-through' : 'border-acento-claro/60 text-acento-claro'}`}>{ROTULO_DA_SITUACAO[decisao.situacao]}</span>
           </span>
         </span>
-      </button>
+      </motion.button>
     </li>
   );
 }
@@ -155,7 +166,7 @@ export function PainelDeInsights({ resultado, resumo, decisaoDe, aberto, aoAbrir
 
       <ul className="grade-de-insights">
         {visiveis.map(({ inc, k }) => (
-          <Cartao key={inc.codigo} inc={inc} decisao={decisaoDe(inc.codigo)} ativo={k === aberto} aoAbrir={() => aoAbrir(k)} />
+          <Cartao key={inc.codigo} inc={inc} decisao={decisaoDe(inc.codigo)} ativo={k === aberto} recuado={comInsight && k !== aberto} aoAbrir={() => aoAbrir(k)} />
         ))}
       </ul>
       {visiveis.length === 0 && <p className="text-nota text-texto-2">Nenhum insight com esses filtros.</p>}

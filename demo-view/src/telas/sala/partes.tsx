@@ -1,11 +1,12 @@
-import { animate, AnimatePresence, motion } from 'motion/react';
-import { type ReactNode, useEffect, useRef } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import type { ReactNode } from 'react';
 import { type Incidente, ROTULO_SITUACAO } from '../../dominio/incidente';
 import { type AreaId, AREAS, TIPO_POR_ID } from '../../dominio/orgaos';
 import { REGIAO_POR_ID } from '../../dominio/ras';
 import { duracao, haQuanto, numero, percentual, type Periodo, PERIODOS, type VelocidadeDaArea } from '../../indicadores/indicadores';
 import type { ModoMapa } from '../../mapa/camadas';
 import { CORES_DAS_FAIXAS } from '../../mapa/calor';
+import { Contador } from '../../ui/Contador';
 import { Painel } from '../../ui/Painel';
 import { CORES, ESCALA_CONCENTRACAO } from '../../ui/tokens';
 
@@ -55,21 +56,6 @@ export function Filtros({ periodo, area, ra, aoMudarPeriodo, aoMudarArea, aoLimp
 }
 
 /** Número que conta até o valor novo quando o filtro muda. */
-function Contador({ valor, formato }: { valor: number; formato: (n: number) => string }) {
-  const el = useRef<HTMLSpanElement>(null);
-  const anterior = useRef(valor);
-  useEffect(() => {
-    const ctrl = animate(anterior.current, valor, {
-      duration: 0.6,
-      ease: 'easeOut',
-      onUpdate: (v) => { if (el.current) el.current.textContent = formato(v); },
-    });
-    anterior.current = valor;
-    return () => ctrl.stop();
-  }, [valor, formato]);
-  return <span ref={el}>{formato(valor)}</span>;
-}
-
 function Kpi({ rotulo, children, nota }: { rotulo: string; children: ReactNode; nota?: string }) {
   return (
     <div className="rounded border border-linha bg-poco px-3 py-2">

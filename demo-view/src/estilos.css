@@ -317,10 +317,14 @@
 @media (min-width: 1024px) {
   .intel-esquerda { right: auto; top: 4.5rem; width: 22rem; height: auto; }
   .intel-direita { left: auto; top: 4.5rem; width: 27rem; }
+  /* Quando o insight abre ao lado, a grade cede espaço sem pular. */
+  .pagina { transition: padding-right 0.28s ease; }
   .intel-recolhida { transform: translateX(-24rem); opacity: 0; pointer-events: none; }
 }
+/* A entrada e a saída do insight são do Motion (TelaInteligencia). */
+.intel-direita { transition: none; }
 @media (prefers-reduced-motion: reduce) {
-  .intel-coluna { transition: none; }
+  .intel-coluna, .pagina { transition: none; }
 }
 
 /* ---------- Barra lateral: as telas da demo ----------

@@ -3,14 +3,15 @@
  * (o que a IA viu · por quê · confiança · o que sugere, como no slide 13) e a
  * leitura "por órgão". Pouca tinta: cor só para severidade e para a ação.
  */
-import { motion } from 'motion/react';
-import { type ReactNode, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { REGIAO_POR_ID } from '../../dominio/ras';
 import { type Incidente, NOME_DO_TIPO, type Resultado } from '../../inteligencia/agrupamento';
 import { type Severidade, siglaDoOrgao } from '../../inteligencia/casos';
 import { type Decisao, faltaParaEnviar, JANELA_DE_ENVIO, type MotivoDeDescarte, MOTIVOS_DE_DESCARTE, ROTULO_DA_SITUACAO } from '../../inteligencia/decisoes';
 import { reduzMovimento } from '../../mapa/vista';
 import { corDoOrgao, familiasDe } from '../../inteligencia/cores';
+import { Contador } from '../../ui/Contador';
 import { Painel } from '../../ui/Painel';
 import { useTema } from '../../ui/tema';
 
@@ -55,6 +56,23 @@ export function LegendaDasAreas({ orgaos, className = '' }: { orgaos: string[]; 
   );
 }
 
+const SUAVE = [0.2, 0.8, 0.2, 1] as const;
+const pct = (v: number) => `${Math.round(v)}%`;
+
+/** A faixa lateral de quem está selecionado: cresce de cima para baixo. */
+export function Faixa({ ativo }: { ativo: boolean }) {
+  const parado = reduzMovimento();
+  return (
+    <AnimatePresence initial={false}>
+      {ativo && <motion.span aria-hidden="true" className="absolute inset-y-0 left-0 w-[3px] origin-top bg-acento-claro" initial={parado ? false : { scaleY: 0 }} animate={{ scaleY: 1 }} exit={parado ? undefined : { opacity: 0 }} transition={{ duration: 0.28, ease: SUAVE }} />}
+    </AnimatePresence>
+  );
+}
+
+/** O insight abre em cascata: uma parte depois da outra, curto, e para. */
+const CASCATA = { oculto: {}, visivel: { transition: { staggerChildren: 0.06, delayChildren: 0.1 } } };
+const PARTE = { oculto: { opacity: 0, y: 8 }, visivel: { opacity: 1, y: 0, transition: { duration: 0.28, ease: SUAVE } } };
+
 const Rotulo = ({ children }: { children: ReactNode }) => <p className="condensado mb-1.5 text-micro text-texto-2">{children}</p>;
 
 // ---------------------------------------------------------------- fila
@@ -66,6 +84,11 @@ export function Fila({ resultado, aberto, decisaoDe, aoAbrir }: {
   aoAbrir: (k: number) => void;
 }) {
   const { incidentes, total, avulsos } = resultado;
+  // Quem anda pela fila com as setas não perde o item de vista.
+  const ativoRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    ativoRef.current?.scrollIntoView({ block: 'nearest', behavior: reduzMovimento() ? 'auto' : 'smooth' });
+  }, [aberto]);
   return (
     <Painel className="flex min-h-0 flex-1 flex-col">
       <header className="border-b border-linha px-4 py-3">
@@ -82,7 +105,8 @@ export function Fila({ resultado, aberto, decisaoDe, aoAbrir }: {
           const ativo = k === aberto;
           return (
             <li key={inc.codigo}>
-              <button type="button" onClick={() => aoAbrir(k)} aria-current={ativo ? 'true' : undefined} className={`block w-full border-b border-linha px-4 py-2.5 text-left transition-colors ${ativo ? 'bg-realce' : 'hover:bg-poco'}`}>
+              <button ref={ativo ? ativoRef : undefined} type="button" onClick={() => aoAbrir(k)} aria-current={ativo ? 'true' : undefined} className={`relative block w-full border-b border-linha px-4 py-2.5 text-left transition-colors ${ativo ? 'bg-realce' : 'hover:bg-poco'}`}>
+                <Faixa ativo={ativo} />
                 <span className="flex items-center justify-between gap-2">
                   <Gravidade s={inc.severidade} />
                   <span className="font-mono text-micro text-texto-2">{inc.codigo}</span>
@@ -112,9 +136,11 @@ function Barra({ valor, rotulo }: { valor: number; rotulo: string }) {
     <div className="grid grid-cols-[5.5rem_1fr_2.25rem] items-center gap-2 text-rotulo text-texto-2">
       <span>{rotulo}</span>
       <span className="h-1 rounded-full bg-realce">
-        <span className={`block h-1 rounded-full ${claro ? 'bg-acento' : 'bg-texto-2'}`} style={{ width: `${Math.round(valor * 100)}%` }} />
+        <motion.span className={`block h-1 rounded-full ${claro ? 'bg-acento' : 'bg-texto-2'}`} initial={reduzMovimento() ? false : { width: 0 }} animate={{ width: `${Math.round(valor * 100)}%` }} transition={{ duration: 0.6, delay: 0.4, ease: SUAVE }} />
       </span>
-      <span className="text-right tabular-nums">{Math.round(valor * 100)}%</span>
+      <span className="text-right tabular-nums">
+        <Contador valor={Math.round(valor * 100)} formato={pct} doZero atraso={0.4} />
+      </span>
     </div>
   );
 }
@@ -136,9 +162,10 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
   const deOperacao = inc.evidencias.filter((e) => e.fonte === 'operação');
   const deContexto = inc.evidencias.filter((e) => e.fonte === 'contexto');
   const falta = faltaParaEnviar(decisao, agora);
+  const parado = reduzMovimento();
   return (
     <Painel className="flex min-h-0 flex-1 flex-col">
-      <header className="border-b border-linha px-4 py-3">
+      <motion.header initial={parado ? false : { opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.28, ease: SUAVE }} className="border-b border-linha px-4 py-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <Gravidade s={inc.severidade} />
@@ -159,17 +186,17 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
             Ver no grafo →
           </button>
         )}
-      </header>
+      </motion.header>
 
-      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-3">
-        <p className="rounded border border-linha bg-poco px-3 py-2 text-nota text-tinta">{inc.ganho}</p>
+      <motion.div variants={CASCATA} initial={parado ? false : 'oculto'} animate="visivel" className="min-h-0 flex-1 space-y-4 overflow-x-hidden overflow-y-auto px-4 py-3">
+        <motion.p variants={PARTE} className="rounded border border-linha bg-poco px-3 py-2 text-nota text-tinta">{inc.ganho}</motion.p>
 
-        <section>
+        <motion.section variants={PARTE}>
           <Rotulo>O que a IA viu</Rotulo>
           <p className="text-nota text-texto">{inc.leitura}</p>
-        </section>
+        </motion.section>
 
-        <section>
+        <motion.section variants={PARTE}>
           <Rotulo>Por quê</Rotulo>
           <p className="mb-2 text-nota text-texto">{inc.motivo}</p>
           <p className="mb-0.5 flex items-center gap-2 text-micro text-texto-2">
@@ -183,7 +210,9 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
                   <span className="text-tinta">{siglaDoOrgao(e.orgaoId)}</span> <span className="text-texto-2">· {e.canal}</span>
                   <span className="block text-rotulo text-texto-2">{e.descricao}</span>
                 </span>
-                <span className="text-corpo text-tinta tabular-nums">{n(e.quantidade)}</span>
+                <span className="text-corpo text-tinta tabular-nums">
+                  <Contador valor={e.quantidade} formato={n} doZero atraso={0.2} />
+                </span>
               </li>
             ))}
           </ul>
@@ -200,7 +229,9 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
                       <span className="text-tinta">{siglaDoOrgao(e.orgaoId)}</span> <span className="text-texto-2">· {e.canal}</span>
                       <span className="block text-rotulo text-texto-2">{e.descricao}</span>
                     </span>
-                    <span className="text-corpo text-tinta tabular-nums">{n(e.quantidade)}</span>
+                    <span className="text-corpo text-tinta tabular-nums">
+                  <Contador valor={e.quantidade} formato={n} doZero atraso={0.2} />
+                </span>
                   </li>
                 ))}
               </ul>
@@ -215,31 +246,33 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
               ))}
             </ul>
           )}
-        </section>
+        </motion.section>
 
-        <section>
+        <motion.section variants={PARTE}>
           <Rotulo>Confiança</Rotulo>
           <div className="flex items-center gap-3">
-            <span className="text-valor leading-8 font-semibold text-tinta tabular-nums">{Math.round(inc.confianca * 100)}%</span>
+            <span className="text-valor leading-8 font-semibold text-tinta tabular-nums">
+              <Contador valor={Math.round(inc.confianca * 100)} formato={pct} doZero atraso={0.3} />
+            </span>
             <div className="flex-1 space-y-1">
               <Barra valor={inc.partes.assunto} rotulo="Mesmo assunto" />
               <Barra valor={inc.partes.espaco} rotulo="Mesmo lugar" />
               <Barra valor={inc.partes.tempo} rotulo="Mesma hora" />
             </div>
           </div>
-        </section>
+        </motion.section>
 
-        <section>
+        <motion.section variants={PARTE}>
           <Rotulo>O que sugere</Rotulo>
           <ol className="list-decimal space-y-1 pl-4 text-nota text-texto marker:text-texto-2">
             {inc.recomendacao.map((r) => (
               <li key={r}>{r}</li>
             ))}
           </ol>
-        </section>
+        </motion.section>
 
         {inc.linhaDoTempo.length > 0 && (
-          <section>
+          <motion.section variants={PARTE}>
             <Rotulo>Linha do tempo</Rotulo>
             <ol className="space-y-0.5 text-rotulo">
               {inc.linhaDoTempo.map((l) => (
@@ -249,11 +282,11 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
                 </li>
               ))}
             </ol>
-          </section>
+          </motion.section>
         )}
-      </div>
+      </motion.div>
 
-      <footer className="space-y-2 border-t border-linha px-4 py-3">
+      <motion.footer initial={parado ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.35 }} className="space-y-2 border-t border-linha px-4 py-3">
         {decisao.situacao === 'sugerido' && !descartando && (
           <>
             <div className="flex gap-2">
@@ -328,7 +361,7 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
             </button>
           </div>
         )}
-      </footer>
+      </motion.footer>
     </Painel>
   );
 }
