@@ -8,6 +8,7 @@ import { type CamadaContexto, CAMADAS_CONTEXTO, type Contexto, tamanho } from '.
 import { POPULACAO_TOTAL, REGIAO_POR_ID } from '../../dominio/ras';
 import { TIPO_POR_ID } from '../../dominio/orgaos';
 import { type ChamadosDaRa, numero } from '../../indicadores/indicadores';
+import { casosDaRa } from '../../inteligencia/casos';
 import { COR_CONTEXTO, type ModoMapa, MODOS } from '../../mapa/camadas';
 import { Painel } from '../../ui/Painel';
 import { ATIVO, Grupo } from './partes';
@@ -167,6 +168,12 @@ export function CartaoDaRa({ ra, dados, chamadosDf, tipos, aoFechar }: {
           </ol>
         </>
       )}
+      {casosDaRa(ra).map((c) => (
+        <a key={c.id} href={`#/inteligencia?caso=${c.id}`} className="mt-3 block rounded border border-linha-forte px-3 py-2 text-nota text-texto hover:border-acento-claro hover:text-white">
+          <span className="condensado block text-micro text-acento-claro">Insight nesta região →</span>
+          {c.titulo}
+        </a>
+      ))}
     </Painel>
   );
 }

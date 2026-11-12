@@ -175,7 +175,8 @@ documento continua sendo o plano.
 | I0 · fundação | **Feita** (Lucca), integrada ao `main` | 12/11/2026 | `demo-view/`: modelo único de incidente com ciclo de vida e validação; 10 órgãos e 24 tipos com fonte no magno; 37 RAs; gerador portado (contagens de 180 dias e incidentes dos últimos 30), com testes (50); mapa MapLibre com as RAs; selo e painel de exemplo. As transições entre situações e os percentuais simulados (ver a "Situação em 12/11/2026" na seção 6) seguem como proposta inicial da equipe, aceitos provisoriamente em 12/11/2026 para a construção continuar; voltam à revisão quando houver referência dos órgãos. Captura: `demo-view/capturas/i0-fundacao.png` |
 | I1 · sala de guerra | **Feita**, integrada ao `main`; revista no visual e no mapa na branch `feature/demo-preview` (último acréscimo desta seção), aguardando revisão da equipe | 12/11/2026 | Refeita no mesmo dia como sala de comando em 3D (ver o acréscimo abaixo): o DF inclinado, que gira devagar; chamados em Regiões 3D, Hexágonos 3D ou Calor; prédios em 3D de perto; um chamado novo chegando a cada poucos segundos, com anel no mapa; RA clicável, com cartão; filtros de período, área e RA, que mudam mapa e números juntos; abertos, recebidos, tempo até resolver e % no prazo; velocidade da gestão por área; chamados por dia; camadas reais ligáveis (saúde CNES 2026, escolas INEP 2025, favelas IBGE 2022); tour de 5 paradas com frases literais da ATA (`?tour=1`); modos padrão, noturno e térmico; modo telão. Testes: 87. Capturas: `demo-view/capturas/i1-sala*.png`. *Acréscimo de 12/11/2026:* depois da revisão, o calor é o modo principal e o tour fica nele; saíram os modos noturno e térmico e a órbita ao abrir; testes: 152. As capturas são de antes da revisão. *Acréscimo de 12/11/2026:* revisão aceita pela equipe (Sammuel); a fila de pedidos de imagem passou a espaçar os inícios reais (um disparo atrasado juntava os seguintes numa rajada, o que a IDE/DF recusa); capturas refeitas no visual novo (`i1-sala.png`, `i1-sala-tour.png`, `i1-sala-contexto.png`); testes: 153 |
 | I2 · jornada de um chamado | **Feita**, aguardando revisão (branch `demo/i2-jornada`) | 12/11/2026 | Tela `#/jornada`, ao lado da sala (o app ganhou uma casca com as duas telas). O celular com os textos reais do assistente do dfac; o diagrama das cinco camadas com o selo existe · pronto · proposta e a fonte de cada peça (`dominio/ponte.ts`); o detalhe de cada passo com a situação no modelo único e o estado no dfac. Dois casos: o poste apagado em Águas Claras (o que existe, de ponta a ponta) e a rua no escuro que era falta de energia (a proposta: cruzamento entre órgãos, com texto rotulado como da equipe). Modo "experimente": a pessoa escreve no celular e a jornada anda com o relato dela, pelo mesmo roteiro do dfac; nada é enviado. Testes: 185. Capturas: `demo-view/capturas/i2-jornada-*.png` |
-| I3 a I6 | A fazer | — | Seção 6. Na I3, a base é o grafo do Calebe (ver o acréscimo abaixo) |
+| I3 · inteligência explicada | **Feita**, aguardando revisão (branch `demo/i3-inteligencia`) | 12/11/2026 | Tela `#/inteligencia`: o grafo em 3D sobre o DF, em três etapas (chamados → ligações → incidentes); a fila com os 9 casos da demo exploratória; o insight explicado nas quatro partes do slide 13 (o que a IA viu · por quê · confiança · o que sugere); confirmar (5 s para cancelar) e descartar com motivo; leitura "por órgão"; controle de sensibilidade. Motor em `src/inteligencia/` (casos, agrupamento, decisões). Testes: 216. Capturas: `demo-view/capturas/i3-*.png` |
+| I4 a I6 | A fazer | — | Seção 6 |
 
 A casca visual feita em `demo/` (hoje `design-system-vitrine/`) no mesmo dia (barra, navegação, painel da sala, catálogo) fica como vitrine do design system e como referência de interface para a I1, sem código copiado.
 
@@ -262,3 +263,29 @@ frente. Branch `demo/i2-origens`.
   155 da CEB ou no 116 da Neoenergia, o conector (proposta) e o mesmo incidente.
 - O celular deixou de se apresentar como o dfac: é "um canal do City View", com
   os textos do piloto de Águas Claras. Testes: 190.
+
+*Acréscimo de 12/11/2026, decisões da I3.*
+- **Linguagem limpa** (pedido da equipe): os grafos e o 3D ficam, mas depurados.
+  Fundo grafite sem imagem de satélite nesta tela (`semImagens`, em
+  `mapa/estilo.ts`), tom neutro em tudo, cor só no incidente aberto e na
+  severidade, e no máximo uma coisa se mexendo: o sinal nos arcos do incidente
+  aberto, ou a onda de quem acabou de ser confirmado. A sala e o calor não mudam.
+- **O que é calculado e o que é escrito:** o agrupamento é calculado de verdade
+  sobre chamados simulados (força = afinidade de assunto × proximidade ×
+  simultaneidade; union-find; confiança pelas três partes). A afinidade entre
+  assuntos é uma tabela, como na demo exploratória; aqui ela sai dos próprios
+  casos. A leitura, a recomendação e o ganho são textos escritos, portados como
+  estavam. Um teste garante que cada caso vira exatamente um incidente e que o
+  ruído do dia a dia não vira incidente sério.
+- **Órgãos fora do catálogo:** PCDF, Detran-DF, Defesa Civil, Vigilância Ambiental
+  e SES-DF aparecem nos casos só como origem de sinais simulados
+  (`FONTES_SIMULADAS`); o catálogo da demo continua com os 10 que têm fonte no magno.
+- **Arcos serrilhados** (risco da seção 8): avaliado. Com arcos de 1 a 1,5 px em
+  tom claro sobre fundo escuro, o modo intercalado ficou aceitável; não foi
+  preciso o modo sobreposto.
+- **Clique no modo intercalado:** o `Mapa.tsx` ganhou `clicaveis` e
+  `aoClicarObjeto`, que perguntam ao deck.gl o que está sob o clique.
+- **A conferir com a equipe:** o caso do apagão diz "quatro órgãos" no título e no
+  ganho (texto original, que conta a Novacap), mas os chamados vêm de três
+  (Neoenergia, Detran e Defesa Civil), e é isso que a fila mostra.
+- **Próximo:** decidir a apresentação interativa (seção 6) e seguir para a I4.

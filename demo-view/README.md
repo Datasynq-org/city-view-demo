@@ -123,6 +123,37 @@ aba no título). Capturas: `capturas/i2-jornada-*.png`.
 `?tela=jornada&auto=1` abre a jornada já tocando; `&caso=apagao` abre no
 segundo caso. O relógio da sala continua andando enquanto a jornada está aberta.
 
+**I3 · Inteligência explicada** (feita, aguardando revisão): "o que os silos não
+estão vendo?" (slide 13). Abre em `#/inteligencia`. Capturas: `capturas/i3-*.png`.
+Sala de comando, só que limpa: o DF em 3D sobre fundo grafite, sem imagem de
+satélite; tom neutro em tudo, cor só no que está aberto ou pede atenção; uma
+coisa só se mexendo por vez.
+
+- **Três etapas** (teclas 1, 2, 3): **Chamados** (cada ponto é um chamado),
+  **Ligações** (arcos entre os que falam da mesma coisa, perto e na mesma hora;
+  em acento os que cruzam órgãos; de longe, um anel marca cada grupo) e
+  **Incidentes** (os chamados se recolhem numa coluna por incidente: a altura é
+  o número de chamados, a cor é a severidade).
+- **Fila de insights**, do mais urgente ao menos: os 9 casos da demo
+  exploratória (apagão em Planaltina, pedras na pista, 47 ligações para a mesma
+  casa, vazamento que vira buraco…). ↑ ↓ percorrem a fila.
+- **O insight explicado**, nas quatro partes do slide 13: o que a IA viu · por
+  quê (evidências por órgão e canal, com os números do grupo) · confiança (com
+  as três partes: assunto, lugar e hora) · o que sugere. **Confirmar** (Enter)
+  abre 5 s para cancelar e só então "avisa" os órgãos; **Descartar** pede o
+  motivo, e os chamados voltam a ser avulsos. Uma pessoa sempre decide.
+- **Por órgão:** a mesma leitura sem o mapa, fila por fila, até o incidente.
+- **Sensibilidade:** quão fácil a IA liga dois chamados, para a pergunta "e se
+  ela errar?".
+- Chega-se a um insight também pela jornada (o caso da rua no escuro) e pela
+  sala (o cartão da RA aponta os insights da região):
+  `#/inteligencia?caso=apagao-planaltina`.
+
+O agrupamento é calculado (`inteligencia/agrupamento.ts`: força = afinidade de
+assunto × proximidade × simultaneidade; grupos por union-find); a leitura, a
+recomendação e o ganho de cada caso são escritos à mão (`inteligencia/casos.ts`).
+Tudo simulado. Esta tela não depende de rede.
+
 ## Rodar
 
 Precisa de Node 22.12 ou mais novo.
@@ -164,6 +195,7 @@ src/
   dominio/   modelo único de incidente, ciclo de vida, órgãos, canais, RAs e a ponte (camadas 1 a 5, com o que existe e o que é proposta)
   dados/     gerador determinístico, a mancha urbana (mancha.json), a coleta do WhatsApp e as jornadas roteirizadas
   indicadores/ contas da sala de guerra: filtros, velocidade, séries (funções puras)
+  inteligencia/ os 9 casos, o agrupamento de chamados em incidentes e as decisões (confirmar, descartar)
   mapa/      MapLibre, estilo do mapa, calor, imagem de perto, câmera e camadas deck.gl (camadas/)
   ui/        painel, selo e cores
   telas/     uma pasta por iteração (sala/: painéis, HUD e tour da I1; jornada/: celular, fluxo e detalhe da I2)
@@ -250,6 +282,11 @@ simulação; a mancha é dado oficial.
   e `api/demand_triage.py`, repositório `Datasynq-org/dfac-agentic-saas`, só
   leitura, commit `0eec955`). Os textos do assistente são literais, para a demo
   mostrar o que existe; a triagem é um subconjunto das palavras de lá.
+- A I3 porta, da demo exploratória, os 9 casos (`data/inteligencia.ts`, com os
+  textos como estavam) e a ideia do agrupamento e do grafo do Calebe
+  (`data/grafo-neural.ts`, `components/grafo-deck.tsx`, `components/rede-neural.tsx`):
+  as três etapas, os arcos em 3D, o colapso no incidente, confirmar e descartar
+  com motivo. O código foi reescrito para lon/lat e para o visual desta demo.
 - A I1 se inspira na "Visão da cidade" (modo comando em 3D) e no grafo do Calebe,
   ambos da demo exploratória; o grafo entra na I3. Os modos de visão noturno e
   térmico, que vieram de lá, saíram em 12/11/2026.

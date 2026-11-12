@@ -130,6 +130,9 @@ function Conteudo({ painel }: { painel: Painel }) {
             <Rotulo>O que sugere · uma pessoa confirma</Rotulo>
             <p className="text-nota text-white">{painel.acao}</p>
           </div>
+          <a href="#/inteligencia?caso=apagao-planaltina" className="condensado inline-block rounded-md border border-acento-claro/60 px-3 py-1.5 text-rotulo text-acento-claro hover:text-white">
+            Ver este cruzamento na inteligência →
+          </a>
         </div>
       );
     case 'saidas':

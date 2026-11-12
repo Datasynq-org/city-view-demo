@@ -241,7 +241,7 @@ export function TelaSala() {
         telaCheia={telao || emTour}
       />
       {/* Em tela média, a barra encosta depois do título, longe do selo; em tela larga, no meio. */}
-      <div className="absolute top-3 left-[16rem] z-20 hidden lg:block 2xl:left-1/2 2xl:-translate-x-1/2">
+      <div className="absolute top-3 left-[23.5rem] z-20 hidden lg:block 2xl:left-1/2 2xl:-translate-x-1/2">
         <BarraDeComando
           tour={emTour}
           aoTour={alternarTour}

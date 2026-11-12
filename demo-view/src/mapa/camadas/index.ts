@@ -33,6 +33,18 @@ export function textoDaDica(id: string | undefined, object: unknown): string | n
     const n = Math.round((object as { colorValue?: number }).colorValue ?? 0);
     return `<strong>${fmt(n)}</strong> chamado${n === 1 ? '' : 's'} neste trecho`;
   }
+  if (id === 'grafo-colunas') {
+    const i = object as { titulo: string; chamados: number; orgaos: string[] };
+    return `<strong>${escapar(i.titulo)}</strong><br>${fmt(i.chamados)} chamados · ${i.orgaos.length} órgão${i.orgaos.length === 1 ? '' : 's'}<br><span style="opacity:.7">clique para abrir</span>`;
+  }
+  if (id === 'grafo-nos') {
+    const i = object as { chamados: number; orgaos: string[] };
+    return `<strong>${fmt(i.chamados)}</strong> chamados ligados · ${i.orgaos.length} órgão${i.orgaos.length === 1 ? '' : 's'}`;
+  }
+  if (id === 'grafo-chamados') {
+    const c = object as { descricao: string; orgao: string; peso: number };
+    return `<strong>${escapar(c.orgao)}</strong><br>${escapar(c.descricao)}${c.peso > 1.5 ? `<br><span style="opacity:.7">${fmt(c.peso)} chamados neste ponto</span>` : ''}`;
+  }
   if (id === 'regioes') {
     const d = object as PoligonoRa;
     if (!d.v) return `<strong>${escapar(d.nome)}</strong>`;

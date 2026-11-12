@@ -7,6 +7,7 @@ describe('navegação entre as telas', () => {
     expect(telaDoEndereco('#jornada', '')).toBe('jornada');
     expect(telaDoEndereco('', '?tela=jornada&auto=1')).toBe('jornada');
     expect(telaDoEndereco('#/sala', '?tela=jornada')).toBe('sala');
+    expect(telaDoEndereco('#/inteligencia?caso=apagao-planaltina', '')).toBe('inteligencia');
   });
 
   it('sem pedido, ou com pedido desconhecido, abre a sala', () => {

@@ -1,15 +1,16 @@
 /**
  * As telas da demo, uma por iteração do roadmap (CV-DEM-001, seção 6), escolhidas
- * pelo endereço: `#/sala` e `#/jornada`. Sem biblioteca de rotas.
+ * pelo endereço: `#/sala`, `#/jornada` e `#/inteligencia`. Sem biblioteca de rotas.
  * `?tela=jornada` também abre a jornada (para links do telão e da apresentação).
  */
 import { useEffect, useState } from 'react';
 
-export type Tela = 'sala' | 'jornada';
+export type Tela = 'sala' | 'jornada' | 'inteligencia';
 
 export const TELAS: { id: Tela; nome: string }[] = [
   { id: 'sala', nome: 'Sala de situação' },
   { id: 'jornada', nome: 'Jornada de um chamado' },
+  { id: 'inteligencia', nome: 'Inteligência' },
 ];
 
 const ehTela = (v: string | null | undefined): v is Tela => TELAS.some((t) => t.id === v);

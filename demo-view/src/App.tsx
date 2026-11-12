@@ -1,4 +1,5 @@
 import { TELAS, useTela } from './navegacao';
+import { TelaInteligencia } from './telas/inteligencia/TelaInteligencia';
 import { TelaJornada } from './telas/jornada/TelaJornada';
 import { TelaSala } from './telas/sala/TelaSala';
 import { Selo } from './ui/Selo';
@@ -11,7 +12,7 @@ export function App() {
   const [tela, ir] = useTela();
   return (
     <>
-      {tela === 'sala' ? <TelaSala /> : <TelaJornada />}
+      {tela === 'sala' ? <TelaSala /> : tela === 'jornada' ? <TelaJornada /> : <TelaInteligencia />}
       {/* Por cima do mapa e por baixo da barra de comando da sala (z-20). */}
       <div className="faixa-superior z-10" aria-hidden="true" />
       <header className="pointer-events-none absolute top-14 left-4 z-30 lg:top-2 lg:left-5">

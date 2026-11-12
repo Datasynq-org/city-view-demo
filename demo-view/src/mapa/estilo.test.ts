@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { REGIOES } from '../dominio/ras';
 import { CAMADA_CALOR, FONTE_CALOR } from './calor';
-import { CAMADA_ORTOFOTO, CAMADA_PREDIOS, CAMADA_RAS, CAMADA_SATELITE, FONTE_RAS, montarEstilo, URL_OPENFREEMAP, URL_SATELITE } from './estilo';
+import { CAMADA_ORTOFOTO, CAMADA_PREDIOS, CAMADA_RAS, CAMADA_SATELITE, FONTE_RAS, montarEstilo, semImagens, URL_OPENFREEMAP, URL_SATELITE } from './estilo';
 import { URL_ORTOFOTO } from './ortofoto';
 
 const estilo = montarEstilo({ regioes: REGIOES, urlFonteRotulo: '/fontes/rotulo.woff2' });
@@ -113,3 +113,20 @@ describe('estilo do mapa', () => {
     expect(i).toBeGreaterThan(camadas.findIndex((c) => c.id === 'ras-contorno'));
   });
 });
+
+describe('estilo sem imagens (inteligência)', () => {
+  const mudo = semImagens(estilo);
+
+  it('não tem imagem de satélite, prédios nem nomes de vias, e não pede imagem a ninguém', () => {
+    expect(mudo.layers.some((c) => c.type === 'raster' || c.type === 'fill-extrusion')).toBe(false);
+    expect(mudo.layers.some((c) => c.id === 'vias-nomes')).toBe(false);
+    expect(Object.values(mudo.sources).some((f) => f.type === 'raster')).toBe(false);
+  });
+
+  it('mantém o fundo, as RAs e os nomes delas, e não mexe no estilo original', () => {
+    expect(mudo.layers[0]).toMatchObject({ type: 'background' });
+    for (const id of [CAMADA_RAS, 'ras-contorno', 'ras-rotulos']) expect(mudo.layers.some((c) => c.id === id), id).toBe(true);
+    expect(estilo.layers.some((c) => c.type === 'raster')).toBe(true);
+  });
+});
+

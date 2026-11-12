@@ -11,7 +11,7 @@ import { LIMITES_DF, REGIAO_POR_ID, REGIOES } from '../dominio/ras';
 import { Painel } from '../ui/Painel';
 import { agregar, CAMADA_CALOR, diferenca, diferencaVazia, FONTE_CALOR, type Grade, intensidadePorZoom, novaGrade, paraGeoJSON } from './calor';
 import { dicaDoMapa } from './camadas';
-import { CAMADA_RAS, FONTE_RAS, montarEstilo } from './estilo';
+import { CAMADA_RAS, FONTE_RAS, montarEstilo, semImagens } from './estilo';
 import { carregadorDeOrtofoto, PROTOCOLO_ORTOFOTO } from './ortofoto';
 import {
   caixaDaRa,
@@ -63,6 +63,11 @@ interface Props {
   aoClicarRa?: (id: string) => void;
   /** Clique em qualquer ponto do mapa, em [lon, lat] (a jornada usa no lugar do pino do WhatsApp). */
   aoClicarPonto?: (ponto: [number, number]) => void;
+  /** Clique num objeto de uma destas camadas deck.gl (ids). Tem prioridade sobre o clique na RA. */
+  clicaveis?: readonly string[];
+  aoClicarObjeto?: (camada: string, objeto: unknown) => void;
+  /** Fundo grafite, sem imagem de satélite, prédios nem nomes de vias. Vale ao criar o mapa. */
+  semImagem?: boolean;
   /** Sem painéis em volta (telão, tour): o DF inteiro chega mais perto. */
   telaCheia?: boolean;
   /** O nome da RA sob o mouse (desligado quando a camada 3D já diz o nome). */
@@ -125,6 +130,9 @@ export function Mapa({
   aoInteragir,
   aoClicarRa,
   aoClicarPonto,
+  clicaveis,
+  aoClicarObjeto,
+  semImagem = false,
   dicaDasRas = true,
   raSelecionada = null,
   telaCheia = false,
@@ -139,19 +147,20 @@ export function Mapa({
   const voando = useRef(false);
   const estadoDoCalor = useRef<EstadoDoCalor | null>(null);
   // Props lidas dentro dos eventos do MapLibre, que são ligados uma vez só.
-  const props = useRef({ camadas, aoInteragir, aoClicarRa, aoClicarPonto, dicaDasRas, telaCheia });
-  props.current = { camadas, aoInteragir, aoClicarRa, aoClicarPonto, dicaDasRas, telaCheia };
+  const props = useRef({ camadas, aoInteragir, aoClicarRa, aoClicarPonto, clicaveis, aoClicarObjeto, dicaDasRas, telaCheia });
+  props.current = { camadas, aoInteragir, aoClicarRa, aoClicarPonto, clicaveis, aoClicarObjeto, dicaDasRas, telaCheia };
 
   useEffect(() => {
     const el = container.current;
     if (!el) return;
     const enquadre = () => ({ padding: margens(el.clientWidth) });
 
+    const estiloBase = () => montarEstilo({ regioes: REGIOES, urlFonteRotulo: new URL(urlFonteRotulo, document.baseURI).href });
     let mapa: maplibregl.Map;
     try {
       mapa = new maplibregl.Map({
         container: el,
-        style: montarEstilo({ regioes: REGIOES, urlFonteRotulo: new URL(urlFonteRotulo, document.baseURI).href }),
+        style: semImagem ? semImagens(estiloBase()) : estiloBase(),
         bounds: LIMITES_DF,
         fitBoundsOptions: enquadre(),
         // Folga larga em volta do DF: apertada, ela impede o enquadramento em tela em pé.
@@ -218,6 +227,15 @@ export function Mapa({
     mapa.on('movestart', soltar);
     mapa.on('click', (e) => {
       props.current.aoClicarPonto?.([e.lngLat.lng, e.lngLat.lat]);
+      // Objetos do deck.gl que a tela quer clicáveis (incidentes, chamados): vêm antes da RA.
+      const ids = props.current.clicaveis;
+      if (ids?.length) {
+        const alvo = overlay.current?.pickObject({ x: e.point.x, y: e.point.y, radius: 6, layerIds: [...ids] });
+        if (alvo?.object && alvo.layer) {
+          props.current.aoClicarObjeto?.(alvo.layer.id, alvo.object);
+          return;
+        }
+      }
       if (props.current.dicaDasRas) {
         // RAs no chão: o MapLibre sabe qual está sob o clique.
         const ra = mapa.queryRenderedFeatures(e.point, { layers: [CAMADA_RAS] })[0];
@@ -260,7 +278,7 @@ export function Mapa({
       setPronto(false);
       mapa.remove();
     };
-  }, [margens]);
+  }, [margens, semImagem]);
 
   // Camadas (e, se houver, o anel de quem chega e a órbita): um quadro por vez, só enquanto há movimento.
   useEffect(() => {

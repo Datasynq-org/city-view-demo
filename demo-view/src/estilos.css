@@ -269,3 +269,24 @@
 #raiz .mapa-pequeno .maplibregl-ctrl-attrib.maplibregl-compact .maplibregl-ctrl-attrib-inner { display: none; }
 #raiz .mapa-pequeno .maplibregl-ctrl-attrib.maplibregl-compact:hover .maplibregl-ctrl-attrib-inner,
 #raiz .mapa-pequeno .maplibregl-ctrl-attrib.maplibregl-compact:focus-within .maplibregl-ctrl-attrib-inner { display: block; }
+
+/* ---------- I3 · Inteligência ----------
+   O grafo ocupa a tela. Dois painéis estreitos: a fila de insights à esquerda
+   (recolhe) e o insight aberto à direita. Em tela estreita, só a fila, embaixo. */
+.intel-coluna {
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.intel-esquerda { left: 1rem; right: 1rem; bottom: 0.75rem; height: 42vh; }
+.intel-direita { left: 1rem; right: 1rem; top: 7.5rem; bottom: 0.75rem; z-index: 15; }
+@media (min-width: 1024px) {
+  .intel-esquerda { right: auto; top: 4.5rem; width: 22rem; height: auto; }
+  .intel-direita { left: auto; top: 4.5rem; width: 27rem; }
+  .intel-recolhida { transform: translateX(-24rem); opacity: 0; pointer-events: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .intel-coluna { transition: none; }
+}

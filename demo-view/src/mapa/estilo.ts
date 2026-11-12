@@ -282,3 +282,14 @@ export function montarEstilo({ regioes, urlFonteRotulo, limites = LIMITES_DF }: 
     ],
   } as StyleSpecification;
 }
+
+/**
+ * O mesmo estilo, sem imagem de satélite, sem prédios e sem nomes de vias: fundo
+ * grafite, água, vias e as RAs. Para as telas em que os dados são a única coisa
+ * com cor (a inteligência, I3). Não pede imagem a servidor nenhum.
+ */
+export function semImagens(estilo: StyleSpecification): StyleSpecification {
+  const fora = new Set<string>([CAMADA_SATELITE, CAMADA_ORTOFOTO, CAMADA_PREDIOS, 'vias-nomes']);
+  const { [CAMADA_SATELITE]: _s, [CAMADA_ORTOFOTO]: _o, ...fontes } = estilo.sources;
+  return { ...estilo, sources: fontes, layers: estilo.layers.filter((c) => !fora.has(c.id) && !('source' in c && (c.source === CAMADA_SATELITE || c.source === CAMADA_ORTOFOTO))) };
+}
