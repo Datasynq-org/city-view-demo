@@ -3,6 +3,7 @@ import mapa from '../mapa/ras.json';
 import { AREAS, AREA, silos as textoSilos } from '../conteudo/narrativa';
 import { estado } from './estado';
 import { gsap } from '../rolagem/rolagem';
+import { lerPaleta } from '@ds';
 
 // Canvas fixo atrás da página: o DF com chamados ILUSTRATIVOS (pontos sorteados dentro dos
 // limites oficiais das RAs). As cenas mudam o `estado`, e este componente desenha.
@@ -54,20 +55,6 @@ const contagem = AREAS.map(() => 0);
 const ordem = area.map((k) => contagem[k]++);
 const AMPLIA = 1.8; // quanto o zoom aproxima um caso (escala final 1 + AMPLIA)
 const caminhos = mapa.ras.map((r) => new Path2D(r.d));
-
-// paleta do tema ativo (estilos.css), relida quando o tema muda
-function lerPaleta() {
-  const cs = getComputedStyle(document.documentElement);
-  const v = (n: string) => cs.getPropertyValue(n).trim();
-  return {
-    areas: AREAS.map((_, i) => v(`--area-${i}`)),
-    status: [0, 1, 2].map((i) => v(`--status-${i}`)),
-    traco: v('--mapa-traco'), conexao: v('--conexao'), anel: v('--anel'),
-    tinta: v('--tinta'), tinta2: v('--tinta-2'), ok: v('--ok'),
-    calorModo: (v('--calor-modo') || 'lighter') as GlobalCompositeOperation,
-    claro: document.documentElement.dataset.tema === 'claro',
-  };
-}
 
 export function CidadeViva() {
   const tela = useRef<HTMLCanvasElement>(null);

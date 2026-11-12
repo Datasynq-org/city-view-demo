@@ -149,3 +149,29 @@ houver componentes prontos.
 | OpenFreeMap fora do ar | O serviço público não tem garantia; o mapa cai para o fundo liso com as RAs |
 | Licença do GSAP | Conferir os termos atuais antes de usar na apresentação interativa |
 | Demo parecer produto pronto | Selo fixo, rótulos existe/proposta, fala do apresentador (CV-APR-001) |
+
+---
+
+## 9. Construção da demo (andamento)
+
+*Acréscimo de 12/11/2026.* A partir daqui a demo é construída passo a passo,
+seguindo as iterações da seção 6. Esta seção concentra o andamento; o resto do
+documento continua sendo o plano.
+
+### 9.1 Área isolada
+
+*Revisto em 12/11/2026, ao juntar o trabalho do Lucca (decisão da equipe).*
+
+- **A demo é a `demo-view/`:** autocontida (pacote, build, porta 5200 e README próprios; não lê nada de fora). Visual próprio na direção C (navy, teal, âmbar, Barlow condensada). A demo não mexe em `apresentacao-web/`, `apresentacao/`, `design-system/` nem `demo/`; em `docs/`, só nesta seção.
+- **A `demo/` é a vitrine do design system** "Sala de Operações" ([CV-DS-001](CV-DS-001-design-system.md)), que vale para a apresentação em rolagem. Ela não recebe as iterações da demo.
+- **Uma iteração por vez:** cada uma ganha uma branch própria (`demo/iN-<nome>`), um plano curto antes de começar e uma revisão com a equipe antes de entrar no `main`. A próxima só começa depois disso.
+
+### 9.2 Situação das iterações
+
+| It. | Situação | Data | O que entrou |
+| --- | --- | --- | --- |
+| I0 · fundação | Construída (Lucca), **aguardando revisão** | 12/11/2026 | `demo-view/`: modelo único de incidente com ciclo de vida e validação; 10 órgãos e 24 tipos com fonte no magno; 37 RAs; gerador portado (contagens de 180 dias e incidentes dos últimos 30), com testes (50); mapa MapLibre com as RAs; selo e painel de exemplo. Pontos para a revisão: transições entre situações e percentuais simulados (ver a "Situação em 12/11/2026" na seção 6) |
+| I1 · sala de guerra | **Próxima** | — | Seção 6 |
+| I2 a I6 | A fazer | — | Seção 6 |
+
+A casca visual feita em `demo/` no mesmo dia (barra, navegação, painel da sala, catálogo) fica como vitrine do design system e como referência de interface para a I1, sem código copiado.

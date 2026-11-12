@@ -1,0 +1,79 @@
+/* City View · Design system "Sala de Operações" · base e componentes (CSS)
+   Depende de tokens.css. Documentação: docs/CV-DS-001. */
+
+/* Escala: a fonte base acompanha a tela (16px numa tela de 1600×900). Como todo tamanho
+   é em rem, texto, painéis e espaçamentos mantêm a proporção em qualquer monitor. */
+html { font-size: max(9px, min(1vw, 1.7778vh)); }
+
+html, body { background: var(--fundo); color: var(--tinta); }
+body {
+  font-family: var(--fonte-corpo);
+  -webkit-font-smoothing: antialiased;
+  background:
+    radial-gradient(60% 50% at 72% 45%, var(--brilho-1), transparent 70%),
+    radial-gradient(40% 40% at 20% 80%, var(--brilho-2), transparent 70%),
+    var(--fundo);
+  background-attachment: fixed;
+  transition: background-color var(--dur) ease, color var(--dur) ease;
+}
+
+/* Palco 16:9: composição fixa, centralizada, com margem lateral de 4rem */
+.palco { position: relative; width: min(100vw, 177.78vh); height: 100vh; margin-inline: auto; padding-inline: 4rem; display: flex; align-items: center; }
+.coluna { width: 30rem; }
+
+/* Tipografia */
+.titulo { font-family: var(--fonte-titulo); font-weight: 600; letter-spacing: -0.025em; line-height: 1.04; }
+.rotulo { font-family: var(--fonte-mono); text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.75rem; color: var(--acento); }
+.fraco { color: var(--tinta-2); }
+.c-atencao { color: var(--atencao); }
+.c-alerta { color: var(--alerta); }
+.c-ok { color: var(--ok); }
+
+/* Superfície de vidro */
+.painel {
+  background: var(--painel);
+  border: 1px solid var(--painel-borda);
+  border-radius: var(--raio-painel);
+  box-shadow: var(--sombra);
+  backdrop-filter: var(--vidro);
+  -webkit-backdrop-filter: var(--vidro);
+}
+
+/* Peças pequenas */
+.chip { font-family: var(--fonte-mono); font-size: 0.78rem; padding: 0.35rem 0.7rem; border-radius: 999px; border: 1px solid var(--painel-borda); background: var(--caixa); }
+.selo { font-family: var(--fonte-mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.3rem 0.65rem; border-radius: var(--raio-selo); background: var(--selo-fundo); color: var(--selo-tinta); white-space: nowrap; }
+.botao { font-family: var(--fonte-mono); font-size: 0.8rem; padding: 0.5rem 0.9rem; border-radius: var(--raio-botao); border: 1px solid var(--painel-borda); color: var(--tinta); background: var(--caixa); }
+button.botao { cursor: pointer; transition: border-color var(--dur-rapida), background var(--dur-rapida); }
+button.botao:hover { border-color: var(--acento); }
+.botao-sim { background: var(--acento); color: var(--sobre-acento); border-color: var(--acento); }
+
+.pilula { font-family: var(--fonte-mono); font-size: 0.66rem; letter-spacing: 0.04em; padding: 0.15rem 0.5rem; border-radius: 999px; white-space: nowrap; }
+.pilula.funciona { background: var(--ok); color: var(--fundo); }
+.pilula.parte { border: 1px solid var(--atencao); color: var(--atencao); }
+.pilula.proposta { border: 1px dashed var(--tinta-2); color: var(--tinta-2); }
+
+/* Foco visível (teclado) */
+:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+
+/* Padrões de aplicativo (demo) */
+.nav-item { display: flex; align-items: center; gap: 0.6rem; width: 100%; padding: 0.55rem 0.75rem; border-radius: var(--raio-botao); font-size: 0.9rem; color: var(--tinta-2); text-align: left; cursor: pointer; border: 1px solid transparent; background: none; }
+.nav-item:hover:not([aria-disabled="true"]) { color: var(--tinta); background: var(--caixa); }
+.nav-item[aria-current="page"] { color: var(--tinta); background: var(--destaque); border-color: var(--painel-borda); }
+.nav-item[aria-disabled="true"] { cursor: default; opacity: 0.55; }
+
+.segmentado { display: inline-flex; padding: 3px; gap: 2px; border-radius: var(--raio-botao); border: 1px solid var(--painel-borda); background: var(--caixa); }
+.segmentado button { font-family: var(--fonte-mono); font-size: 0.72rem; padding: 0.35rem 0.7rem; border-radius: 7px; color: var(--tinta-2); background: none; border: 0; cursor: pointer; }
+.segmentado button[aria-pressed="true"] { background: var(--acento); color: var(--sobre-acento); }
+
+.linha-incidente { display: grid; grid-template-columns: 0.6rem 1fr auto; gap: 0.75rem; align-items: start; padding: 0.7rem 0.2rem; border-top: 1px solid var(--painel-borda); }
+.linha-incidente:first-child { border-top: 0; }
+.ponto-area { width: 0.6rem; height: 0.6rem; border-radius: 999px; margin-top: 0.35rem; }
+
+/* Mapa SVG */
+.mapa path { vector-effect: non-scaling-stroke; }
+.mapa .ra { fill: var(--destaque); fill-opacity: 0.25; stroke: var(--mapa-traco); stroke-width: 0.8; }
+.mapa .ra.destaque { fill: var(--acento); fill-opacity: 0.3; stroke: var(--acento); stroke-width: 1.6; }
+
+@media (prefers-reduced-motion: reduce) {
+  body, button.botao { transition: none; }
+}

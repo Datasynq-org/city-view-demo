@@ -674,6 +674,7 @@ As outras grafias erradas da transcrição estão no cabeçalho da
 | [CV-DEM-001 Roadmap da demo](CV-DEM-001-roadmap-da-demo.md) | *Acréscimo de 11/11/2026.* Como a demo será construída em iterações (I0 a I6), a pilha, a organização do código e a decisão de reuso do motor da demo exploratória. *Acréscimo de 12/11/2026:* v0.2. A demo fica na pasta `demo-view/` (era `demo/`), autocontida; a I0 (fundação) está construída e aguarda a revisão da equipe |
 | [CV-REF-003 Framework de produção de vídeo](CV-REF-003-framework-de-video.md) | *Acréscimo de 11/11/2026.* O framework dos filmes da NORNA (Higgsfield + Remotion), adotado como ferramenta principal para o vídeo do City View, com o que muda de um produto para o outro |
 | [CV-VID-001 Roteiro do vídeo](CV-VID-001-roteiro-do-video.md) | *Acréscimo de 11/11/2026.* O filme "A cidade conectada" (1min50s, 16:9), plano a plano: Brasília como rede, silos, virada em grafo e rede neural, três casos de inteligência, visões e prova. Portão 0 do framework. *Acréscimo de 12/11/2026:* a r1 substitui a r0: filme de abertura de 1min10s, um só caso (buraco que é vazamento) com a jornada do cidadão, sem casos de segurança nem previsão |
+| [CV-DS-001 Design system](CV-DS-001-design-system.md) | *Acréscimo de 12/11/2026.* O design system "Sala de Operações", mapeado a partir da apresentação em rolagem: princípios, tokens dos dois temas, tipografia, escala, componentes, mapa, movimento e acessibilidade. Código em `design-system/`, usado pela apresentação em rolagem e pela demo |
 
 Os nomes seguem o formato `CV-<TIPO>-<NNN>-<slug>.md`. Tipos em uso: `SPEC`
 (o magno), `ATA` (registro de conversa) e `REF` (documento de referência). A
@@ -693,3 +694,5 @@ versão fica dentro do documento, nunca no nome do arquivo.
 | 11/11/2026 | Seção 11: o roteiro do vídeo (CV-VID-001, r0), portão 0 do framework de vídeo |
 | 12/11/2026 | Seção 11: o roteiro do vídeo passa à r1, reescrito a partir da crítica à r0 (o histórico está no próprio CV-VID-001) |
 | 12/11/2026 | Seção 11: o roadmap da demo passa à v0.2 (pasta `demo-view/`, autocontida) e a iteração I0 (fundação) está construída: mapa do DF com as 37 RAs, selo, painel de exemplo e gerador de incidentes no modelo único, com testes |
+| 12/11/2026 | Seção 11: o design system "Sala de Operações" (CV-DS-001), com o pacote `design-system/` e a casca da demo (`demo/`) vestida por ele |
+| 12/11/2026 | Decisão da equipe: a demo segue na pasta `demo-view/` (do Lucca), com o visual da direção C; a pasta `demo/` fica como vitrine do design system, que vale para a apresentação em rolagem (CV-DEM-001, seção 9; CV-DS-001) |

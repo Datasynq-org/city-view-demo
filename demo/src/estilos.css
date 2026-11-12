@@ -1,0 +1,26 @@
+@import "tailwindcss" source(".");
+@source "../../design-system/src";
+
+/* Design system "Sala de Operações" (o mesmo da apresentação em rolagem). Documentação: docs/CV-DS-001. */
+@import "../../design-system/src/tokens.css";
+@import "../../design-system/src/base.css";
+
+/* ---------- Casca da demo (padrão aplicativo) ----------
+   O mapa ocupa a tela inteira; barra, navegação e painel flutuam em vidro por cima.
+   Tudo em rem: escala com a tela pela fonte base do design system. */
+.casca { position: fixed; inset: 0; overflow: hidden; }
+.casca-camadas {
+  position: absolute; inset: 0; pointer-events: none;
+  display: grid; gap: 1rem; padding: 1.25rem;
+  grid-template-columns: 15rem 1fr 27rem;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+.casca-camadas > * > * { pointer-events: auto; }
+.casca-barra { grid-column: 1 / -1; }
+.casca-nav { grid-column: 1; grid-row: 2; align-self: start; }
+.casca-painel { grid-column: 3; grid-row: 2; display: flex; min-height: 0; }
+.casca-painel > * { flex: 1; }
+
+/* MapLibre: controles no visual do design system */
+.maplibregl-ctrl-attrib { background: var(--painel) !important; color: var(--tinta-2) !important; font-family: var(--fonte-mono); font-size: 0.65rem; border-radius: 8px; }
+.maplibregl-ctrl-attrib a { color: var(--tinta-2) !important; }
