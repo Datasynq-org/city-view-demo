@@ -3,10 +3,11 @@
 | Campo | Valor |
 | --- | --- |
 | Código | CV-VID-001 |
-| Versão | r1 (12/11/2026), para revisão da equipe. É o **portão 0** do [framework de vídeo](CV-REF-003-framework-de-video.md). Substitui a r0 de 11/11/2026 ([seção 10](#10-histórico-de-versões)) |
+| Versão | r2 (12/11/2026), para revisão da equipe. É o **portão 0** do [framework de vídeo](CV-REF-003-framework-de-video.md). Substitui a r1 ([seção 10](#10-histórico-de-versões)) |
 | O que é | O filme que **abre a reunião**: 1min10s, 16:9, sem locução. Vende a sensação; o detalhe fica no [deck](CV-APR-001-roteiro-da-apresentacao.md) e na fala do Daniel |
 | Ideia | O DF é uma cidade feita de muitas cidades, e cada órgão vê só a sua parte. Quando os sinais se conectam, a rede descobre o que nenhum sistema via sozinho, e o cidadão acompanha até resolver |
 | Fontes | [Magno](CV-SPEC-000-documento-magno.md) (1, 4.2 a 4.7, 5.1, 5.2, 7.2, 7.6, 8) · [Conversa](fonte/CV-ATA-001-conversa-daniel-2026-11-10.md) |
+| Projeto | Pasta `video/` deste repositório |
 
 ## 1. O que o filme precisa deixar na cabeça
 
@@ -85,23 +86,27 @@ fonte curta no rodapé; a referência completa está no cartão final.
 
 | # | Tempo | Imagem | Texto na tela | Som |
 | --- | --- | --- | --- | --- |
-| P08 | 0:24–0:26,5 | [V] No silêncio, uma única aresta teal atravessa duas colunas: liga um sinal de **vias** a um de **água e esgoto** (planta o caso do ato 4) | — | Um clique sináptico |
+| P08 | 0:24–0:26,5 | [V] No silêncio, uma única aresta teal atravessa duas colunas: liga um sinal de **energia** a um de **iluminação** (planta o caso do ato 4) | — | Um clique sináptico |
 | P09 | 0:26,5–0:31 | [V] As colunas desabam; os sinais voltam ao mapa e centenas de arestas se desenham; pulsos correm pela rede, que cobre o DF inteiro | **CITY VIEW** · *Observabilidade da gestão da cidade.* | **Drop da trilha** |
 
-### Ato 4 · Um caso
+### Ato 4 · Um caso: o apagão
 
-Cenário **ilustrativo**, sem RA nomeada. Mostra numa linha só o que a conversa
-pede: canal amigável, agrupar, reclassificar, entregar no legado, acompanhar até
-resolver.
+Cenário **ilustrativo**, sem RA nomeada. Parte de um fato real: no DF, a
+energia é da Neoenergia Brasília e a iluminação pública é da CEB IPes (magno
+5.2). Quando um bairro fica no escuro, o cidadão não sabe para quem ligar e
+cada órgão recebe só um pedaço do problema. O caso mostra numa linha só o que a
+conversa pede: canal amigável, agrupar, cruzar áreas, entregar no legado de
+cada órgão, acompanhar até resolver. Na linguagem do filme, em que a cidade é
+feita de luzes, é o momento em que uma parte dela **se apaga**.
 
 | # | Tempo | Imagem | Texto na tela | Som |
 | --- | --- | --- | --- | --- |
-| P10 | 0:31–0:34 | [IA SF10] Rua residencial à noite, um buraco no asfalto com um fio de água saindo dele, reflexo do poste na poça; push-in lento. Zoom vetorial do mapa até um ponto | `UMA RUA DO DF` | Água escorrendo, trânsito distante |
-| P11 | 0:34–0:38 | [V] Uma conversa de mensagens, sem nome nem foto: *"Tem um buraco aqui na rua. Já é a terceira vez."* → *"Recebido. Protocolo CV-004812. Avisamos você a cada passo."* Ao lado, os canais | `WHATSAPP · APP · SITE · TELEFONE` · *O cidadão fala onde quiser.* | Toque de mensagem |
-| P12 | 0:38–0:41,5 | [V] No mapa, outros relatos de buraco acendem no mesmo trecho; as arestas convergem num nó branco | `23 RELATOS · VIAS → 1 INCIDENTE` | Cada relato um tique; a fusão, um tom |
-| P13 | 0:41,5–0:47 | [V] Perto dali, relatos de outra área acendem: `ÁGUA NA RUA`, `FALTA D'ÁGUA`. Arestas cruzam as duas áreas, o pulso corre e **nasce o nó âmbar**. Cartão: *por quê:* mesmo trecho, 5 dias, relatos de duas áreas · *confiança:* alta · *sugestão:* encaminhar a água e esgoto, avisar vias · `UMA PESSOA DECIDE` | `PROVÁVEL VAZAMENTO · ÁGUA E ESGOTO` · *Parece buraco. É vazamento.* | Duas notas que viram um acorde |
-| P14 | 0:47–0:50,5 | [IA SF14] Macro: água brotando por uma rachadura no asfalto, luz rasante. Por cima, [V] o incidente entra num bloco `SISTEMA DO ÓRGÃO` | *Cada órgão continua no seu sistema.* | Gota grave |
-| P15 | 0:50,5–0:54 | [V] De volta à conversa: o status desce em degraus `ENCAMINHADO → EM ATENDIMENTO → RESOLVIDO`; o ponto do mapa fica verde | *E o cidadão acompanha até resolver.* | Notas ascendentes, resolve |
+| P10 | 0:31–0:34 | [IA SF10] Do alto, à noite: um bairro residencial inteiro no escuro, cercado de quadras acesas; a câmera desce. Antes, zoom vetorial do mapa até o ponto, e os sinais daquela área se apagam | `19:42 · UM BAIRRO DO DF` | A trilha cai; zumbido elétrico que morre |
+| P11 | 0:34–0:38 | [V] Uma conversa de mensagens, sem nome nem foto: *"Acabou a luz aqui. Os postes da rua também apagaram."* → *"Recebido. Protocolo CV-004812. Avisamos você a cada passo."* Ao lado, os canais | `WHATSAPP · APP · SITE · TELEFONE` · *O cidadão fala onde quiser.* | Toque de mensagem |
+| P12 | 0:38–0:41,5 | [V] No mapa, relatos de falta de energia acendem às dezenas na área escura; as arestas convergem num nó branco | `140 RELATOS · ENERGIA → 1 INCIDENTE` | Cada relato um tique; a fusão, um tom |
+| P13 | 0:41,5–0:47 | [V] Na mesma área, relatos de outras áreas acendem: `POSTES APAGADOS · ILUMINAÇÃO`, `SEMÁFOROS APAGADOS · TRÂNSITO`. Arestas cruzam as três áreas, o pulso corre e **nasce o nó âmbar**. Cartão: *por quê:* mesma área, mesmos 10 minutos, três áreas · *confiança:* alta · *sugestão:* energia trata a causa; iluminação não desloca equipe; trânsito vai aos cruzamentos · `UMA PESSOA DECIDE` | `1 FALHA · 3 ÓRGÃOS` · *Parecem três problemas.* *É um só.* | Três notas que viram um acorde |
+| P14 | 0:47–0:50,5 | [IA SF14] Rente ao chão: um cruzamento largo no escuro, o semáforo apagado em primeiro plano, faróis cruzando devagar. Por cima, [V] o incidente se divide e entra em três blocos: `SISTEMA DE ENERGIA` `SISTEMA DE ILUMINAÇÃO` `SISTEMA DE TRÂNSITO` | *Cada órgão recebe no seu próprio sistema.* | Buzina distante, abafada |
+| P15 | 0:50,5–0:54 | [V] De volta à conversa: o status desce em degraus `ENCAMINHADO → EM ATENDIMENTO → RESOLVIDO`. O bairro **reacende** no mapa, ponto a ponto | *E o cidadão acompanha até resolver.* | A trilha volta; notas ascendentes |
 
 ### Ato 5 · A promessa
 
@@ -113,7 +118,7 @@ Selo extra durante o ato: `DEMONSTRAÇÃO · DADOS SIMULADOS`.
 | P17 | 0:57,5–1:00 | [V] O mapa filtra em sequência: água e esgoto → iluminação → vias | *Cada gestor, a sua área.* | Um corte por filtro |
 | P18 | 1:00–1:03 | [V] A visão pública: pontos resolvidos ficam verdes, espalhados por todas as RAs | *O cidadão, o que o governo entrega.* | Notas ascendentes |
 | P19 | 1:03–1:07 | [IA SF19] Aérea noturna do DF inteiro, câmera subindo; por cima, a rede pulsa em sincronia com as luzes | *Ver a cidade inteira.* *E a velocidade da gestão.* | Crescendo |
-| P20 | 1:07–1:10 | [V] A rede se recolhe no ponto teal de P01, que vira a marca | **CITY VIEW** · *Observabilidade da gestão da cidade.* · DataSynq | Parada seca e batida grave |
+| P20 | 1:07–1:10 | [V] A rede se recolhe no ponto teal de P01, que se abre no nome escrito (o City View ainda não tem logo) | **CITY VIEW** · *Observabilidade da gestão da cidade.* · DataSynq | Parada seca e batida grave |
 
 **Cartão final** (4s, depois do filme; pode ser cortado na exibição): fontes
 completas dos dois números e o aviso "Proposta. Cenário e dados ilustrativos.
@@ -126,7 +131,7 @@ Nenhuma integração com órgãos do GDF existe hoje."
 | Fundos | Navy da direção C: `#0B1E31`, `#12293F`; linhas `#1E3852` (`apresentacao/src/tema.js`) |
 | Sinal e rede | Teal `#0196B2` e `#38C3DB` |
 | Insight | Âmbar `#F2A93B`, uma vez só (P13) |
-| Resolvido | Verde `#3BE08F`, só em P15 e P18 |
+| Resolvido | Verde `#3BE08F`, só em P18; em P15 o "resolvido" é o bairro reacendendo |
 | Texto | `#C9D6E2` sobre escuro; títulos em branco |
 | Tipografia | Títulos: Bahnschrift SemiBold (ou Barlow, OFL); rótulos: IBM Plex Mono em caixa alta (`apresentacao/fonts/`) |
 | HUD | Linhas de 1px, cantos de mira, coordenadas em mono; grade só nos zooms |
@@ -156,12 +161,13 @@ Sufixo de todos os quadros:
 | Quadro | Assunto | Cuidado |
 | --- | --- | --- |
 | SF02 | Vários núcleos urbanos de luz no planalto, separados por cerrado escuro, vistos de muito alto | O formato exato vem do vetor em P03; aqui importa a sensação de "muitas cidades" |
-| SF10 | Rua residencial à noite, buraco no asfalto com fio de água, reflexo de poste | Sem placas, sem número de casa, sem pessoas |
-| SF14 | Macro de água brotando de rachadura no asfalto, luz rasante | É a "matéria" do filme: duas variantes no mínimo |
+| SF10 | Bairro residencial de casas baixas à noite, visto do alto em ângulo: uma área inteira no escuro, cercada de quadras acesas | A fronteira entre escuro e aceso precisa ser nítida; sem pessoas nas lajes |
+| SF14 | Cruzamento largo no escuro, semáforo apagado em primeiro plano, faróis em rastro | Semáforo sem texto nem placa; nada que pareça acidente |
 | SF19 | O DF inteiro à noite, câmera subindo | Fecha o filme: duas variantes no mínimo |
 
 Para o movimento, preferir ações simples com física óbvia (CV-REF-003, seção
-9): a câmera desce, a água escorre, a câmera sobe.
+9): a câmera desce, os faróis passam, a câmera sobe. O apagar e o reacender do
+bairro são feitos no Remotion (máscara e brilho sobre a placa), não pela IA.
 
 ### Custo estimado
 
@@ -186,7 +192,8 @@ fazer antes do portão 2 (animatic).
   inteira em 0:54; parada seca em 1:10. Três variantes, escolhidas pela energia
   medida (CV-REF-003, seção 8).
 - **Efeitos** (Seed Audio): tique de dado, clique sináptico, fusão em tom
-  único, toque de mensagem, água escorrendo, gota grave, batida final.
+  único, toque de mensagem, zumbido elétrico que morre, buzina distante,
+  batida final.
 - **Sem locução.** O filme abre a reunião e o Daniel fala depois.
 
 ## 8. Lugar na reunião
@@ -202,23 +209,23 @@ mais curta; isso é decisão do deck, não deste roteiro.
 | Número real só com fonte (magno 8) | Dois números, cada um com fonte no rodapé e completa no cartão final |
 | Cenário inventado rotulado | Selo fixo `PROPOSTA · CENÁRIO ILUSTRATIVO`; `DADOS SIMULADOS` no ato 5; protocolo e conversa fictícios |
 | A cidade e a gestão, nunca pessoas (magno 7.6) | Nenhum nó é pessoa; conversa sem nome nem foto; nenhuma RA nomeada no caso; IA sem pessoas |
-| Sem cara de vigilância | Nenhum caso de segurança; sem previsão; segurança aparece só como uma coluna entre seis |
+| Sem cara de vigilância | Nenhum caso de segurança; sem previsão; a polícia aparece como uma das fontes de demanda, uma coluna entre seis |
 | O DF inteiro | Abre com muitos núcleos, todas as RAs com o mesmo peso, sem monumentos |
 | Problema estrutural, não da gestão | "Não por falta de esforço. Por falta de conexão." |
-| Acoplação, não substituição (magno 4.2) | P14: "Cada órgão continua no seu sistema." |
+| Acoplação, não substituição (magno 4.2) | P14: "Cada órgão recebe no seu próprio sistema." |
 | Amigável e rastreável (magno 1, 4.3, 4.4) | P11 e P15: canal à escolha e acompanhamento até resolver |
 | Uma pessoa decide (magno 7.2) | Cartão do P13 |
 | Palavras a evitar (magno 7.6) | Nenhum nome de referência no material; "Governo Federal" não aparece |
 | Nada parece contratado (magno 3) | Selo permanente e aviso no cartão final |
 
-### Em aberto
+### Respostas da equipe (12/11/2026)
 
-| # | Pergunta |
-| --- | --- |
-| 1 | O City View tem logo? Sem ele, o P20 fecha com o nome em tipografia |
-| 2 | O caso do vazamento é ilustrativo e plausível, mas não tem fonte. Vale procurar um caso público de buraco recorrente causado por vazamento no DF para citar no deck? |
-| 3 | A polícia foi tema forte na conversa (magno 4.8). Ficar só como coluna no filme está bom para o Daniel? |
-| 4 | Onde fica o projeto do vídeo: uma pasta `video/` neste repositório? |
+| # | Pergunta | Resposta |
+| --- | --- | --- |
+| 1 | O City View tem logo? | Ainda não. O filme fecha com "CITY VIEW" escrito |
+| 2 | A polícia só como coluna? | Sim: a polícia é uma das fontes de coleta de demanda |
+| 3 | Onde fica o projeto do vídeo? | Na pasta `video/` |
+| 4 | O caso do buraco | Trocar por um caso mais impactante, simulado, que faça sentido no DF: virou o apagão (ato 4) |
 
 ## 10. Histórico de versões
 
@@ -226,3 +233,4 @@ mais curta; isso é decisão do deck, não deste roteiro.
 | --- | --- | --- |
 | r0 | 11/11/2026 | 1min50s, 7 atos, 28 planos, três casos (som alto em Ceilândia, iluminação × furto × insegurança em Samambaia, alagamento previsto em Vicente Pires), visões e prova de Águas Claras |
 | r1 | 12/11/2026 | Reescrita a partir da crítica da equipe à r0. **Papel:** filme de abertura, que vende a sensação; o detalhe fica no deck. **Duração:** 1min10s, 20 planos. **Saiu:** os casos de segurança e a previsão (cara de vigilância; previsão em aberto no magno 9.9), Samambaia com crime simulado (lugar inventado), o Eixo Monumental como abertura (centro contra periferia), a prova de Águas Claras (os 46% precisam da fala do Daniel), o diagrama de camadas como "rede neural" (metáfora misturada), os rodapés de fonte em excesso. **Entrou:** o DF como "muitas cidades", o problema como estrutural, um só caso (buraco que é vazamento) com a jornada do cidadão, a acoplação aos sistemas dos órgãos e o acompanhamento até resolver |
+| r2 | 12/11/2026 | Respostas da equipe. O caso do buraco que era vazamento vira **o apagão**: um bairro no escuro, 140 relatos de energia viram 1 incidente, e postes e semáforos apagados se cruzam numa só falha de três órgãos. Parte do exemplo real do Daniel (energia e iluminação em órgãos diferentes, magno 5.2) e usa a linguagem do filme (a cidade de luzes que se apaga e reacende). Fecho com o nome escrito, sem logo; projeto na pasta `video/` |
