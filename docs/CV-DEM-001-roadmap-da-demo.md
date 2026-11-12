@@ -170,7 +170,7 @@ documento continua sendo o plano.
 
 | It. | Situação | Data | O que entrou |
 | --- | --- | --- | --- |
-| I0 · fundação | Construída (Lucca), **aguardando revisão** | 12/11/2026 | `demo-view/`: modelo único de incidente com ciclo de vida e validação; 10 órgãos e 24 tipos com fonte no magno; 37 RAs; gerador portado (contagens de 180 dias e incidentes dos últimos 30), com testes (50); mapa MapLibre com as RAs; selo e painel de exemplo. Pontos para a revisão: transições entre situações e percentuais simulados (ver a "Situação em 12/11/2026" na seção 6) |
+| I0 · fundação | **Feita** (Lucca), integrada ao `main` | 12/11/2026 | `demo-view/`: modelo único de incidente com ciclo de vida e validação; 10 órgãos e 24 tipos com fonte no magno; 37 RAs; gerador portado (contagens de 180 dias e incidentes dos últimos 30), com testes (50); mapa MapLibre com as RAs; selo e painel de exemplo. As transições entre situações e os percentuais simulados (ver a "Situação em 12/11/2026" na seção 6) seguem como proposta inicial da equipe, aceitos provisoriamente em 12/11/2026 para a construção continuar; voltam à revisão quando houver referência dos órgãos. Captura: `demo-view/capturas/i0-fundacao.png` |
 | I1 · sala de guerra | **Próxima** | — | Seção 6 |
 | I2 a I6 | A fazer | — | Seção 6 |
 
