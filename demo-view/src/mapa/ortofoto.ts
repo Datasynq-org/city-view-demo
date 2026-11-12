@@ -158,10 +158,16 @@ export function planejar(z: number, x: number, y: number): Plano {
 /**
  * Fila de espera: no máximo `limite` tarefas correndo e, se `intervaloMs` vier,
  * no máximo uma tarefa começando a cada `intervaloMs`.
+ *
+ * O intervalo conta do início *real* da tarefa anterior (um portão em cadeia),
+ * não de um horário marcado antes: se o navegador atrasar um disparo, as
+ * seguintes atrasam junto, em vez de saírem quase ao mesmo tempo (a IDE/DF
+ * recusa tudo depois de uma rajada).
  */
 export function criarFila(limite: number, intervaloMs = 0) {
   let correndo = 0;
-  let proximoInicio = 0;
+  let portao: Promise<void> = Promise.resolve();
+  let ultimoInicio = Number.NEGATIVE_INFINITY;
   const esperando: (() => void)[] = [];
   const entrar = () =>
     new Promise<void>((ok) => {
@@ -175,12 +181,17 @@ export function criarFila(limite: number, intervaloMs = 0) {
     if (proximo) proximo();
     else correndo--;
   };
-  const naVez = async () => {
-    if (!intervaloMs) return;
-    const agora = performance.now();
-    const quando = Math.max(agora, proximoInicio);
-    proximoInicio = quando + intervaloMs;
-    if (quando > agora) await new Promise((ok) => setTimeout(ok, quando - agora));
+  const naVez = (): Promise<void> => {
+    if (!intervaloMs) return Promise.resolve();
+    const vez = portao.then(async () => {
+      // O relógio dos timers pode disparar 1 ms antes: confere e espera o resto.
+      for (let falta = ultimoInicio + intervaloMs - performance.now(); falta > 0; falta = ultimoInicio + intervaloMs - performance.now()) {
+        await new Promise((ok) => setTimeout(ok, falta));
+      }
+      ultimoInicio = performance.now();
+    });
+    portao = vez;
+    return vez;
   };
   return async function naFila<T>(tarefa: () => Promise<T>): Promise<T> {
     await entrar();

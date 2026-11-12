@@ -15,8 +15,9 @@ o mapa de fundo, o selo e o gerador de incidentes no modelo único, com testes.
 
 **I1 · Sala de guerra** (feita, aguardando revisão): "onde a cidade precisa de
 mim agora?" (slide 14). Uma sala de comando: o DF inclinado, sobre imagem de
-satélite, que conta a história sozinho no tour. As capturas em `capturas/` são
-de antes da revisão visual e do mapa de 12/11/2026 (ver "O mapa", abaixo).
+satélite, que conta a história sozinho no tour. Capturas, já no visual revisto:
+`capturas/i1-sala.png` (abertura com os painéis), `i1-sala-tour.png` (parada
+"onde as coisas estão pegando") e `i1-sala-contexto.png` (dados reais de perto).
 
 - **Mapa de calor:** a leitura principal, e a que abre. Mostra onde os chamados
   se concentram, em seis faixas, preso ao chão: ao aproximar, a mancha fica nas

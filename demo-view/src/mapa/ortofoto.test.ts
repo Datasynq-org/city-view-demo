@@ -275,9 +275,29 @@ describe('fila de pedidos', () => {
     const naFila = criarFila(8, 15);
     const inicios: number[] = [];
     await Promise.all(Array.from({ length: 6 }, () => naFila(async () => void inicios.push(performance.now()))));
-    // Os inícios são marcados a cada 15 ms a partir do primeiro; o relógio do sistema pode adiantar 1 ou 2 ms.
-    for (let k = 1; k < inicios.length; k++) expect(inicios[k]! - inicios[k - 1]!).toBeGreaterThan(10);
-    expect(inicios.at(-1)! - inicios[0]!).toBeGreaterThan(5 * 15 - 6);
+    // Cada início vem pelo menos 15 ms depois do anterior, mesmo com a máquina ocupada.
+    for (let k = 1; k < inicios.length; k++) expect(inicios[k]! - inicios[k - 1]!).toBeGreaterThanOrEqual(15 - 0.5);
+    expect(inicios.at(-1)! - inicios[0]!).toBeGreaterThanOrEqual(5 * 15 - 1);
+  });
+
+  it('um disparo atrasado não junta os seguintes numa rajada', async () => {
+    const naFila = criarFila(8, 15);
+    const inicios: number[] = [];
+    const ocupar = (ms: number) => {
+      const fim = performance.now() + ms;
+      while (performance.now() < fim) {
+        // trava a thread, como um navegador ocupado desenhando o mapa
+      }
+    };
+    await Promise.all(
+      Array.from({ length: 5 }, (_, k) =>
+        naFila(async () => {
+          inicios.push(performance.now());
+          if (k === 1) ocupar(60);
+        }),
+      ),
+    );
+    for (let k = 1; k < inicios.length; k++) expect(inicios[k]! - inicios[k - 1]!).toBeGreaterThanOrEqual(15 - 0.5);
   });
 
   it('nunca passa do limite de tarefas ao mesmo tempo, e atende todas', async () => {
