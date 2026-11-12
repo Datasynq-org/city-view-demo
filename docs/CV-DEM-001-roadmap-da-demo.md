@@ -3,10 +3,10 @@
 | Campo | Valor |
 | --- | --- |
 | Código | CV-DEM-001 |
-| Versão | 0.1 (11/11/2026), para revisão da equipe |
+| Versão | 0.2 (12/11/2026), para revisão da equipe. Muda a pasta para `demo-view/` e registra a I0 construída. A 0.1 é de 11/11/2026 |
 | O que é | Como a demo do City View vai ser construída: em fatias pequenas, cada uma mostrável sozinha, planejada e revista antes da próxima |
 | Para que serve a demo | Complementar a apresentação ([CV-APR-001](CV-APR-001-roteiro-da-apresentacao.md)): "logar em alguma coisa e mostrar mais ou menos o que a gente falou" (ATA 267–268) |
-| Onde fica | Pasta `demo/` deste repositório (a criar na iteração I0) |
+| Onde fica | Pasta `demo-view/` deste repositório. É autocontida (tem `package.json` próprio e não lê nada de fora), para poder ser movida inteira para outro repositório |
 
 ## 1. Por que recomeçar, e do que aproveitar
 
@@ -40,9 +40,11 @@ Esta demo aproveita o **motor** e refaz as **telas**, uma fatia por vez.
 | Visual | Painéis de vidro (backdrop-blur) sobre o mapa, tokens da direção C (navy, teal, âmbar) | A estética escolhida para o deck, levada para a tela |
 | Fonte | Bahnschrift (nativa no Windows), com Barlow / Barlow Condensed (OFL) hospedada junto como alternativa | Mesma família visual do deck, sem depender de internet |
 | Gráficos | A definir na I1 (Recharts, já usado antes, ou visx) | Decidir quando houver o primeiro gráfico |
-| Testes | Vitest nas pastas `dominio/` e `inteligencia/` | O motor portado precisa provar que continua certo |
+| Testes | Vitest nas pastas `dominio/`, `dados/`, `mapa/` e `inteligencia/` | O motor portado precisa provar que continua certo |
 
-Versões exatas: fixadas no `package.json` na I0.
+Versões exatas: fixadas no `demo-view/package.json`. Cada peça entra na iteração
+que a usa primeiro: a I0 tem só a base, o MapLibre e o Vitest; deck.gl, Motion e
+a biblioteca de gráficos entram na I1.
 
 **Inspirações visuais, sem código:**
 - God's Eye View: painel em HUD, troca de camadas, consulta por voz. O repositório não declara licença e se apresenta como "simulador de satélite espião". O nome **não** aparece em nenhum material (magno 7.6).
@@ -53,16 +55,19 @@ Versões exatas: fixadas no `package.json` na I0.
 As pastas espelham as camadas do produto (CV-REF-002):
 
 ```
-demo/
+demo-view/
   src/
-    dominio/       modelo único de incidente, ciclo de vida, órgãos, canais, RAs (funções puras, testadas)
+    dominio/       modelo único de incidente, ciclo de vida, órgãos, canais, RAs e os limites das RAs (funções puras, testadas)
     dados/         gerador determinístico, cenários, conectores simulados com situação (existe/proposta)
     inteligencia/  agrupamento, correlação, previsão, insights com explicação (JSON congelado)
     mapa/          MapLibre + camadas deck.gl, fundo e queda sem rede
     ui/            componentes de vidro, selo de demonstração, tokens
     telas/         uma pasta por iteração
-  public/geo/      limites das RAs (gerados de assets/geo)
+  scripts/         gera os limites das RAs a partir de assets/geo
 ```
+
+Os limites das RAs ficam em `src/dominio/ras-geo.json`, e não em `public/geo/`
+como previa a versão 0.1: o domínio e os testes importam o dado direto.
 
 ### Modelo único de incidente (camada 4)
 
@@ -88,8 +93,8 @@ Ponto de partida, a partir do magno 7.3 e da camada 4 do CV-REF-002:
 
 | Origem (repositório `City-view`) | Destino | Adaptação |
 | --- | --- | --- |
-| `assets/geo/ra_gdf.geojson` (limites oficiais das RAs, IDE/DF) e `scripts/build-mapa-ras.mjs` | `demo/public/geo/`, `demo/scripts/` | Nenhuma no dado; o script passa a gerar para a pasta nova |
-| `apps/sala-de-situacao/src/data/ras.ts` (população PDAD 2021 e pesos) | `dominio/ras.ts` | Separar o dado oficial (população) dos pesos simulados, rotulando os simulados |
+| `assets/geo/ra_gdf.geojson` (limites oficiais das RAs, IDE/DF) e `scripts/build-mapa-ras.mjs` | `demo-view/src/dominio/ras-geo.json`, `demo-view/scripts/gerar-ras.mjs` | Nenhuma no dado; o script recebe o caminho da base por argumento e gera para a pasta nova |
+| `apps/sala-de-situacao/src/data/ras.ts` (população do Censo 2022 e pesos; a versão 0.1 dizia PDAD 2021, por engano) | `dominio/ras.ts` | Separar o dado oficial (população) dos pesos simulados, rotulando os simulados |
 | `data/simulacao.ts` (série diária categoria × RA × dia, sazonalidade, focos) | `dados/gerador.ts` | Gerar incidentes no modelo novo, com origem e situação |
 | `data/pontos.ts` (ponto de cada chamado perto do núcleo urbano) | `dados/pontos.ts` | Sem mudança de método |
 | `data/grafo-neural.ts` (agrupamento: assunto × espaço × tempo, union-find, urgência) | `inteligencia/agrupamento.ts` | Separar o algoritmo da animação; testes com os cenários |
@@ -113,6 +118,14 @@ dizer: roda, foi revisto com a equipe e tem captura para o deck.
 | **I4** | Gestor e cidadão | "Como está a minha área?" · "O que o governo está entregando?" | Painel por área; mapa de transparência com os três graus (resolvidos · em resolução · abertos) | 15 |
 | **I5** | Previsão e "pergunte à cidade" | "O que vem por aí?" | Previsão portada, com a margem visível; pergunta em linguagem natural respondida pelo Claude ao vivo, com respostas prontas de reserva sem rede | 13 |
 | **I6** | Mais conectores e etapas | "Com o que mais isso se conecta?" | Catálogo de conectores com a situação de cada um; mais fontes e etapas simuladas (ex.: tempo de fila por órgão) | 12 |
+
+**Situação em 12/11/2026.** A I0 está construída em `demo-view/`: roda, os
+testes passam e o build abre sem internet. Para ficar "pronta" faltam a revisão
+da equipe e a captura para o deck. Entraram 10 órgãos (os que têm fonte no
+magno) e 24 tipos de incidente. Dois pontos para a revisão, por serem propostas
+iniciais sem fonte: as transições permitidas entre situações
+(`dominio/incidente.ts`) e os percentuais simulados de falha de envio,
+reabertura e severidade (`dados/gerador.ts`).
 
 **Opção · Apresentação interativa.** A apresentação como página com rolagem
 (scrollytelling): a mesma narrativa do CV-APR-001, com o mapa e os diagramas

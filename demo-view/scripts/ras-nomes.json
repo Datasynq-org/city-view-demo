@@ -1,0 +1,150 @@
+{
+ "RA-XXXVI": {
+  "id": "26-de-setembro",
+  "nome": "26 de Setembro"
+ },
+ "RA-XXXV": {
+  "id": "agua-quente",
+  "nome": "Água Quente"
+ },
+ "RA-XX": {
+  "id": "aguas-claras",
+  "nome": "Águas Claras"
+ },
+ "RA-XXXIV": {
+  "id": "arapoanga",
+  "nome": "Arapoanga"
+ },
+ "RA-XXXIII": {
+  "id": "arniqueira",
+  "nome": "Arniqueira"
+ },
+ "RA-IV": {
+  "id": "brazlandia",
+  "nome": "Brazlândia"
+ },
+ "RA-XIX": {
+  "id": "candangolandia",
+  "nome": "Candangolândia"
+ },
+ "RA-IX": {
+  "id": "ceilandia",
+  "nome": "Ceilândia"
+ },
+ "RA-XI": {
+  "id": "cruzeiro",
+  "nome": "Cruzeiro"
+ },
+ "RA-XXXI": {
+  "id": "fercal",
+  "nome": "Fercal"
+ },
+ "RA-II": {
+  "id": "gama",
+  "nome": "Gama"
+ },
+ "RA-X": {
+  "id": "guara",
+  "nome": "Guará"
+ },
+ "RA-XXVIII": {
+  "id": "itapoa",
+  "nome": "Itapoã"
+ },
+ "RA-XXVII": {
+  "id": "jardim-botanico",
+  "nome": "Jardim Botânico"
+ },
+ "RA-XVIII": {
+  "id": "lago-norte",
+  "nome": "Lago Norte"
+ },
+ "RA-XVI": {
+  "id": "lago-sul",
+  "nome": "Lago Sul"
+ },
+ "RA-VIII": {
+  "id": "nucleo-bandeirante",
+  "nome": "Núcleo Bandeirante"
+ },
+ "RA-VII": {
+  "id": "paranoa",
+  "nome": "Paranoá"
+ },
+ "RA-XXIV": {
+  "id": "park-way",
+  "nome": "Park Way"
+ },
+ "RA-VI": {
+  "id": "planaltina",
+  "nome": "Planaltina"
+ },
+ "RA-I": {
+  "id": "plano-piloto",
+  "nome": "Plano Piloto"
+ },
+ "RA-XXXVII": {
+  "id": "ponte-alta",
+  "nome": "Ponte Alta"
+ },
+ "RA-XV": {
+  "id": "recanto-das-emas",
+  "nome": "Recanto das Emas"
+ },
+ "RA-XVII": {
+  "id": "riacho-fundo",
+  "nome": "Riacho Fundo"
+ },
+ "RA-XXI": {
+  "id": "riacho-fundo-ii",
+  "nome": "Riacho Fundo II"
+ },
+ "RA-XII": {
+  "id": "samambaia",
+  "nome": "Samambaia"
+ },
+ "RA-XIII": {
+  "id": "santa-maria",
+  "nome": "Santa Maria"
+ },
+ "RA-XIV": {
+  "id": "sao-sebastiao",
+  "nome": "São Sebastião"
+ },
+ "RA-XXV": {
+  "id": "scia",
+  "nome": "SCIA"
+ },
+ "RA-XXIX": {
+  "id": "sia",
+  "nome": "SIA"
+ },
+ "RA-V": {
+  "id": "sobradinho",
+  "nome": "Sobradinho"
+ },
+ "RA-XXVI": {
+  "id": "sobradinho-ii",
+  "nome": "Sobradinho II"
+ },
+ "RA-XXXII": {
+  "id": "sol-nascente-por-do-sol",
+  "nome": "Sol Nascente/Pôr do Sol"
+ },
+ "RA-XXII": {
+  "id": "sudoeste-e-octogonal",
+  "nome": "Sudoeste/Octogonal"
+ },
+ "RA-III": {
+  "id": "taguatinga",
+  "nome": "Taguatinga"
+ },
+ "RA-XXIII": {
+  "id": "varjao",
+  "nome": "Varjão"
+ },
+ "RA-XXX": {
+  "id": "vicente-pires",
+  "nome": "Vicente Pires"
+ }
+}

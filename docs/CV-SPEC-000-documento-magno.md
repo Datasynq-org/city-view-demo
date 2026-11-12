@@ -671,7 +671,7 @@ As outras grafias erradas da transcrição estão no cabeçalho da
 | [CV-REF-001 Histórico dos projetos](CV-REF-001-historico-dos-projetos.md) | De onde o projeto veio: dfac, Zela DF, primeira tentativa do CityView |
 | [CV-REF-002 Rascunho do fluxo e do roteiro](CV-REF-002-rascunho-fluxo-e-roteiro.md) | *Acréscimo de 11/11/2026.* Fluxograma em camadas, caso da pedra na via e roteiro de seis passos, anteriores à demo exploratória, conferidos com o que se sabe hoje |
 | [CV-APR-001 Roteiro da apresentação](CV-APR-001-roteiro-da-apresentacao.md) | *Acréscimo de 11/11/2026.* Os 18 slides da apresentação base (direção visual C · Híbrida): mensagem, tela, fala, origem e momentos de demo, com checagem de completude |
-| [CV-DEM-001 Roadmap da demo](CV-DEM-001-roadmap-da-demo.md) | *Acréscimo de 11/11/2026.* Como a demo será construída em iterações (I0 a I6), a pilha, a organização do código e a decisão de reuso do motor da demo exploratória |
+| [CV-DEM-001 Roadmap da demo](CV-DEM-001-roadmap-da-demo.md) | *Acréscimo de 11/11/2026.* Como a demo será construída em iterações (I0 a I6), a pilha, a organização do código e a decisão de reuso do motor da demo exploratória. *Acréscimo de 12/11/2026:* v0.2. A demo fica na pasta `demo-view/` (era `demo/`), autocontida; a I0 (fundação) está construída e aguarda a revisão da equipe |
 | [CV-REF-003 Framework de produção de vídeo](CV-REF-003-framework-de-video.md) | *Acréscimo de 11/11/2026.* O framework dos filmes da NORNA (Higgsfield + Remotion), adotado como ferramenta principal para o vídeo do City View, com o que muda de um produto para o outro |
 | [CV-VID-001 Roteiro do vídeo](CV-VID-001-roteiro-do-video.md) | *Acréscimo de 11/11/2026.* O filme "A cidade conectada" (1min50s, 16:9), plano a plano: Brasília como rede, silos, virada em grafo e rede neural, três casos de inteligência, visões e prova. Portão 0 do framework. *Acréscimo de 12/11/2026:* a r1 substitui a r0: filme de abertura de 1min10s, um só caso (buraco que é vazamento) com a jornada do cidadão, sem casos de segurança nem previsão |
 
@@ -692,3 +692,4 @@ versão fica dentro do documento, nunca no nome do arquivo.
 | 11/11/2026 | Seção 11: o framework de produção de vídeo da NORNA (CV-REF-003), adotado pela equipe como ferramenta principal para o vídeo do City View |
 | 11/11/2026 | Seção 11: o roteiro do vídeo (CV-VID-001, r0), portão 0 do framework de vídeo |
 | 12/11/2026 | Seção 11: o roteiro do vídeo passa à r1, reescrito a partir da crítica à r0 (o histórico está no próprio CV-VID-001) |
+| 12/11/2026 | Seção 11: o roadmap da demo passa à v0.2 (pasta `demo-view/`, autocontida) e a iteração I0 (fundação) está construída: mapa do DF com as 37 RAs, selo, painel de exemplo e gerador de incidentes no modelo único, com testes |

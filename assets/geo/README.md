@@ -31,8 +31,11 @@ Pendente: confirmar os termos de uso dos dados da IDE/DF antes de produção.
 
 Copiado de `Datasynq-org/City-view` (`assets/geo/`) em 11/11/2026, sem alteração
 no dado. É o reuso previsto no CV-DEM-001, seção 5. Os comandos acima são do
-repositório antigo. Aqui, o derivado é gerado por:
+repositório antigo. Aqui, os derivados são gerados por:
 
 - `npm run mapa` (dentro de `apresentacao-web/`): contornos simplificados e
   projetados para SVG, com o ponto do rótulo de cada RA, em
   `apresentacao-web/src/mapa/ras.json`.
+- `npm run geo -- ../assets/geo/ra_gdf.geojson` (dentro de `demo-view/`):
+  contornos simplificados em lon/lat, ponto do rótulo, centroide e área de cada
+  RA, em `demo-view/src/dominio/ras-geo.json`.

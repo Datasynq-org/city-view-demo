@@ -1,0 +1,77 @@
+@import "tailwindcss" source(".");
+
+/* Direção C: navy, teal e âmbar (apresentacao/src/tema.js do city-view-demo).
+   As mesmas cores estão em src/ui/tokens.ts, para o mapa; mudou aqui, mude lá. */
+@theme {
+  --color-navy: #0b1e31;
+  --color-navy-2: #12293f;
+  --color-linha: #1e3852;
+  --color-teal: #0196b2;
+  --color-teal-claro: #38c3db;
+  --color-ambar: #f2a93b;
+  --color-texto: #c9d6e2;
+  --color-rotulo: #b7c6d4;
+
+  --font-sans: Bahnschrift, "Barlow", system-ui, sans-serif;
+  --font-condensada: Bahnschrift, "Barlow Condensed", "Barlow", system-ui, sans-serif;
+}
+
+@layer base {
+  html,
+  body,
+  #raiz {
+    height: 100%;
+  }
+
+  body {
+    background: var(--color-navy);
+    color: var(--color-texto);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    color-scheme: dark;
+  }
+}
+
+@layer components {
+  /* Rótulos e selos: caixa alta condensada. A Bahnschrift condensa pelo eixo de largura. */
+  .condensado {
+    font-family: var(--font-condensada);
+    font-stretch: 75%;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .painel-vidro {
+    border: 1px solid rgb(255 255 255 / 0.1);
+    border-radius: 16px;
+    background: rgb(18 41 63 / 0.55);
+    box-shadow:
+      0 20px 60px rgb(0 0 0 / 0.4),
+      inset 0 1px 0 rgb(255 255 255 / 0.06);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: blur(18px) saturate(150%);
+  }
+
+  /* Onde não há desfoque, o painel fica quase opaco para o texto continuar legível. */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .painel-vidro {
+      background: rgb(18 41 63 / 0.92);
+    }
+  }
+}
+
+/* Créditos do mapa no tom da tela. O `#raiz` vence o CSS do MapLibre, que carrega depois. */
+#raiz .maplibregl-map {
+  font-family: var(--font-sans);
+}
+#raiz .maplibregl-ctrl-attrib {
+  background: rgb(18 41 63 / 0.8);
+  color: var(--color-rotulo);
+}
+#raiz .maplibregl-ctrl-attrib a {
+  color: var(--color-texto);
+}
+#raiz .maplibregl-ctrl-attrib-button {
+  filter: invert(1);
+}

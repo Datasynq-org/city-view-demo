@@ -1,0 +1,36 @@
+{
+  "name": "city-view-demo-view",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Demo do City View (dados simulados). I0: fundação.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "preview": "vite preview --port 4200 --strictPort",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "geo": "node scripts/gerar-ras.mjs"
+  },
+  "dependencies": {
+    "@fontsource/barlow": "5.3.0",
+    "@fontsource/barlow-condensed": "5.3.0",
+    "maplibre-gl": "6.17.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "4.3.5",
+    "@types/geojson": "7946.0.16",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.3.0",
+    "tailwindcss": "4.3.5",
+    "typescript": "6.0.3",
+    "vite": "8.3.8",
+    "vitest": "5.1.0"
+  }
+}
