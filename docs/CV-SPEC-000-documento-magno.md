@@ -697,3 +697,4 @@ versão fica dentro do documento, nunca no nome do arquivo.
 | 12/11/2026 | Seção 11: o design system "Sala de Operações" (CV-DS-001), com o pacote `design-system/` e a casca da demo (`demo/`) vestida por ele |
 | 12/11/2026 | Roteiro do vídeo na r2 (o caso vira o apagão) e primeira montagem do filme na pasta `video/` (`entregas/CityView_filme_16x9_r1.mp4`); o que mudou do roteiro para a montagem está na seção 9.2 do CV-VID-001 |
 | 12/11/2026 | Decisão da equipe: a demo segue na pasta `demo-view/` (do Lucca), com o visual da direção C; a pasta `demo/` fica como vitrine do design system, que vale para a apresentação em rolagem (CV-DEM-001, seção 9; CV-DS-001) |
+| 12/11/2026 | A pasta `demo/` (vitrine do design system) passa a se chamar `design-system-vitrine/`, para não se confundir com a demo, que continua em `demo-view/`. Onde os registros anteriores dizem `demo/`, é dessa vitrine que se trata |

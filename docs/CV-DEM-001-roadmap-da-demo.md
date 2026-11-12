@@ -162,8 +162,8 @@ documento continua sendo o plano.
 
 *Revisto em 12/11/2026, ao juntar o trabalho do Lucca (decisão da equipe).*
 
-- **A demo é a `demo-view/`:** autocontida (pacote, build, porta 5200 e README próprios; não lê nada de fora). Visual próprio na direção C (navy, teal, âmbar, Barlow condensada). A demo não mexe em `apresentacao-web/`, `apresentacao/`, `design-system/` nem `demo/`; em `docs/`, só nesta seção.
-- **A `demo/` é a vitrine do design system** "Sala de Operações" ([CV-DS-001](CV-DS-001-design-system.md)), que vale para a apresentação em rolagem. Ela não recebe as iterações da demo.
+- **A demo é a `demo-view/`:** autocontida (pacote, build, porta 5200 e README próprios; não lê nada de fora). Visual próprio na direção C (navy, teal, âmbar, Barlow condensada). A demo não mexe em `apresentacao-web/`, `apresentacao/`, `design-system/` nem `design-system-vitrine/`; em `docs/`, só nesta seção.
+- **A `design-system-vitrine/` é a vitrine do design system** "Sala de Operações" ([CV-DS-001](CV-DS-001-design-system.md)), que vale para a apresentação em rolagem. Ela não recebe as iterações da demo. *Acréscimo de 12/11/2026:* a pasta se chamava `demo/`; foi renomeada para não se confundir com a demo. As branches das iterações continuam com o prefixo `demo/`, que é nome de branch, não de pasta.
 - **Uma iteração por vez:** cada uma ganha uma branch própria (`demo/iN-<nome>`), um plano curto antes de começar e uma revisão com a equipe antes de entrar no `main`. A próxima só começa depois disso.
 
 ### 9.2 Situação das iterações
@@ -174,7 +174,7 @@ documento continua sendo o plano.
 | I1 · sala de guerra | **Feita**, aguardando revisão (branch `demo/i1-sala-de-guerra`) | 12/11/2026 | Refeita no mesmo dia como sala de comando em 3D (ver o acréscimo abaixo): o DF inclinado, que gira devagar; chamados em Regiões 3D, Hexágonos 3D ou Calor; prédios em 3D de perto; um chamado novo chegando a cada poucos segundos, com anel no mapa; RA clicável, com cartão; filtros de período, área e RA, que mudam mapa e números juntos; abertos, recebidos, tempo até resolver e % no prazo; velocidade da gestão por área; chamados por dia; camadas reais ligáveis (saúde CNES 2026, escolas INEP 2025, favelas IBGE 2022); tour de 5 paradas com frases literais da ATA (`?tour=1`); modos padrão, noturno e térmico; modo telão. Testes: 87. Capturas: `demo-view/capturas/i1-sala*.png` |
 | I2 a I6 | A fazer | — | Seção 6. Na I3, a base é o grafo do Calebe (ver o acréscimo abaixo) |
 
-A casca visual feita em `demo/` no mesmo dia (barra, navegação, painel da sala, catálogo) fica como vitrine do design system e como referência de interface para a I1, sem código copiado.
+A casca visual feita em `demo/` (hoje `design-system-vitrine/`) no mesmo dia (barra, navegação, painel da sala, catálogo) fica como vitrine do design system e como referência de interface para a I1, sem código copiado.
 
 *Acréscimo de 12/11/2026, decisões da I1.*
 - **Gráficos:** SVG feito à mão, sem biblioteca (Recharts e visx ficaram de fora). A I1 tem só barras e um minigráfico, que não pedem mais que isso. A escolha é revista na I4, quando vierem gráficos maiores. Isto fecha o "a definir na I1" da tabela da pilha (seção 3).

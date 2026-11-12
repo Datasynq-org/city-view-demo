@@ -1,7 +1,7 @@
 {
-  "name": "city-view-demo-app",
+  "name": "city-view-design-system-vitrine",
   "private": true,
-  "description": "Demo do City View, vestida com o design system Sala de Operações (../design-system)",
+  "description": "Vitrine do design system Sala de Operações (../design-system): casca de aplicativo e catálogo vivo. A demo do City View fica em ../demo-view",
   "type": "module",
   "scripts": {
     "mapa": "node scripts/gerar-mapa.mjs",

@@ -5,10 +5,10 @@
 | Código | CV-DS-001 |
 | Versão | 0.1 (12/11/2026) |
 | O que é | O mapeamento da estética da apresentação em rolagem como design system: princípios, tokens, tipografia, layout, componentes, mapa e dados, movimento e acessibilidade |
-| Onde está o código | `design-system/` (pacote compartilhado). Usado por `apresentacao-web/` e `demo/` pelo atalho `@ds` |
-| Catálogo vivo | A demo com `?catalogo` (`demo/src/catalogo/Catalogo.tsx`): tokens e componentes lado a lado nos dois temas |
+| Onde está o código | `design-system/` (pacote compartilhado). Usado por `apresentacao-web/` e `design-system-vitrine/` pelo atalho `@ds` |
+| Catálogo vivo | A vitrine com `?catalogo` (`design-system-vitrine/src/catalogo/Catalogo.tsx`): tokens e componentes lado a lado nos dois temas |
 | Origem | A estética da página de rolagem aprovada pela equipe; inspirações registradas no magno 7.5 (Sala de Operações) e no CV-DEM-001 |
-| Onde vale | *Acréscimo de 12/11/2026 (decisão da equipe):* na apresentação em rolagem (`apresentacao-web/`) e na vitrine `demo/`. A demo de verdade, `demo-view/`, segue o visual da direção C, com tokens próprios (CV-DEM-001, seção 9.1) |
+| Onde vale | *Acréscimo de 12/11/2026 (decisão da equipe):* na apresentação em rolagem (`apresentacao-web/`) e na vitrine `design-system-vitrine/`. A demo de verdade, `demo-view/`, segue o visual da direção C, com tokens próprios (CV-DEM-001, seção 9.1). *Acréscimo de 12/11/2026:* a vitrine se chamava `demo/`; foi renomeada para não se confundir com a demo |
 
 ## 1. Princípios
 
@@ -135,6 +135,6 @@ Para canvas e WebGL: `lerPaleta()` lê os tokens do tema ativo; `aoMudarTema()` 
 ## 9. Como usar num app novo
 
 1. No `vite.config.ts`: alias `@ds` → `../design-system/src` e `resolve.dedupe: ['react', 'react-dom']`.
-2. No `tsconfig.json`: `paths` para `@ds` e para `react` (ver `demo/tsconfig.json`), e `include` com `../design-system/src`.
+2. No `tsconfig.json`: `paths` para `@ds` e para `react` (ver `design-system-vitrine/tsconfig.json`), e `include` com `../design-system/src`.
 3. No CSS do app: `@import "tailwindcss" source(".")`, `@source "../../design-system/src"`, depois `tokens.css` e `base.css`.
 4. Fontes: `@fontsource-variable/geist` e `@fontsource-variable/geist-mono` no `main.tsx`; `aplicarTema(temaInicial())` antes de renderizar.
