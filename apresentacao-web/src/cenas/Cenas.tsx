@@ -4,6 +4,7 @@ import { MapaDF } from '../componentes/MapaDF';
 import { estado, type Estado } from '../cidade/estado';
 import { gsap, useGSAP, COM_MOVIMENTO, linhaDaCena, captura } from '../rolagem/rolagem';
 import * as N from '../conteudo/narrativa';
+import { CartaoInsight, Kpi, Alerta, Selo, Rotulo as RotuloDS } from '@ds';
 
 // anima um campo do estado da cidade dentro da linha do tempo da cena
 const anima = (tl: gsap.core.Timeline, campo: keyof Estado, de: number, para: number, em: number, dur = 0.6) =>
@@ -11,10 +12,7 @@ const anima = (tl: gsap.core.Timeline, campo: keyof Estado, de: number, para: nu
 const fixa = (tl: gsap.core.Timeline, valores: Partial<Estado>, em: number) => tl.set(estado, valores, em);
 
 function Rotulo({ children }: { children: string }) {
-  return <p className="rotulo mb-4">{children}</p>;
-}
-function Selo({ children }: { children: string }) {
-  return <span className="selo">{children}</span>;
+  return <RotuloDS className="mb-4">{children}</RotuloDS>;
 }
 
 // 1 · Abertura: a cidade aparece
@@ -85,30 +83,7 @@ export function Virada() {
 }
 
 function Cartao({ c }: { c: N.Caso }) {
-  return (
-    <div className="passo painel p-7">
-      <div className="flex items-center justify-between">
-        <p className="rotulo c-atencao">{c.tipo}</p>
-        <Selo>Ilustrativo</Selo>
-      </div>
-      <h2 className="titulo mt-3 text-4xl">{c.titulo}</h2>
-      <p className="rotulo mt-6 fraco">O que a IA viu</p>
-      <p className="mt-2 text-lg">{c.viu}</p>
-      <p className="rotulo mt-5 fraco">Por quê</p>
-      <div className="mt-2 flex flex-wrap gap-2">{c.porque.map((p) => <span key={p} className="chip">{p}</span>)}</div>
-      <div className="mt-5 flex items-end justify-between gap-4">
-        <div>
-          <p className="rotulo fraco">Sugere · confiança {c.confianca}</p>
-          <p className="mt-2 text-lg">{c.sugere}</p>
-        </div>
-      </div>
-      <div className="mt-6 flex items-center gap-3">
-        <span className="botao botao-sim">Confirmar</span>
-        <span className="botao">Descartar</span>
-        <span className="ml-2 text-sm fraco">{N.inteligencia.decide}</span>
-      </div>
-    </div>
-  );
+  return <CartaoInsight className="passo" tipo={c.tipo} titulo={c.titulo} viu={c.viu} porque={c.porque} confianca={c.confianca} sugere={c.sugere} decide={N.inteligencia.decide} />;
 }
 
 // 4 · Inteligência: zoom em três casos; os chamados viram um incidente
@@ -144,20 +119,10 @@ export function Sala() {
       <div className="absolute right-16 top-10 flex flex-col items-end gap-3">
         <Selo>{t.selo}</Selo>
         <div className="flex gap-3">
-          {t.kpis.map((k) => (
-            <div key={k.rotulo} className="painel px-5 py-3 text-right">
-              <p className="rotulo fraco">{k.rotulo}</p>
-              <p className="titulo mt-1 text-3xl">{k.valor}</p>
-            </div>
-          ))}
+          {t.kpis.map((k) => <Kpi key={k.rotulo} rotulo={k.rotulo} valor={k.valor} />)}
         </div>
       </div>
-      <div className="painel absolute bottom-10 right-16 w-[22rem] px-5 py-4">
-        <p className="rotulo c-alerta">Alertas agora</p>
-        <ul className="mt-2 flex flex-col gap-2 text-sm">
-          {t.alertas.map((a) => <li key={a} className="flex items-center gap-2"><span className="c-atencao">●</span>{a}</li>)}
-        </ul>
-      </div>
+      <Alerta className="absolute bottom-10 right-16 w-[22rem]" titulo="Alertas agora" itens={t.alertas} />
     </div>
   );
   return (

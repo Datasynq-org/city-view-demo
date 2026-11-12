@@ -136,3 +136,26 @@ houver componentes prontos.
 | OpenFreeMap fora do ar | O serviço público não tem garantia; o mapa cai para o fundo liso com as RAs |
 | Licença do GSAP | Conferir os termos atuais antes de usar na apresentação interativa |
 | Demo parecer produto pronto | Selo fixo, rótulos existe/proposta, fala do apresentador (CV-APR-001) |
+
+---
+
+## 9. Construção da demo (andamento)
+
+*Acréscimo de 12/11/2026.* A partir daqui a demo é construída passo a passo,
+seguindo as iterações da seção 6. Esta seção concentra o andamento; o resto do
+documento continua sendo o plano.
+
+### 9.1 Área isolada
+
+- **Código só em `demo/`:** pacote, build, porta (5191) e README próprios. A demo não mexe em `apresentacao-web/`, `apresentacao/` nem `docs/`, exceto nesta seção.
+- **Única dependência compartilhada:** o design system (`design-system/`, [CV-DS-001](CV-DS-001-design-system.md)). Mudança no design system é decidida à parte, porque afeta também a apresentação em rolagem.
+- **Uma iteração por vez:** cada uma ganha uma branch própria (`demo/iN-<nome>`), um plano curto antes de começar e uma revisão com a equipe antes de entrar no `main`. A próxima só começa depois disso.
+
+### 9.2 Situação das iterações
+
+| It. | Situação | Data | O que entrou |
+| --- | --- | --- | --- |
+| I0 · casca visual | Feita | 12/11/2026 | Projeto `demo/` com o design system; barra, navegação e painel em vidro; mapa MapLibre com os limites oficiais das RAs (sem internet); 333 chamados de exemplo simulados; painel da sala de situação com período, números, legenda e "chegando agora"; catálogo do design system em `?catalogo`; tema claro/escuro |
+| I0 · dados | **Próxima** | — | Modelo único de incidente (seção 4), motor de dados portado da demo exploratória com testes (seção 5); os chamados de exemplo dão lugar ao gerador |
+| I1 · sala de guerra | A fazer | — | Seção 6 |
+| I2 a I6 | A fazer | — | Seção 6 |
