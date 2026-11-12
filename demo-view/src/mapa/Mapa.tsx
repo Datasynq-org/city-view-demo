@@ -9,9 +9,10 @@ import { MapLibreOverlay } from '@deck.gl/maplibre';
 import type { Incidente } from '../dominio/incidente';
 import { LIMITES_DF, REGIAO_POR_ID, REGIOES } from '../dominio/ras';
 import { Painel } from '../ui/Painel';
+import { useTema } from '../ui/tema';
 import { agregar, CAMADA_CALOR, diferenca, diferencaVazia, FONTE_CALOR, type Grade, intensidadePorZoom, novaGrade, paraGeoJSON } from './calor';
 import { dicaDoMapa } from './camadas';
-import { CAMADA_RAS, FONTE_RAS, montarEstilo, semImagens } from './estilo';
+import { CAMADA_RAS, FONTE_RAS, emClaro, montarEstilo, semImagens } from './estilo';
 import { carregadorDeOrtofoto, PROTOCOLO_ORTOFOTO } from './ortofoto';
 import {
   caixaDaRa,
@@ -138,6 +139,8 @@ export function Mapa({
   telaCheia = false,
   className = '',
 }: Props) {
+  // Só o mapa de dados muda com o tema; o de satélite é o mesmo nos dois.
+  const claro = useTema() === 'claro' && semImagem;
   const container = useRef<HTMLDivElement>(null);
   const [semMapa, setSemMapa] = useState(false);
   const [pronto, setPronto] = useState(false);
@@ -160,7 +163,7 @@ export function Mapa({
     try {
       mapa = new maplibregl.Map({
         container: el,
-        style: semImagem ? semImagens(estiloBase()) : estiloBase(),
+        style: semImagem ? (claro ? emClaro(semImagens(estiloBase())) : semImagens(estiloBase())) : estiloBase(),
         bounds: LIMITES_DF,
         fitBoundsOptions: enquadre(),
         // Folga larga em volta do DF: apertada, ela impede o enquadramento em tela em pé.
@@ -278,7 +281,7 @@ export function Mapa({
       setPronto(false);
       mapa.remove();
     };
-  }, [margens, semImagem]);
+  }, [margens, semImagem, claro]);
 
   // Camadas (e, se houver, o anel de quem chega e a órbita): um quadro por vez, só enquanto há movimento.
   useEffect(() => {
@@ -410,13 +413,13 @@ export function Mapa({
       {sobre && (
         <Painel className="pointer-events-none absolute z-10 px-3 py-2 whitespace-nowrap" style={{ left: sobre.x + 16, top: sobre.y + 16 }}>
           <p className="condensado text-rotulo text-texto-2">{sobre.codigo}</p>
-          <p className="text-corpo font-medium text-white">{sobre.nome}</p>
+          <p className="text-corpo font-medium text-tinta">{sobre.nome}</p>
         </Painel>
       )}
       {semMapa && (
         <div className="absolute inset-0 grid place-items-center p-6">
           <Painel className="max-w-sm p-5 text-corpo">
-            <p className="font-semibold text-white">O mapa não abriu neste navegador</p>
+            <p className="font-semibold text-tinta">O mapa não abriu neste navegador</p>
             <p className="mt-1">Ele precisa de WebGL2. Tente outro navegador ou ative a aceleração gráfica.</p>
           </Painel>
         </div>

@@ -80,7 +80,7 @@ export function Linha({ serie, previsto, faixa, referencia, altura = 44, desdeZe
           <line x1="0" x2={L} y1="0" y2="0" stroke="var(--color-linha)" strokeWidth="1" strokeDasharray="2 3" vectorEffect="non-scaling-stroke" />
           {area && <path d={area} fill="var(--color-acento)" opacity="0.16" />}
           {referencia && <path d={caminho(referencia, n, e, altura)} fill="none" stroke="var(--color-texto-2)" strokeOpacity="0.6" strokeWidth="1" strokeDasharray="1 3" vectorEffect="non-scaling-stroke" />}
-          <path d={caminho(serie, n, e, altura)} fill="none" stroke="#fff" strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+          <path d={caminho(serie, n, e, altura)} fill="none" stroke="var(--color-tinta)" strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
           {previsto && <path d={caminho(previsto, n, e, altura)} fill="none" stroke="var(--color-acento-claro)" strokeWidth="1.6" strokeDasharray="4 3" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />}
         </svg>
       </div>
@@ -110,7 +110,7 @@ export function Barra({ valor, marca, destaque = false, className = '' }: { valo
   return (
     <span className={`relative block h-1.5 rounded-full bg-realce ${className}`} aria-hidden="true">
       <span className={`block h-1.5 rounded-full ${destaque ? 'bg-acento-claro' : 'bg-texto-2'}`} style={{ width: `${p * 100}%` }} />
-      {marca !== undefined && <span className="absolute -top-0.5 h-2.5 w-px bg-white" style={{ left: `${Math.min(1, Math.max(0, marca)) * 100}%` }} />}
+      {marca !== undefined && <span className="absolute -top-0.5 h-2.5 w-px bg-tinta" style={{ left: `${Math.min(1, Math.max(0, marca)) * 100}%` }} />}
     </span>
   );
 }

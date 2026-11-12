@@ -22,7 +22,7 @@ import { Celular } from '../jornada/Celular';
 const DIA = 86_400_000;
 const COR: Record<Estado, string> = { resolvido: '#58bd5e', 'em-resolucao': '#e9a23b', aberto: '#8a939c' };
 /** Do pouco ao muito resolvido: o "verdinho no mapa" da conversa. */
-const VERDES = ['#1d2a22', '#24402b', '#2d5a37', '#3a7a45', '#49a054', '#63c96b'];
+const VERDES = [0, 1, 2, 3, 4, 5].map((k) => `var(--verde-${k})`);
 
 const Titulo = ({ children, nota }: { children: ReactNode; nota?: string }) => (
   <div className="mb-3">
@@ -48,7 +48,7 @@ function Estados({ c, liberados }: { c: Contagem; liberados: readonly Estado[] }
               <span className="size-2 rounded-full" style={{ background: liberados.includes(e) ? COR[e] : 'transparent', outline: liberados.includes(e) ? 'none' : '1px dashed var(--color-linha-forte)' }} aria-hidden="true" />
               {NOME_DO_ESTADO[e]}
             </span>
-            <span className={`tabular-nums ${liberados.includes(e) ? 'text-white' : 'text-texto-2'}`}>{liberados.includes(e) ? numero(c[e]) : 'não mostrado'}</span>
+            <span className={`tabular-nums ${liberados.includes(e) ? 'text-tinta' : 'text-texto-2'}`}>{liberados.includes(e) ? numero(c[e]) : 'não mostrado'}</span>
           </li>
         ))}
       </ul>
@@ -89,7 +89,7 @@ export function TelaCidadao() {
           <div role="radiogroup" aria-label="Grau de transparência" className="space-y-2">
             {GRAUS.map((g) => (
               <button key={g.id} type="button" role="radio" aria-checked={g.id === grau} onClick={() => setGrau(g.id)} className={`block w-full rounded border px-3 py-2.5 text-left ${g.id === grau ? 'border-acento-claro bg-realce' : 'border-linha hover:bg-poco'}`}>
-                <span className={`block text-nota ${g.id === grau ? 'text-white' : 'text-texto'}`}>{g.nome}</span>
+                <span className={`block text-nota ${g.id === grau ? 'text-tinta' : 'text-texto'}`}>{g.nome}</span>
                 <span className="block text-micro text-texto-2">{g.nota}</span>
               </button>
             ))}
@@ -109,7 +109,7 @@ export function TelaCidadao() {
         <div className="flex min-w-0 flex-col gap-4">
           <Painel className="p-5">
             <Titulo nota={ra ? 'O cidadão escolhe a própria região' : 'Clique numa região no mapa para ver só ela'}>{ra ? (REGIAO_POR_ID[ra]?.nome ?? ra) : 'Distrito Federal'}</Titulo>
-            <p className="text-valor font-semibold text-white tabular-nums">{numero(mostrado.resolvido)}</p>
+            <p className="text-valor font-semibold text-tinta tabular-nums">{numero(mostrado.resolvido)}</p>
             <p className="mb-3 text-nota text-texto">
               demandas resolvidas neste mês
               {grau !== 'resolvidos' && parteResolvida(mostrado) !== null && <span className="text-texto-2"> · {percentual(parteResolvida(mostrado))} do que é mostrado</span>}

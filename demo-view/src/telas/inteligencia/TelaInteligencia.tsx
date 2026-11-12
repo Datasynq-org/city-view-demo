@@ -15,6 +15,7 @@ import { Mapa } from '../../mapa/Mapa';
 import type { Destino } from '../../mapa/vista';
 import { parametrosDoHash } from '../../navegacao';
 import { Painel } from '../../ui/Painel';
+import { useTema } from '../../ui/tema';
 import { resumir } from '../../inteligencia/resumo';
 import { PainelDeInsights } from './Painel';
 import { Fila, Insight, PorOrgao } from './partes';
@@ -78,7 +79,9 @@ export function TelaInteligencia() {
   }, [enviando, resultado]);
 
   // ------------------------------------------------ mapa
-  const estado = useMemo(() => ({ base, resultado, etapa, aberto, descartados }), [base, resultado, etapa, aberto, descartados]);
+  const tema = useTema();
+  // O tema entra na conta: as cores das camadas mudam com ele.
+  const estado = useMemo(() => ({ base, resultado, etapa, aberto, descartados }), [base, resultado, etapa, aberto, descartados, tema]);
   const camadas = useMemo(() => camadasDoGrafo(estado), [estado]);
   const animadas = useCallback((t: number) => camadasVivas(estado, ondas, t), [estado, ondas]);
 
@@ -170,7 +173,7 @@ export function TelaInteligencia() {
       <div className="absolute top-3 left-1/2 z-20 hidden -translate-x-1/2 items-center gap-2 lg:flex">
         <div role="group" aria-label="Como ver" className="flex rounded-lg border border-linha bg-painel p-0.5">
           {(['painel', 'grafo'] as const).map((v) => (
-            <button key={v} type="button" aria-pressed={v === vista} onClick={() => setVista(v)} title={v === 'painel' ? 'Os insights em cartões (tecla P)' : 'Os chamados no mapa (tecla G)'} className={`condensado rounded-md px-3 py-1.5 text-rotulo ${v === vista ? 'bg-acento text-white' : 'text-texto-2 hover:text-white'}`}>
+            <button key={v} type="button" aria-pressed={v === vista} onClick={() => setVista(v)} title={v === 'painel' ? 'Os insights em cartões (tecla P)' : 'Os chamados no mapa (tecla G)'} className={`condensado rounded-md px-3 py-1.5 text-rotulo ${v === vista ? 'bg-acento text-white' : 'text-texto-2 hover:text-tinta'}`}>
               {v === 'painel' ? 'Painel' : 'Grafo'}
             </button>
           ))}
@@ -178,18 +181,18 @@ export function TelaInteligencia() {
         <ol className={`rounded-lg border border-linha bg-painel p-0.5 ${vista === 'grafo' ? 'flex' : 'hidden'}`} aria-label="Etapas">
           {ETAPAS.map((e, k) => (
             <li key={e.nome}>
-              <button type="button" onClick={() => setEtapa(k as Etapa)} aria-current={k === etapa ? 'step' : undefined} title={`${e.dica} (tecla ${k + 1})`} className={`condensado flex items-center gap-2 rounded-md px-3 py-1.5 text-rotulo ${k === etapa ? 'bg-realce text-white' : 'text-texto-2 hover:text-white'}`}>
+              <button type="button" onClick={() => setEtapa(k as Etapa)} aria-current={k === etapa ? 'step' : undefined} title={`${e.dica} (tecla ${k + 1})`} className={`condensado flex items-center gap-2 rounded-md px-3 py-1.5 text-rotulo ${k === etapa ? 'bg-realce text-tinta' : 'text-texto-2 hover:text-tinta'}`}>
                 <span className={`grid size-4 place-items-center rounded-full text-micro ${k <= etapa ? 'bg-acento text-white' : 'bg-realce text-texto-2'}`}>{k + 1}</span>
                 {e.nome}
               </button>
             </li>
           ))}
         </ol>
-        <button type="button" onClick={() => setPorOrgao((v) => !v)} disabled={!inc} aria-pressed={porOrgao} title="A mesma leitura, sem o mapa: fila por fila" className={`condensado rounded-lg border border-linha px-3 py-2 text-rotulo disabled:opacity-35 ${vista === 'grafo' ? '' : 'hidden'} ${porOrgao ? 'bg-realce text-white' : 'bg-painel text-texto-2 hover:text-white'}`}>
+        <button type="button" onClick={() => setPorOrgao((v) => !v)} disabled={!inc} aria-pressed={porOrgao} title="A mesma leitura, sem o mapa: fila por fila" className={`condensado rounded-lg border border-linha px-3 py-2 text-rotulo disabled:opacity-35 ${vista === 'grafo' ? '' : 'hidden'} ${porOrgao ? 'bg-realce text-tinta' : 'bg-painel text-texto-2 hover:text-tinta'}`}>
           Por órgão
         </button>
         <div className="relative">
-          <button type="button" onClick={() => setAjustes((v) => !v)} aria-expanded={ajustes} className={`condensado rounded-lg border border-linha px-3 py-2 text-rotulo ${ajustes ? 'bg-realce text-white' : 'bg-painel text-texto-2 hover:text-white'}`}>
+          <button type="button" onClick={() => setAjustes((v) => !v)} aria-expanded={ajustes} className={`condensado rounded-lg border border-linha px-3 py-2 text-rotulo ${ajustes ? 'bg-realce text-tinta' : 'bg-painel text-texto-2 hover:text-tinta'}`}>
             Sensibilidade
           </button>
           {ajustes && (
@@ -222,7 +225,7 @@ export function TelaInteligencia() {
           setTimeout(() => !inc && voar(DF), 0);
         }}
         aria-label={filaAberta ? 'Recolher a fila de insights' : 'Mostrar a fila de insights'}
-        className={`absolute top-1/2 z-20 hidden h-12 w-5 -translate-y-1/2 place-items-center rounded-r border border-l-0 border-linha bg-painel text-texto-2 hover:text-white ${vista === 'grafo' ? 'lg:grid' : ''} ${filaAberta ? 'left-[23rem]' : 'left-0'}`}
+        className={`absolute top-1/2 z-20 hidden h-12 w-5 -translate-y-1/2 place-items-center rounded-r border border-l-0 border-linha bg-painel text-texto-2 hover:text-tinta ${vista === 'grafo' ? 'lg:grid' : ''} ${filaAberta ? 'left-[23rem]' : 'left-0'}`}
       >
         {filaAberta ? '‹' : '›'}
       </button>

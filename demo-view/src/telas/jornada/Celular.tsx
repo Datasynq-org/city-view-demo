@@ -83,11 +83,11 @@ export function Celular({ mensagens, digitando, experimente }: {
   };
 
   return (
-    <section aria-label="Conversa no WhatsApp" className="flex h-full min-h-0 flex-col overflow-hidden rounded-[1.6rem] border-[6px] border-[#22272c] bg-[#0f1214] shadow-2xl shadow-black/50">
+    <section aria-label="Conversa no WhatsApp" className="flex h-full min-h-0 flex-col overflow-hidden rounded-[1.6rem] border-[6px] border-linha-forte bg-base shadow-2xl shadow-black/50">
       <header className="flex items-center gap-3 border-b border-linha bg-painel px-4 py-2.5">
-        <span className="grid size-8 place-items-center rounded-full bg-acento/30 text-rotulo text-white" aria-hidden="true">DF</span>
+        <span className="grid size-8 place-items-center rounded-full bg-acento/30 text-rotulo text-tinta" aria-hidden="true">DF</span>
         <div className="min-w-0">
-          <p className="truncate text-nota text-white">Assistente no WhatsApp</p>
+          <p className="truncate text-nota text-tinta">Assistente no WhatsApp</p>
           <p className="text-micro text-texto-2">{digitando ? 'digitando…' : 'Canal do City View'}</p>
         </div>
       </header>
@@ -113,12 +113,12 @@ export function Celular({ mensagens, digitando, experimente }: {
         <footer className="space-y-2 border-t border-linha bg-painel px-3 py-2.5">
           <div className="flex flex-wrap gap-1.5">
             {(ATALHOS[experimente.etapa] ?? []).map((a) => (
-              <button key={a} type="button" disabled={experimente.bloqueado} onClick={() => experimente.aoEnviar(a)} className="rounded-full border border-linha-forte px-2.5 py-1 text-rotulo text-texto hover:border-acento-claro hover:text-white disabled:opacity-40">
+              <button key={a} type="button" disabled={experimente.bloqueado} onClick={() => experimente.aoEnviar(a)} className="rounded-full border border-linha-forte px-2.5 py-1 text-rotulo text-texto hover:border-acento-claro hover:text-tinta disabled:opacity-40">
                 {a}
               </button>
             ))}
             {experimente.etapa === 'foto' && (
-              <button type="button" disabled={experimente.bloqueado} onClick={experimente.aoFoto} className="rounded-full border border-acento-claro/60 px-2.5 py-1 text-rotulo text-acento-claro hover:text-white disabled:opacity-40">
+              <button type="button" disabled={experimente.bloqueado} onClick={experimente.aoFoto} className="rounded-full border border-acento-claro/60 px-2.5 py-1 text-rotulo text-acento-claro hover:text-tinta disabled:opacity-40">
                 Enviar foto de exemplo
               </button>
             )}
@@ -131,7 +131,7 @@ export function Celular({ mensagens, digitando, experimente }: {
               disabled={experimente.bloqueado}
               placeholder="Mensagem"
               aria-label="Escreva a mensagem"
-              className="min-w-0 flex-1 rounded-full border border-linha bg-poco px-3.5 py-1.5 text-nota text-white placeholder:text-texto-2 focus:border-acento-claro focus:outline-none"
+              className="min-w-0 flex-1 rounded-full border border-linha bg-poco px-3.5 py-1.5 text-nota text-tinta placeholder:text-texto-2 focus:border-acento-claro focus:outline-none"
             />
             <button type="submit" disabled={experimente.bloqueado || !texto.trim()} className="rounded-full bg-acento px-3.5 text-rotulo text-white disabled:opacity-40">
               Enviar
@@ -149,10 +149,10 @@ export function Celular({ mensagens, digitando, experimente }: {
  */
 export function RegistroDoOrgao({ registro }: { registro: { sistema: string; nota: string; campos: [string, string][] } }) {
   return (
-    <section aria-label="Registro no sistema do órgão" className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-linha-forte bg-[#101214]">
+    <section aria-label="Registro no sistema do órgão" className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-linha-forte bg-base">
       <header className="border-b border-linha-forte bg-poco px-4 py-2.5">
         <p className="condensado text-micro text-texto-2">Sistema do órgão</p>
-        <p className="text-corpo text-white">{registro.sistema}</p>
+        <p className="text-corpo text-tinta">{registro.sistema}</p>
       </header>
       <dl className="grid grid-cols-[6.5rem_1fr] gap-x-3 gap-y-2 px-4 py-4 font-mono text-rotulo">
         {registro.campos.map(([k, v]) => (

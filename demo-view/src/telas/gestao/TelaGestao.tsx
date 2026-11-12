@@ -54,7 +54,7 @@ function Numero({ rotulo, valor, children }: { rotulo: string; valor: string; ch
   return (
     <div className="rounded border border-linha bg-poco px-4 py-3">
       <p className="condensado text-micro text-texto-2">{rotulo}</p>
-      <p className="mt-1 text-valor font-semibold text-white tabular-nums">{valor}</p>
+      <p className="mt-1 text-valor font-semibold text-tinta tabular-nums">{valor}</p>
       {children}
     </div>
   );
@@ -103,7 +103,7 @@ export function TelaGestao() {
         <Grupo rotulo="Período" opcoes={JANELAS} valor={janela} aoMudar={setJanela} />
         <div className="flex flex-wrap gap-1.5" role="group" aria-label="Área">
           {[{ id: null, curto: 'Todas as áreas' } as { id: AreaId | null; curto: string }, ...AREAS].map((a) => (
-            <button key={a.id ?? 'todas'} type="button" aria-pressed={a.id === area} onClick={() => setArea(a.id)} className={`rounded border px-2.5 py-1.5 text-rotulo ${a.id === area ? 'border-acento-claro bg-realce text-white' : 'border-linha text-texto-2 hover:text-white'}`}>
+            <button key={a.id ?? 'todas'} type="button" aria-pressed={a.id === area} onClick={() => setArea(a.id)} className={`rounded border px-2.5 py-1.5 text-rotulo ${a.id === area ? 'border-acento-claro bg-realce text-tinta' : 'border-linha text-texto-2 hover:text-tinta'}`}>
               {a.curto}
             </button>
           ))}
@@ -113,7 +113,7 @@ export function TelaGestao() {
       <div className="pagina-grade">
         <Painel className="p-5">
           <Titulo nota={`Chamados abertos nos últimos ${dias} dias, contra os ${dias} dias anteriores, medidos com a mesma idade${area ? '' : ' · todos os órgãos somados'}`}>Velocidade da gestão</Titulo>
-          <p className="mb-3 text-corpo text-white">{LEITURA[comparacao.leitura]}</p>
+          <p className="mb-3 text-corpo text-tinta">{LEITURA[comparacao.leitura]}</p>
           <div className="grid gap-2 sm:grid-cols-2">
             <Numero rotulo="Resolvido no prazo" valor={percentual(comparacao.atual.noPrazo)}>
               <Variacao valor={comparacao.noPrazo} unidade=" pontos" />
@@ -130,7 +130,7 @@ export function TelaGestao() {
             ].map(([r, v, nota]) => (
               <div key={r} className="rounded border border-linha px-3 py-2">
                 <p className="condensado text-micro text-texto-2">{r}</p>
-                <p className="text-corpo font-semibold text-white tabular-nums">{v}</p>
+                <p className="text-corpo font-semibold text-tinta tabular-nums">{v}</p>
                 <p className="text-micro text-texto-2">{nota}</p>
               </div>
             ))}
@@ -157,7 +157,7 @@ export function TelaGestao() {
                   </th>
                   {COLUNAS.map((c) => (
                     <th key={c.id} scope="col" className="px-2 py-2 text-right font-normal" aria-sort={ordem.coluna === c.id ? (ordem.desc ? 'descending' : 'ascending') : 'none'}>
-                      <button type="button" onClick={() => ordenar(c.id)} title={c.dica} className={`condensado text-micro ${ordem.coluna === c.id ? 'text-white' : 'text-texto-2 hover:text-white'}`}>
+                      <button type="button" onClick={() => ordenar(c.id)} title={c.dica} className={`condensado text-micro ${ordem.coluna === c.id ? 'text-tinta' : 'text-texto-2 hover:text-tinta'}`}>
                         {c.nome}
                         {ordem.coluna === c.id ? (ordem.desc ? ' ▼' : ' ▲') : ''}
                       </button>
@@ -189,18 +189,18 @@ function LinhaDaTabela({ l, maior, ativo, aoAbrir }: { l: LinhaDoOrgao; maior: n
     <tr className={`cursor-pointer border-b border-linha transition-colors ${ativo ? 'bg-realce' : 'hover:bg-poco'}`} onClick={aoAbrir}>
       <th scope="row" className="py-2 pr-3 text-left font-normal">
         <button type="button" aria-expanded={ativo} className="text-left">
-          <span className="text-white">{o.sigla}</span>
+          <span className="text-tinta">{o.sigla}</span>
           <span className="block max-w-56 truncate text-micro text-texto-2">{o.nome}</span>
         </button>
       </th>
       <td className="px-2 py-2 text-right tabular-nums">
-        <span className="text-white">{numero(l.chamados)}</span>
+        <span className="text-tinta">{numero(l.chamados)}</span>
         <Barra valor={l.chamados / maior} className="mt-1 ml-auto w-16" />
       </td>
       <td className="px-2 py-2 text-right tabular-nums">{numero(l.abertos)}</td>
       <td className={`px-2 py-2 text-right tabular-nums ${l.foraDoPrazo > 0 ? 'text-aviso' : ''}`}>{numero(l.foraDoPrazo)}</td>
       <td className="px-2 py-2 text-right tabular-nums">
-        <span className="text-white">{percentual(l.noPrazo)}</span>
+        <span className="text-tinta">{percentual(l.noPrazo)}</span>
         {l.variacao !== null && Math.abs(l.variacao) >= 0.5 && <span className={`block text-micro ${l.variacao > 0 ? 'text-acento-claro' : 'text-aviso'}`}>{l.variacao > 0 ? '▲' : '▼'} {Math.abs(l.variacao).toFixed(0)} pts</span>}
       </td>
       <td className="px-2 py-2 text-right tabular-nums">{duracao(l.tempo)}</td>
@@ -228,12 +228,12 @@ function VisaoDoGestor({ linha, dias, aoFechar }: { linha: LinhaDoOrgao; dias: n
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="condensado text-micro text-texto-2">Visão do gestor · {AREAS.find((a) => a.id === o.area)?.nome}</p>
-          <h2 className="text-corpo font-semibold text-white">{o.nome}</h2>
+          <h2 className="text-corpo font-semibold text-tinta">{o.nome}</h2>
           <p className="mt-0.5 text-rotulo text-texto-2">
             {numero(linha.chamados)} chamados em {dias} dias · {percentual(linha.noPrazo)} no prazo · {duracao(linha.tempo)} até resolver
           </p>
         </div>
-        <button type="button" onClick={aoFechar} aria-label="Fechar a visão do gestor" className="rounded px-2 py-1 text-texto-2 hover:bg-poco hover:text-white">
+        <button type="button" onClick={aoFechar} aria-label="Fechar a visão do gestor" className="rounded px-2 py-1 text-texto-2 hover:bg-poco hover:text-tinta">
           ✕
         </button>
       </div>
@@ -243,13 +243,13 @@ function VisaoDoGestor({ linha, dias, aoFechar }: { linha: LinhaDoOrgao; dias: n
         {tipos.map((t) => (
           <li key={t.tipoId} className="grid grid-cols-[1fr_auto] gap-x-3 border-t border-linha py-1.5 first:border-t-0">
             <span className="min-w-0">
-              <span className="text-nota text-white">{t.nome}</span>
+              <span className="text-nota text-tinta">{t.nome}</span>
               <span className="block text-micro text-texto-2">
                 prazo de {duracao(t.prazoHoras)} · {percentual(t.noPrazo)} no prazo · {duracao(t.tempo)} até resolver{t.repetidos > 0 ? ` · ${numero(t.repetidos)} repetidos` : ''}
               </span>
               <Barra valor={t.noPrazo ?? 0} className="mt-1 max-w-40" />
             </span>
-            <span className="text-nota text-white tabular-nums">{numero(t.chamados)}</span>
+            <span className="text-nota text-tinta tabular-nums">{numero(t.chamados)}</span>
           </li>
         ))}
       </ul>
@@ -257,12 +257,12 @@ function VisaoDoGestor({ linha, dias, aoFechar }: { linha: LinhaDoOrgao; dias: n
       <div className="mt-4 grid grid-cols-2 gap-2">
         <div className="rounded border border-linha px-3 py-2">
           <p className="condensado text-micro text-texto-2">Repetidos que o City View agruparia</p>
-          <p className="text-corpo font-semibold text-white tabular-nums">{numero(linha.repetidos)}</p>
+          <p className="text-corpo font-semibold text-tinta tabular-nums">{numero(linha.repetidos)}</p>
           <p className="text-micro text-texto-2">{linha.chamados ? percentual(linha.repetidos / linha.chamados) : '–'} dos chamados do período</p>
         </div>
         <div className="rounded border border-linha px-3 py-2">
           <p className="condensado text-micro text-texto-2">Fora do prazo</p>
-          <p className={`text-corpo font-semibold tabular-nums ${linha.foraDoPrazo > 0 ? 'text-aviso' : 'text-white'}`}>{numero(linha.foraDoPrazo)}</p>
+          <p className={`text-corpo font-semibold tabular-nums ${linha.foraDoPrazo > 0 ? 'text-aviso' : 'text-tinta'}`}>{numero(linha.foraDoPrazo)}</p>
           <p className="text-micro text-texto-2">abertos há mais tempo que o prazo</p>
         </div>
       </div>
@@ -273,7 +273,7 @@ function VisaoDoGestor({ linha, dias, aoFechar }: { linha: LinhaDoOrgao; dias: n
           <li key={r.ra} className="grid grid-cols-[9rem_1fr_3rem] items-center gap-2 text-rotulo">
             <span className="truncate text-texto">{REGIAO_POR_ID[r.ra]?.nome ?? r.ra}</span>
             <Barra valor={r.chamados / maior} />
-            <span className="text-right text-white tabular-nums">{numero(r.chamados)}</span>
+            <span className="text-right text-tinta tabular-nums">{numero(r.chamados)}</span>
           </li>
         ))}
       </ul>
@@ -290,7 +290,7 @@ function VisaoDoGestor({ linha, dias, aoFechar }: { linha: LinhaDoOrgao; dias: n
         <ul className="space-y-1.5">
           {casos.map((c) => (
             <li key={c.id}>
-              <a href={`#/inteligencia?caso=${c.id}`} className="block rounded border border-linha-forte px-3 py-2 text-nota text-texto hover:border-acento-claro hover:text-white">
+              <a href={`#/inteligencia?caso=${c.id}`} className="block rounded border border-linha-forte px-3 py-2 text-nota text-texto hover:border-acento-claro hover:text-tinta">
                 {c.titulo}
                 <span className="block text-micro text-texto-2">
                   {c.tipo} · {REGIAO_POR_ID[c.raId]?.nome} · ver o insight →

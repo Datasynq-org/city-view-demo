@@ -12,7 +12,7 @@ import { CORES, ESCALA_CONCENTRACAO } from '../../ui/tokens';
 const NOME_AREA = Object.fromEntries(AREAS.map((a) => [a.id, a])) as Record<AreaId, (typeof AREAS)[number]>;
 
 /** O que está escolhido: fundo um tom acima e um traço do acento embaixo. */
-export const ATIVO = 'bg-realce text-white shadow-[inset_0_-2px_0_var(--color-acento)]';
+export const ATIVO = 'bg-realce text-tinta shadow-[inset_0_-2px_0_var(--color-acento)]';
 
 /** Grupo de botões curtos (período, modo do mapa). */
 export function Grupo<T extends string>({ rotulo, opcoes, valor, aoMudar }: { rotulo: string; opcoes: { id: T; nome: string }[]; valor: T; aoMudar: (v: T) => void }) {
@@ -20,7 +20,7 @@ export function Grupo<T extends string>({ rotulo, opcoes, valor, aoMudar }: { ro
     <div role="group" aria-label={rotulo} className="flex rounded border border-linha bg-poco p-0.5">
       {opcoes.map((o) => (
         <button key={o.id} type="button" aria-pressed={o.id === valor} onClick={() => aoMudar(o.id)}
-          className={`condensado flex-1 rounded-[3px] px-2.5 py-2 text-nota transition-colors ${o.id === valor ? ATIVO : 'text-texto-2 hover:text-white'}`}>
+          className={`condensado flex-1 rounded-[3px] px-2.5 py-2 text-nota transition-colors ${o.id === valor ? ATIVO : 'text-texto-2 hover:text-tinta'}`}>
           {o.nome}
         </button>
       ))}
@@ -36,7 +36,7 @@ export function Filtros({ periodo, area, ra, aoMudarPeriodo, aoMudarArea, aoLimp
     <Painel className="space-y-2.5 p-4">
       {ra && (
         <button type="button" onClick={aoLimparRa} title="Voltar ao DF inteiro (Esc)"
-          className="flex w-full items-center justify-between rounded border border-linha-forte bg-poco px-3 py-2 text-left text-corpo text-white hover:bg-realce">
+          className="flex w-full items-center justify-between rounded border border-linha-forte bg-poco px-3 py-2 text-left text-corpo text-tinta hover:bg-realce">
           <span><span className="condensado mr-2 text-rotulo text-texto-2">Região</span>{REGIAO_POR_ID[ra]?.nome ?? ra}</span>
           <span aria-hidden="true" className="text-texto-2">✕</span>
         </button>
@@ -45,7 +45,7 @@ export function Filtros({ periodo, area, ra, aoMudarPeriodo, aoMudarArea, aoLimp
       <div className="flex flex-wrap gap-1.5" role="group" aria-label="Área">
         {[{ id: null, curto: 'Todas' } as { id: AreaId | null; curto: string }, ...AREAS].map((a) => (
           <button key={a.id ?? 'todas'} type="button" aria-pressed={a.id === area} onClick={() => aoMudarArea(a.id)}
-            className={`rounded border px-2.5 py-1.5 text-nota transition-colors ${a.id === area ? 'border-acento bg-realce text-white' : 'border-linha text-texto-2 hover:border-linha-forte hover:text-white'}`}>
+            className={`rounded border px-2.5 py-1.5 text-nota transition-colors ${a.id === area ? 'border-acento bg-realce text-tinta' : 'border-linha text-texto-2 hover:border-linha-forte hover:text-tinta'}`}>
             {a.curto}
           </button>
         ))}
@@ -74,7 +74,7 @@ function Kpi({ rotulo, children, nota }: { rotulo: string; children: ReactNode; 
   return (
     <div className="rounded border border-linha bg-poco px-3 py-2">
       <p className="condensado text-rotulo text-texto-2">{rotulo}</p>
-      <p className="mt-1 text-valor font-semibold text-white tabular-nums">{children}</p>
+      <p className="mt-1 text-valor font-semibold text-tinta tabular-nums">{children}</p>
       {nota && <p className="text-nota text-texto-2">{nota}</p>}
     </div>
   );
@@ -109,11 +109,11 @@ export function Velocidade({ linhas, area, aoMudarArea }: { linhas: VelocidadeDa
               <button type="button" onClick={() => aoMudarArea(ativa ? null : l.area)} aria-pressed={ativa}
                 className={`-mx-2 block w-[calc(100%+1rem)] rounded px-2 py-1 text-left transition-colors ${ativa ? 'bg-realce' : 'hover:bg-poco'}`}>
                 <div className="flex items-baseline justify-between gap-2 text-corpo">
-                  <span className={ativa ? 'text-white' : ''}>{NOME_AREA[l.area].curto}</span>
-                  <span className="tabular-nums text-white">{percentual(l.noPrazo)} <span className="text-nota text-texto-2">· {duracao(l.tempoAteResolver)}</span></span>
+                  <span className={ativa ? 'text-tinta' : ''}>{NOME_AREA[l.area].curto}</span>
+                  <span className="tabular-nums text-tinta">{percentual(l.noPrazo)} <span className="text-nota text-texto-2">· {duracao(l.tempoAteResolver)}</span></span>
                 </div>
                 <svg className="mt-1.5 block h-[5px] w-full" viewBox="0 0 100 4" preserveAspectRatio="none" aria-hidden="true">
-                  <rect x="0" y="0" width="100" height="4" fill={CORES.linha} />
+                  <rect x="0" y="0" width="100" height="4" fill="var(--color-linha)" />
                   <rect x="0" y="0" width={Math.max(1, p * 100)} height="4" fill={ativa ? CORES.acentoClaro : CORES.acento} />
                 </svg>
               </button>
@@ -143,7 +143,7 @@ export function Minigrafico({ serie }: { serie: number[] }) {
           const h = (v / max) * 38;
           return <rect key={k} x={k * w + w * 0.15} y={40 - h} width={w * 0.7} height={h} fill={k === serie.length - 1 ? CORES.acentoClaro : BARRA_NEUTRA} />;
         })}
-        <line x1="0" x2="100" y1="39.75" y2="39.75" stroke={CORES.linha} strokeWidth="0.5" />
+        <line x1="0" x2="100" y1="39.75" y2="39.75" stroke="var(--color-linha)" strokeWidth="0.5" />
       </svg>
       <div className="mt-2 flex justify-between text-nota text-texto-2 tabular-nums">
         <span>mín. {numero(Math.min(...serie))}</span>
@@ -169,7 +169,7 @@ export function MaisFrequentes({ titulo, nota, linhas }: { titulo: string; nota:
           <li key={l.id}>
             <div className="flex items-baseline justify-between gap-2 text-nota">
               <span className="truncate text-texto">{l.nome}</span>
-              <span className="text-white tabular-nums">{numero(l.chamados)}</span>
+              <span className="text-tinta tabular-nums">{numero(l.chamados)}</span>
             </div>
             <span className="mt-0.5 block h-1 rounded-full bg-realce" aria-hidden="true">
               <span className="block h-1 rounded-full bg-texto-2" style={{ width: `${(l.chamados / maior) * 100}%` }} />
@@ -193,7 +193,7 @@ export function ChegandoAgora({ lista, agora }: { lista: Incidente[]; agora: num
             <motion.li key={i.id} layout initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}
               className="flex items-start justify-between gap-3 border-t border-linha py-2.5 first:border-t-0">
               <div className="min-w-0">
-                <p className="truncate text-corpo text-white">{TIPO_POR_ID[i.tipoId]?.nome ?? i.tipoId}</p>
+                <p className="truncate text-corpo text-tinta">{TIPO_POR_ID[i.tipoId]?.nome ?? i.tipoId}</p>
                 <p className="truncate text-nota text-texto-2">{REGIAO_POR_ID[i.local.raId]?.nome ?? i.local.raId} · {NOME_AREA[i.area].curto}</p>
               </div>
               <div className="shrink-0 text-right">

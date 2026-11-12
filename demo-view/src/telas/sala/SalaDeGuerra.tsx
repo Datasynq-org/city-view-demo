@@ -102,11 +102,11 @@ export function SalaDeGuerra({ base, incidentes, agora, doPeriodo, filtrados, po
         </div>
         {lista === 'agora' ? <ChegandoAgora lista={recentes} agora={agora} /> : <MaisFrequentes titulo={lista === 'orgaos' ? 'Órgãos com mais chamados' : 'Problemas mais relatados'} nota={lista === 'orgaos' ? 'Hoje cada fila está num sistema separado' : 'Tipos de todos os órgãos, lado a lado'} linhas={lista === 'orgaos' ? orgaos : problemas} />}
         <nav aria-label="Ver mais" className="grid grid-cols-2 gap-2">
-          <a href="#/inteligencia" className="painel-vidro px-3 py-2 text-rotulo text-texto hover:text-white">
+          <a href="#/inteligencia" className="painel-vidro px-3 py-2 text-rotulo text-texto hover:text-tinta">
             <span className="condensado block text-micro text-acento-claro">{CASOS.length} insights →</span>
             O que os silos não veem
           </a>
-          <a href="#/gestao" className="painel-vidro px-3 py-2 text-rotulo text-texto hover:text-white">
+          <a href="#/gestao" className="painel-vidro px-3 py-2 text-rotulo text-texto hover:text-tinta">
             <span className="condensado block text-micro text-acento-claro">Gestão →</span>
             A velocidade, órgão por órgão
           </a>

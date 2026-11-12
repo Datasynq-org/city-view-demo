@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { type Tela, TELAS } from '../navegacao';
+import { mudarTema, useTema } from './tema';
 
 /** Ícones próprios, de traço fino (24×24). Sem biblioteca. */
 const ICONE: Record<Tela, ReactNode> = {
@@ -30,10 +31,11 @@ const ICONE: Record<Tela, ReactNode> = {
  * recolhida, só o ícone (o nome vem na dica e para leitores de tela).
  */
 export function BarraLateral({ tela, aoIr, aberta, aoAlternar }: { tela: Tela; aoIr: (t: Tela) => void; aberta: boolean; aoAlternar: () => void }) {
+  const tema = useTema();
   return (
     <aside className={`barra-lateral ${aberta ? 'barra-aberta' : ''}`}>
       <div className="flex h-[3.75rem] shrink-0 items-center border-b border-linha px-3">
-        <p className="condensado overflow-hidden text-[20px] leading-6 tracking-[0.2em] whitespace-nowrap text-white" aria-label="City View">
+        <p className="condensado overflow-hidden text-[20px] leading-6 tracking-[0.2em] whitespace-nowrap text-tinta" aria-label="City View">
           {aberta ? 'City View' : 'CV'}
         </p>
       </div>
@@ -50,7 +52,7 @@ export function BarraLateral({ tela, aoIr, aberta, aoAlternar }: { tela: Tela; a
               }}
               aria-current={ativa ? 'page' : undefined}
               title={`${t.nome} · ${t.pergunta}`}
-              className={`flex h-10 items-center gap-3 rounded-md border-l-2 px-2.5 text-nota whitespace-nowrap transition-colors ${ativa ? 'border-acento-claro bg-realce text-white' : 'border-transparent text-texto-2 hover:bg-poco hover:text-white'}`}
+              className={`flex h-10 items-center gap-3 rounded-md border-l-2 px-2.5 text-nota whitespace-nowrap transition-colors ${ativa ? 'border-acento-claro bg-realce text-tinta' : 'border-transparent text-texto-2 hover:bg-poco hover:text-tinta'}`}
             >
               <svg viewBox="0 0 24 24" className="size-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 {ICONE[t.id]}
@@ -60,7 +62,13 @@ export function BarraLateral({ tela, aoIr, aberta, aoAlternar }: { tela: Tela; a
           );
         })}
       </nav>
-      <button type="button" onClick={aoAlternar} aria-expanded={aberta} title={aberta ? 'Recolher a barra ( [ )' : 'Abrir a barra ( [ )'} className="m-1.5 flex h-9 shrink-0 items-center gap-3 rounded-md px-2.5 text-rotulo text-texto-2 hover:bg-poco hover:text-white">
+      <button type="button" onClick={() => mudarTema(tema === 'claro' ? 'escuro' : 'claro')} aria-pressed={tema === 'claro'} title={tema === 'claro' ? 'Mudar para o tema escuro' : 'Mudar para o tema claro'} className="mx-1.5 flex h-9 shrink-0 items-center gap-3 rounded-md px-2.5 text-rotulo text-texto-2 hover:bg-poco hover:text-tinta">
+        <svg viewBox="0 0 24 24" className="size-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          {tema === 'claro' ? <path d="M20 14.5A8 8 0 0 1 9.500 4a8 8 0 1 0 10.500 10.500z" /> : <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.600 5.600l1.400 1.400M17 17l1.400 1.400M5.600 18.400 7 17M17 7l1.400-1.400M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" />}
+        </svg>
+        <span className={aberta ? '' : 'sr-only'}>{tema === 'claro' ? 'Tema escuro' : 'Tema claro'}</span>
+      </button>
+      <button type="button" onClick={aoAlternar} aria-expanded={aberta} title={aberta ? 'Recolher a barra ( [ )' : 'Abrir a barra ( [ )'} className="m-1.5 flex h-9 shrink-0 items-center gap-3 rounded-md px-2.5 text-rotulo text-texto-2 hover:bg-poco hover:text-tinta">
         <svg viewBox="0 0 24 24" className={`size-5 shrink-0 transition-transform ${aberta ? '' : 'rotate-180'}`} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M14 6l-6 6 6 6M19 5v14" />
         </svg>

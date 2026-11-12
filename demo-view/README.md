@@ -24,6 +24,12 @@ pergunta e abre pelo endereço (`#/sala`, `#/gestao`…) ou por `?tela=`.
 | Cidadão | O que o governo está entregando? | 15 |
 | Integrações | Com o que isso se conecta? | 12 |
 
+**Tema claro e escuro:** o botão no pé da barra lateral troca o tema (a escolha
+fica guardada no navegador; `?tema=claro` abre já no claro). O claro vale para
+os painéis, os gráficos e os mapas de dados (regiões, cidadão, grafo). O mapa
+de satélite da sala continua escuro nos dois temas, porque o calor e os
+contornos foram ajustados para ele. Captura: `capturas/todas-as-telas-tema-claro.png`.
+
 A cidade simulada é a mesma em todas as telas (`dados/cidade.ts`); só a sala
 anda "ao vivo".
 

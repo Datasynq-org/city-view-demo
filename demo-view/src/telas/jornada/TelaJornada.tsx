@@ -240,7 +240,7 @@ export function TelaJornada() {
         <div className="flex flex-wrap items-center gap-2">
           <div role="group" aria-label="Caso" className="flex rounded-lg border border-linha bg-painel p-0.5">
             {CASOS.map((c) => (
-              <button key={c.id} type="button" aria-pressed={c.id === caso} onClick={() => escolherCaso(c.id)} className={`condensado rounded-md px-3 py-1.5 text-rotulo ${c.id === caso ? 'bg-acento text-white' : 'text-texto-2 hover:text-white'}`}>
+              <button key={c.id} type="button" aria-pressed={c.id === caso} onClick={() => escolherCaso(c.id)} className={`condensado rounded-md px-3 py-1.5 text-rotulo ${c.id === caso ? 'bg-acento text-white' : 'text-texto-2 hover:text-tinta'}`}>
                 {c.nome}
               </button>
             ))}
@@ -248,7 +248,7 @@ export function TelaJornada() {
           {caso !== 'experimente' && (
             <div role="group" aria-label="Onde a demanda nasce" className="flex rounded-lg border border-linha bg-painel p-0.5">
               {([['whatsapp', 'Pelo WhatsApp'], ['orgao', 'Pelo sistema do órgão']] as const).map(([id, nome]) => (
-                <button key={id} type="button" aria-pressed={id === origem} onClick={() => escolherOrigem(id)} className={`condensado rounded-md px-3 py-1.5 text-rotulo ${id === origem ? 'bg-realce text-white' : 'text-texto-2 hover:text-white'}`}>
+                <button key={id} type="button" aria-pressed={id === origem} onClick={() => escolherOrigem(id)} className={`condensado rounded-md px-3 py-1.5 text-rotulo ${id === origem ? 'bg-realce text-tinta' : 'text-texto-2 hover:text-tinta'}`}>
                   {nome}
                 </button>
               ))}
@@ -256,13 +256,13 @@ export function TelaJornada() {
           )}
           {!experimentando && (
             <div className="flex items-center gap-1" role="group" aria-label="Controles da história">
-              <button type="button" onClick={() => irPara(indice - 1)} disabled={indice === 0} aria-label="Passo anterior (←)" className="rounded-md border border-linha px-2.5 py-1.5 text-rotulo text-texto hover:text-white disabled:opacity-30">
+              <button type="button" onClick={() => irPara(indice - 1)} disabled={indice === 0} aria-label="Passo anterior (←)" className="rounded-md border border-linha px-2.5 py-1.5 text-rotulo text-texto hover:text-tinta disabled:opacity-30">
                 ◀
               </button>
               <button type="button" onClick={alternarTocar} aria-label={tocando ? 'Pausar (espaço)' : 'Tocar (espaço)'} className="condensado min-w-20 rounded-md bg-acento px-3 py-1.5 text-rotulo text-white">
                 {tocando ? '❚❚ Pausar' : '▶ Tocar'}
               </button>
-              <button type="button" onClick={() => irPara(indice + 1)} disabled={indice >= jornada.passos.length - 1} aria-label="Próximo passo (→)" className="rounded-md border border-linha px-2.5 py-1.5 text-rotulo text-texto hover:text-white disabled:opacity-30">
+              <button type="button" onClick={() => irPara(indice + 1)} disabled={indice >= jornada.passos.length - 1} aria-label="Próximo passo (→)" className="rounded-md border border-linha px-2.5 py-1.5 text-rotulo text-texto hover:text-tinta disabled:opacity-30">
                 ▶
               </button>
             </div>
@@ -274,7 +274,7 @@ export function TelaJornada() {
           )}
         </div>
         <div>
-          <p className="text-corpo text-white">{experimentando ? 'Experimente: registre uma demanda' : jornada.nome}</p>
+          <p className="text-corpo text-tinta">{experimentando ? 'Experimente: registre uma demanda' : jornada.nome}</p>
           <p className="text-nota text-texto-2">{experimentando ? 'O mesmo roteiro que já funciona numa região do DF. Nada é enviado.' : jornada.resumo}</p>
         </div>
         {!experimentando && (

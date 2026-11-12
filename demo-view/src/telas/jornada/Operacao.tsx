@@ -21,7 +21,7 @@ function Linha({ i }: { i: Indicador }) {
         <span className="block text-micro text-texto-2">{normalDe(i)}</span>
       </span>
       <span className="text-right">
-        <span className={`block text-nota tabular-nums ${i.situacao === 'normal' ? 'text-white' : COR[i.situacao]}`}>{valorDe(i)}</span>
+        <span className={`block text-nota tabular-nums ${i.situacao === 'normal' ? 'text-tinta' : COR[i.situacao]}`}>{valorDe(i)}</span>
         {i.situacao !== 'normal' && <Sinal s={i.situacao} />}
       </span>
     </li>
@@ -40,7 +40,7 @@ export function Operacao({ sistema }: { sistema: SistemaDoOrgao }) {
     <section className="rounded border border-linha-forte" aria-label={`Operação do sistema da ${sistema.sigla}`}>
       <header className="flex items-start justify-between gap-3 border-b border-linha bg-poco px-3 py-2">
         <div className="min-w-0">
-          <p className="text-nota text-white">{sistema.sigla}</p>
+          <p className="text-nota text-tinta">{sistema.sigla}</p>
           <p className="text-micro text-texto-2">{sistema.sistema} · simulado</p>
         </div>
         <Sinal s={piorSinal(sistema)} />

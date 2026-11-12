@@ -47,7 +47,7 @@ export function Fluxo({ pecaAtual, percorridas }: { pecaAtual: string; percorrid
             <li key={c.numero} ref={ativa ? ativaRef : undefined} className={`flex shrink-0 flex-1 flex-col justify-center rounded-lg border px-4 py-2 transition-colors ${ativa ? 'border-acento-claro/70 bg-acento/10' : 'border-linha bg-painel/80'}`}>
               <div className="flex flex-wrap items-baseline gap-x-2">
                 <span className={`condensado text-rotulo ${ativa ? 'text-acento-claro' : 'text-texto-2'}`}>Camada {c.numero}</span>
-                <span className={`text-corpo ${ativa ? 'text-white' : 'text-texto'}`}>{c.nome}</span>
+                <span className={`text-corpo ${ativa ? 'text-tinta' : 'text-texto'}`}>{c.nome}</span>
                 <span className="text-rotulo text-texto-2">· {c.ideia}</span>
               </div>
               {c.fluxos && (
@@ -73,7 +73,7 @@ export function Fluxo({ pecaAtual, percorridas }: { pecaAtual: string; percorrid
                     <li key={p.id} className="relative">
                       {atual && <motion.span layoutId="marcador-do-passo" className="absolute -inset-px rounded-md border-2 border-acento-claro shadow-[0_0_14px_rgba(76,195,214,0.45)]" transition={{ type: 'spring', stiffness: 380, damping: 34 }} />}
                       <span
-                        className={`relative flex items-center gap-1.5 rounded-md text-nota ${p.grupo ? 'px-2 py-1' : 'px-2.5 py-1.5'} ${p.situacao === 'proposta' ? 'border border-dashed border-linha-forte' : 'border border-linha'} ${atual ? 'text-white' : feita ? 'bg-realce/70 text-texto' : 'text-texto-2'}`}
+                        className={`relative flex items-center gap-1.5 rounded-md text-nota ${p.grupo ? 'px-2 py-1' : 'px-2.5 py-1.5'} ${p.situacao === 'proposta' ? 'border border-dashed border-linha-forte' : 'border border-linha'} ${atual ? 'text-tinta' : feita ? 'bg-realce/70 text-texto' : 'text-texto-2'}`}
                         title={`${p.nota} · ${p.fonte}`}
                       >
                         <Marca situacao={p.situacao} />
@@ -98,7 +98,7 @@ export function Fluxo({ pecaAtual, percorridas }: { pecaAtual: string; percorrid
       <div className="grid shrink-0 grid-cols-3 gap-2" aria-label="As três visões">
         {SAIDAS.map((s) => (
           <div key={s.id} className="rounded-lg border border-linha bg-painel/80 px-3 py-1.5">
-            <p className="flex items-center gap-1.5 text-rotulo text-white">
+            <p className="flex items-center gap-1.5 text-rotulo text-tinta">
               <Marca situacao={s.situacao} />
               {s.nome}
             </p>

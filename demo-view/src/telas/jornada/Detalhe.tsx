@@ -77,7 +77,7 @@ function Conteudo({ painel }: { painel: Painel }) {
             </div>
             <div className="rounded border border-linha p-2">
               <Rotulo>Relato para o portal (até 200 caracteres)</Rotulo>
-              <p className="text-nota text-white">{painel.refinado}</p>
+              <p className="text-nota text-tinta">{painel.refinado}</p>
             </div>
           </div>
           <Campos linhas={[['Classificação', painel.classificacao], ['Destino', painel.destino], ['Repetidos', painel.repetidos]]} />
@@ -90,7 +90,7 @@ function Conteudo({ painel }: { painel: Painel }) {
           <Campos linhas={painel.campos} />
           <div className="rounded border border-acento-claro/50 bg-acento/10 px-3 py-2">
             <p className="text-micro text-texto-2">{painel.protocolo[0]}</p>
-            <p className="text-corpo text-white tabular-nums">{painel.protocolo[1]}</p>
+            <p className="text-corpo text-tinta tabular-nums">{painel.protocolo[1]}</p>
           </div>
         </div>
       );
@@ -116,7 +116,7 @@ function Conteudo({ painel }: { painel: Painel }) {
           {painel.sistemas.map((s) => (
             <Operacao key={s.orgaoId} sistema={s} />
           ))}
-          <p className="rounded border border-dashed border-acento-claro/60 px-3 py-2 text-nota text-white">{painel.leitura}</p>
+          <p className="rounded border border-dashed border-acento-claro/60 px-3 py-2 text-nota text-tinta">{painel.leitura}</p>
         </div>
       );
     case 'cruzamento':
@@ -127,10 +127,10 @@ function Conteudo({ painel }: { painel: Painel }) {
             {painel.sinais.map((s) => (
               <li key={s.descricao} className="flex items-baseline justify-between gap-3 border-b border-linha pb-1 text-nota">
                 <span>
-                  <span className="text-white">{s.orgao}</span> <span className="text-texto-2">· {s.canal}</span>
+                  <span className="text-tinta">{s.orgao}</span> <span className="text-texto-2">· {s.canal}</span>
                   <span className="block text-rotulo text-texto-2">{s.descricao}</span>
                 </span>
-                <span className="text-corpo text-white tabular-nums">{s.quantidade}</span>
+                <span className="text-corpo text-tinta tabular-nums">{s.quantidade}</span>
               </li>
             ))}
           </ul>
@@ -138,9 +138,9 @@ function Conteudo({ painel }: { painel: Painel }) {
             <Rotulo>Por quê</Rotulo>
             <p className="text-nota">{painel.leitura}</p>
             <Rotulo>O que sugere · uma pessoa confirma</Rotulo>
-            <p className="text-nota text-white">{painel.acao}</p>
+            <p className="text-nota text-tinta">{painel.acao}</p>
           </div>
-          <a href="#/inteligencia?caso=apagao-planaltina" className="condensado inline-block rounded-md border border-acento-claro/60 px-3 py-1.5 text-rotulo text-acento-claro hover:text-white">
+          <a href="#/inteligencia?caso=apagao-planaltina" className="condensado inline-block rounded-md border border-acento-claro/60 px-3 py-1.5 text-rotulo text-acento-claro hover:text-tinta">
             Ver este cruzamento na inteligência →
           </a>
         </div>
@@ -150,7 +150,7 @@ function Conteudo({ painel }: { painel: Painel }) {
         <ul className="space-y-2">
           {painel.itens.map((i) => (
             <li key={i.quem} className="rounded border border-linha px-3 py-2">
-              <p className="flex items-center gap-2 text-nota text-white">
+              <p className="flex items-center gap-2 text-nota text-tinta">
                 <Marca situacao={i.situacao} />
                 {i.quem}
               </p>
@@ -200,7 +200,7 @@ export function Detalhe({ passo, indice, total }: { passo: Passo; indice: number
           <p className="condensado text-micro text-texto-2">
             Passo {indice + 1} de {total} · Camada {camada?.numero} · {camada?.nome}
           </p>
-          <h2 className="mt-1 text-corpo font-semibold text-white">{passo.titulo}</h2>
+          <h2 className="mt-1 text-corpo font-semibold text-tinta">{passo.titulo}</h2>
           <p className="mt-1">
             <Marca situacao={situacao} comTexto />
           </p>

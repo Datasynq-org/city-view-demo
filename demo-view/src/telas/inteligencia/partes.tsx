@@ -47,10 +47,10 @@ export function Fila({ resultado, aberto, decisaoDe, aoAbrir }: {
     <Painel className="flex min-h-0 flex-1 flex-col">
       <header className="border-b border-linha px-4 py-3">
         <p className="text-nota text-texto-2">
-          <span className="text-valor leading-8 font-semibold text-white tabular-nums">{n(total)}</span> chamados viram
+          <span className="text-valor leading-8 font-semibold text-tinta tabular-nums">{n(total)}</span> chamados viram
         </p>
         <p className="text-nota text-texto-2">
-          <span className="text-valor leading-8 font-semibold text-white tabular-nums">{incidentes.length}</span> incidentes sugeridos
+          <span className="text-valor leading-8 font-semibold text-tinta tabular-nums">{incidentes.length}</span> incidentes sugeridos
           <span className="text-rotulo"> · {n(avulsos)} seguem avulsos</span>
         </p>
       </header>
@@ -64,7 +64,7 @@ export function Fila({ resultado, aberto, decisaoDe, aoAbrir }: {
                   <Gravidade s={inc.severidade} />
                   <span className="font-mono text-micro text-texto-2">{inc.codigo}</span>
                 </span>
-                <span className={`mt-0.5 block text-nota ${ativo ? 'text-white' : 'text-texto'}`}>{inc.titulo}</span>
+                <span className={`mt-0.5 block text-nota ${ativo ? 'text-tinta' : 'text-texto'}`}>{inc.titulo}</span>
                 <span className="mt-1 flex items-center justify-between gap-2">
                   <span className="truncate text-rotulo text-texto-2">
                     {(inc.raId && REGIAO_POR_ID[inc.raId]?.nome) || '–'} · {n(inc.chamados)} chamados · {inc.orgaos.length} órgão{inc.orgaos.length === 1 ? '' : 's'}
@@ -124,21 +124,21 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
             </span>
             <span className="font-mono text-micro text-texto-2">{inc.codigo}</span>
           </div>
-          <button type="button" onClick={aoFechar} aria-label="Fechar (Esc)" title="Fechar (Esc)" className="-mt-1 -mr-1 rounded px-2 py-1 text-texto-2 hover:bg-poco hover:text-white">
+          <button type="button" onClick={aoFechar} aria-label="Fechar (Esc)" title="Fechar (Esc)" className="-mt-1 -mr-1 rounded px-2 py-1 text-texto-2 hover:bg-poco hover:text-tinta">
             ✕
           </button>
         </div>
-        <h2 className="mt-1.5 text-corpo leading-snug font-semibold text-white">{inc.titulo}</h2>
+        <h2 className="mt-1.5 text-corpo leading-snug font-semibold text-tinta">{inc.titulo}</h2>
         <p className="mt-0.5 text-rotulo text-texto-2">{inc.local}</p>
         {aoVerNoGrafo && (
-          <button type="button" onClick={aoVerNoGrafo} className="condensado mt-2 rounded border border-linha-forte px-2.5 py-1 text-micro text-texto hover:border-acento-claro hover:text-white">
+          <button type="button" onClick={aoVerNoGrafo} className="condensado mt-2 rounded border border-linha-forte px-2.5 py-1 text-micro text-texto hover:border-acento-claro hover:text-tinta">
             Ver no grafo →
           </button>
         )}
       </header>
 
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-3">
-        <p className="rounded border border-linha bg-poco px-3 py-2 text-nota text-white">{inc.ganho}</p>
+        <p className="rounded border border-linha bg-poco px-3 py-2 text-nota text-tinta">{inc.ganho}</p>
 
         <section>
           <Rotulo>O que a IA viu</Rotulo>
@@ -155,10 +155,10 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
             {deChamado.map((e) => (
               <li key={`${e.orgaoId}${e.descricao}`} className="flex items-baseline justify-between gap-3 border-t border-linha py-1.5 text-nota first:border-t-0">
                 <span className="min-w-0">
-                  <span className="text-white">{siglaDoOrgao(e.orgaoId)}</span> <span className="text-texto-2">· {e.canal}</span>
+                  <span className="text-tinta">{siglaDoOrgao(e.orgaoId)}</span> <span className="text-texto-2">· {e.canal}</span>
                   <span className="block text-rotulo text-texto-2">{e.descricao}</span>
                 </span>
-                <span className="text-corpo text-white tabular-nums">{n(e.quantidade)}</span>
+                <span className="text-corpo text-tinta tabular-nums">{n(e.quantidade)}</span>
               </li>
             ))}
           </ul>
@@ -171,10 +171,10 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
                 {deOperacao.map((e) => (
                   <li key={`${e.orgaoId}${e.descricao}`} className="flex items-baseline justify-between gap-3 border-t border-linha py-1.5 text-nota first:border-t-0">
                     <span className="min-w-0">
-                      <span className="text-white">{siglaDoOrgao(e.orgaoId)}</span> <span className="text-texto-2">· {e.canal}</span>
+                      <span className="text-tinta">{siglaDoOrgao(e.orgaoId)}</span> <span className="text-texto-2">· {e.canal}</span>
                       <span className="block text-rotulo text-texto-2">{e.descricao}</span>
                     </span>
-                    <span className="text-corpo text-white tabular-nums">{n(e.quantidade)}</span>
+                    <span className="text-corpo text-tinta tabular-nums">{n(e.quantidade)}</span>
                   </li>
                 ))}
               </ul>
@@ -194,7 +194,7 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
         <section>
           <Rotulo>Confiança</Rotulo>
           <div className="flex items-center gap-3">
-            <span className="text-valor leading-8 font-semibold text-white tabular-nums">{Math.round(inc.confianca * 100)}%</span>
+            <span className="text-valor leading-8 font-semibold text-tinta tabular-nums">{Math.round(inc.confianca * 100)}%</span>
             <div className="flex-1 space-y-1">
               <Barra valor={inc.partes.assunto} rotulo="Mesmo assunto" />
               <Barra valor={inc.partes.espaco} rotulo="Mesmo lugar" />
@@ -234,7 +234,7 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
               <button type="button" onClick={aoConfirmar} className="condensado flex-1 rounded-md bg-acento px-3 py-2 text-rotulo text-white hover:bg-acento-claro hover:text-base">
                 Confirmar
               </button>
-              <button type="button" onClick={() => setDescartando(true)} className="condensado rounded-md border border-linha-forte px-3 py-2 text-rotulo text-texto hover:text-white">
+              <button type="button" onClick={() => setDescartando(true)} className="condensado rounded-md border border-linha-forte px-3 py-2 text-rotulo text-texto hover:text-tinta">
                 Descartar
               </button>
             </div>
@@ -253,12 +253,12 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
                     setDescartando(false);
                     aoDescartar(m);
                   }}
-                  className="rounded-md border border-linha-forte px-2.5 py-1.5 text-rotulo text-texto hover:border-acento-claro hover:text-white"
+                  className="rounded-md border border-linha-forte px-2.5 py-1.5 text-rotulo text-texto hover:border-acento-claro hover:text-tinta"
                 >
                   {m}
                 </button>
               ))}
-              <button type="button" onClick={() => setDescartando(false)} className="px-2 py-1.5 text-rotulo text-texto-2 hover:text-white">
+              <button type="button" onClick={() => setDescartando(false)} className="px-2 py-1.5 text-rotulo text-texto-2 hover:text-tinta">
                 Voltar
               </button>
             </div>
@@ -267,8 +267,8 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
         {decisao.situacao === 'enviando' && (
           <>
             <div className="flex items-center justify-between gap-3">
-              <p className="text-nota text-white">Confirmado. Avisando os órgãos em {Math.ceil(falta / 1000)} s…</p>
-              <button type="button" onClick={aoCancelar} className="condensado rounded-md border border-linha-forte px-3 py-1.5 text-rotulo text-texto hover:text-white">
+              <p className="text-nota text-tinta">Confirmado. Avisando os órgãos em {Math.ceil(falta / 1000)} s…</p>
+              <button type="button" onClick={aoCancelar} className="condensado rounded-md border border-linha-forte px-3 py-1.5 text-rotulo text-texto hover:text-tinta">
                 Cancelar envio
               </button>
             </div>
@@ -295,9 +295,9 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
         {decisao.situacao === 'descartado' && (
           <div className="flex items-center justify-between gap-3">
             <p className="text-nota text-texto">
-              Descartado: <span className="text-white">{decisao.motivo}</span>. Os chamados voltam a ser avulsos.
+              Descartado: <span className="text-tinta">{decisao.motivo}</span>. Os chamados voltam a ser avulsos.
             </p>
-            <button type="button" onClick={aoDesfazer} className="condensado rounded-md border border-linha-forte px-3 py-1.5 text-rotulo text-texto hover:text-white">
+            <button type="button" onClick={aoDesfazer} className="condensado rounded-md border border-linha-forte px-3 py-1.5 text-rotulo text-texto hover:text-tinta">
               Desfazer
             </button>
           </div>
@@ -322,14 +322,14 @@ export function PorOrgao({ inc }: { inc: Incidente }) {
   return (
     <Painel className="w-[min(46rem,calc(100vw-2rem))] p-5">
       <p className="condensado text-micro text-texto-2">Por órgão · {inc.codigo}</p>
-      <p className="mt-1 text-corpo text-white">
+      <p className="mt-1 text-corpo text-tinta">
         {filas.length} sina{filas.length === 1 ? 'l' : 'is'} separado{filas.length === 1 ? '' : 's'}, um incidente
       </p>
       <div className="mt-4 grid grid-cols-[minmax(0,1fr)_7rem_11rem] items-stretch">
         <ul className="flex flex-col justify-around" style={{ height: altura }}>
           {filas.map((e) => (
             <li key={`${e.orgaoId}${e.descricao}`} className="pr-3 text-right">
-              <p className="text-nota text-white">
+              <p className="text-nota text-tinta">
                 {siglaDoOrgao(e.orgaoId)} <span className="text-texto-2">· {e.canal}</span>
               </p>
               <p className="truncate text-rotulo text-texto-2">
@@ -346,7 +346,7 @@ export function PorOrgao({ inc }: { inc: Incidente }) {
         </svg>
         <div className="flex flex-col justify-center border-l border-linha-forte pl-4">
           <Gravidade s={inc.severidade} />
-          <p className="text-valor leading-8 font-semibold text-white tabular-nums">{n(inc.chamados)}</p>
+          <p className="text-valor leading-8 font-semibold text-tinta tabular-nums">{n(inc.chamados)}</p>
           <p className="text-rotulo text-texto-2">chamados em 1 incidente</p>
         </div>
       </div>

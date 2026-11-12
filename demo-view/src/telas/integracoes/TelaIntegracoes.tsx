@@ -46,7 +46,7 @@ export function TelaIntegracoes() {
           {CAMADAS.map((c) => (
             <li key={c.numero} className="rounded border border-linha bg-poco px-3 py-2.5">
               <p className="condensado text-micro text-texto-2">Camada {c.numero}</p>
-              <p className="text-nota text-white">{c.nome}</p>
+              <p className="text-nota text-tinta">{c.nome}</p>
               <p className="mt-0.5 text-micro text-texto-2">{c.ideia}</p>
               <p className="mt-2 flex flex-wrap gap-x-2 gap-y-0.5 text-micro text-texto-2">
                 {(['existe', 'pronto', 'orgao', 'proposta'] as SituacaoPeca[]).map((s) => {
@@ -65,7 +65,7 @@ export function TelaIntegracoes() {
         <div className="mt-2 grid gap-2 sm:grid-cols-3">
           {SAIDAS.map((s) => (
             <div key={s.id} className="rounded border border-linha px-3 py-2">
-              <p className="flex items-center gap-1.5 text-nota text-white">
+              <p className="flex items-center gap-1.5 text-nota text-tinta">
                 <Marca situacao={s.situacao} />
                 {s.nome}
               </p>
@@ -85,7 +85,7 @@ export function TelaIntegracoes() {
         <Titulo nota={`${CONECTORES.length} ligações: ${n.existe} já funcionam numa região, ${n.pronto} está pronta e ${n.proposta} são propostas. A gestão aponta os sistemas na implantação.`}>Catálogo de conectores</Titulo>
         <div className="mb-3 flex flex-wrap gap-1.5" role="group" aria-label="Situação">
           {FILTROS.map((f) => (
-            <button key={f.nome} type="button" aria-pressed={f.id === filtro} onClick={() => setFiltro(f.id)} className={`rounded border px-2.5 py-1 text-rotulo ${f.id === filtro ? 'border-acento-claro bg-realce text-white' : 'border-linha text-texto-2 hover:text-white'}`}>
+            <button key={f.nome} type="button" aria-pressed={f.id === filtro} onClick={() => setFiltro(f.id)} className={`rounded border px-2.5 py-1 text-rotulo ${f.id === filtro ? 'border-acento-claro bg-realce text-tinta' : 'border-linha text-texto-2 hover:text-tinta'}`}>
               {f.nome}
             </button>
           ))}
@@ -105,7 +105,7 @@ export function TelaIntegracoes() {
               {visiveis.map((c) => (
                 <tr key={c.id} className="border-b border-linha align-top">
                   <th scope="row" className="py-2 pr-2 text-left font-normal">
-                    <span className="text-white">{c.sistema}</span>
+                    <span className="text-tinta">{c.sistema}</span>
                     <span className="block max-w-80 text-micro text-texto-2">{c.nota}</span>
                   </th>
                   <td className="px-2 py-2">
@@ -132,7 +132,7 @@ export function TelaIntegracoes() {
           <ul className="space-y-2">
             {METODOS.map((m) => (
               <li key={m.id} className="rounded border border-linha px-3 py-2">
-                <p className="text-nota text-white">{m.nome}</p>
+                <p className="text-nota text-tinta">{m.nome}</p>
                 <p className="text-rotulo text-texto-2">{m.nota}</p>
               </li>
             ))}

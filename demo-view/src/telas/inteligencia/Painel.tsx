@@ -21,7 +21,7 @@ const SEVERIDADES: Severidade[] = ['crítico', 'sério', 'atenção'];
 function Numero({ valor, rotulo, nota }: { valor: string; rotulo: string; nota?: string }) {
   return (
     <div className="min-w-0 border-l border-linha pl-4 first:border-l-0 first:pl-0">
-      <p className="text-valor font-semibold text-white tabular-nums">{valor}</p>
+      <p className="text-valor font-semibold text-tinta tabular-nums">{valor}</p>
       <p className="text-nota text-texto">{rotulo}</p>
       {nota && <p className="text-micro text-texto-2">{nota}</p>}
     </div>
@@ -30,7 +30,7 @@ function Numero({ valor, rotulo, nota }: { valor: string; rotulo: string; nota?:
 
 function Opcao({ ativo, aoClicar, children }: { ativo: boolean; aoClicar: () => void; children: React.ReactNode }) {
   return (
-    <button type="button" aria-pressed={ativo} onClick={aoClicar} className={`rounded border px-2.5 py-1 text-rotulo ${ativo ? 'border-acento-claro bg-realce text-white' : 'border-linha text-texto-2 hover:text-white'}`}>
+    <button type="button" aria-pressed={ativo} onClick={aoClicar} className={`rounded border px-2.5 py-1 text-rotulo ${ativo ? 'border-acento-claro bg-realce text-tinta' : 'border-linha text-texto-2 hover:text-tinta'}`}>
       {children}
     </button>
   );
@@ -52,7 +52,7 @@ function Cartao({ inc, decisao, ativo, aoAbrir }: { inc: Incidente; decisao: Dec
             {inc.tipoDoCaso ?? NOME_DO_TIPO[inc.tipo]} · <span className="font-mono normal-case">{inc.codigo}</span>
           </span>
         </span>
-        <span className="mt-2 block text-corpo leading-snug font-semibold text-white">{inc.titulo}</span>
+        <span className="mt-2 block text-corpo leading-snug font-semibold text-tinta">{inc.titulo}</span>
         <span className="mt-0.5 block text-rotulo text-texto-2">{(inc.raId && REGIAO_POR_ID[inc.raId]?.nome) || '–'}</span>
 
         <span className="mt-3 block space-y-1">
@@ -63,7 +63,7 @@ function Cartao({ inc, decisao, ativo, aoAbrir }: { inc: Incidente; decisao: Dec
                 <span className="shrink-0 text-texto">{siglaDoOrgao(e.orgaoId)}</span>
                 <span className="truncate text-texto-2">{e.descricao}</span>
               </span>
-              <span className="text-white tabular-nums">{n(e.quantidade)}</span>
+              <span className="text-tinta tabular-nums">{n(e.quantidade)}</span>
             </span>
           ))}
           {operacao.map((e) => (
@@ -77,7 +77,7 @@ function Cartao({ inc, decisao, ativo, aoAbrir }: { inc: Incidente; decisao: Dec
 
         <span className="mt-3 line-clamp-3 block text-nota text-texto">{inc.leitura}</span>
         <span className="mt-auto block pt-3">
-          <span className="block rounded border border-linha bg-poco px-3 py-2 text-rotulo text-white">{inc.ganho}</span>
+          <span className="block rounded border border-linha bg-poco px-3 py-2 text-rotulo text-tinta">{inc.ganho}</span>
           <span className="mt-2 flex items-center justify-between gap-2 text-micro text-texto-2">
             <span>
               {n(inc.chamados)} chamados · {inc.orgaos.length} órgão{inc.orgaos.length === 1 ? '' : 's'} · confiança {Math.round(inc.confianca * 100)}%
@@ -135,7 +135,7 @@ export function PainelDeInsights({ resultado, resumo, decisaoDe, aberto, aoAbrir
         </span>
         <label className="flex items-center gap-2 text-rotulo text-texto-2">
           Órgão
-          <select value={filtro.orgao ?? ''} onChange={(e) => setFiltro((f) => ({ ...f, orgao: e.target.value || null }))} className="rounded border border-linha bg-poco px-2 py-1 text-rotulo text-white">
+          <select value={filtro.orgao ?? ''} onChange={(e) => setFiltro((f) => ({ ...f, orgao: e.target.value || null }))} className="rounded border border-linha bg-poco px-2 py-1 text-rotulo text-tinta">
             <option value="">todos</option>
             {opcoes.orgaos.map((o) => (
               <option key={o} value={o}>

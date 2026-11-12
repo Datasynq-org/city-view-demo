@@ -23,8 +23,8 @@ const DESENHOS = REGIOES.map((r) => {
   return { id: r.id, nome: r.nome, d, x, y };
 });
 
-/** Do pouco ao muito: tons neutros que clareiam, para a seleção e os alertas ficarem com a cor. */
-export const TONS = ['#23282d', '#39424a', '#566470', '#7b8b98', '#a9b8c4', '#dfe7ee'];
+/** Do pouco ao muito: tons neutros (definidos no CSS, por tema), para a seleção e os alertas ficarem com a cor. */
+export const TONS = [0, 1, 2, 3, 4, 5].map((k) => `var(--tom-${k})`);
 
 export function MapaDasRas({ valores, selecionada, aoEscolher, formato, rotulo, tons = TONS, invertida = false, className = '' }: {
   /** Valor de cada RA. Quem não está aqui (ou vem `null`) fica sem cor. */

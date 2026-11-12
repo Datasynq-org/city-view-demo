@@ -293,3 +293,29 @@ export function semImagens(estilo: StyleSpecification): StyleSpecification {
   const { [CAMADA_SATELITE]: _s, [CAMADA_ORTOFOTO]: _o, ...fontes } = estilo.sources;
   return { ...estilo, sources: fontes, layers: estilo.layers.filter((c) => !fora.has(c.id) && !('source' in c && (c.source === CAMADA_SATELITE || c.source === CAMADA_ORTOFOTO))) };
 }
+
+/**
+ * O estilo sem imagens no tema claro: papel no lugar do grafite, traços e
+ * nomes escuros. Só para os mapas de dados; o de satélite não passa por aqui.
+ */
+export function emClaro(estilo: StyleSpecification): StyleSpecification {
+  const TINTA = '#1b232b';
+  const PAPEL = '#eef1f3';
+  const pintura: Record<string, Record<string, unknown>> = {
+    fundo: { 'background-color': PAPEL },
+    agua: { 'fill-color': '#c9d6e0' },
+    'vias-menores': { 'line-color': TINTA },
+    'vias-principais': { 'line-color': TINTA },
+    rodovias: { 'line-color': TINTA },
+    [CAMADA_RAS]: { 'fill-color': TINTA },
+    'ras-contorno-base': { 'line-color': PAPEL },
+    'ras-contorno': { 'line-color': TINTA },
+    'ras-rotulos': { 'text-color': TINTA, 'text-halo-color': PAPEL },
+  };
+  return {
+    ...estilo,
+    sky: { ...estilo.sky, 'sky-color': PAPEL, 'horizon-color': '#dfe5ea', 'fog-color': '#e7ecf0' },
+    layers: estilo.layers.map((c) => (pintura[c.id] ? ({ ...c, paint: { ...('paint' in c ? c.paint : {}), ...pintura[c.id] } } as typeof c) : c)),
+  };
+}
+

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { REGIOES } from '../dominio/ras';
 import { CAMADA_CALOR, FONTE_CALOR } from './calor';
-import { CAMADA_ORTOFOTO, CAMADA_PREDIOS, CAMADA_RAS, CAMADA_SATELITE, FONTE_RAS, montarEstilo, semImagens, URL_OPENFREEMAP, URL_SATELITE } from './estilo';
+import { CAMADA_ORTOFOTO, CAMADA_PREDIOS, CAMADA_RAS, CAMADA_SATELITE, FONTE_RAS, emClaro, montarEstilo, semImagens, URL_OPENFREEMAP, URL_SATELITE } from './estilo';
 import { URL_ORTOFOTO } from './ortofoto';
 
 const estilo = montarEstilo({ regioes: REGIOES, urlFonteRotulo: '/fontes/rotulo.woff2' });
@@ -127,6 +127,18 @@ describe('estilo sem imagens (inteligência)', () => {
     expect(mudo.layers[0]).toMatchObject({ type: 'background' });
     for (const id of [CAMADA_RAS, 'ras-contorno', 'ras-rotulos']) expect(mudo.layers.some((c) => c.id === id), id).toBe(true);
     expect(estilo.layers.some((c) => c.type === 'raster')).toBe(true);
+  });
+});
+
+describe('estilo dos mapas de dados no tema claro', () => {
+  const claro = emClaro(semImagens(estilo));
+
+  it('troca o fundo e a tinta, sem mexer nas camadas nem no estilo original', () => {
+    expect(claro.layers.map((c) => c.id)).toEqual(semImagens(estilo).layers.map((c) => c.id));
+    expect(claro.layers[0]).toMatchObject({ paint: { 'background-color': '#eef1f3' } });
+    const rotulos = claro.layers.find((c) => c.id === 'ras-rotulos') as unknown as { paint: Record<string, string> };
+    expect(rotulos.paint['text-color']).toBe('#1b232b');
+    expect(estilo.layers[0]).toMatchObject({ paint: { 'background-color': '#0C0E10' } });
   });
 });
 

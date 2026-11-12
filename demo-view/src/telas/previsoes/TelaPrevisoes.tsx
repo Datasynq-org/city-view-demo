@@ -27,7 +27,7 @@ function Numero({ rotulo, valor, nota, destaque }: { rotulo: string; valor: stri
   return (
     <Painel className="p-4">
       <p className="condensado text-micro text-texto-2">{rotulo}</p>
-      <p className={`mt-1 text-valor font-semibold tabular-nums ${destaque ? 'text-aviso' : 'text-white'}`}>{valor}</p>
+      <p className={`mt-1 text-valor font-semibold tabular-nums ${destaque ? 'text-aviso' : 'text-tinta'}`}>{valor}</p>
       <p className="text-rotulo text-texto-2">{nota}</p>
     </Painel>
   );
@@ -55,7 +55,7 @@ export function TelaPrevisoes() {
     <main className="pagina">
       <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Área">
         {[{ id: null, curto: 'Todas as áreas' } as { id: AreaId | null; curto: string }, ...AREAS].map((a) => (
-          <button key={a.id ?? 'todas'} type="button" aria-pressed={a.id === area} onClick={() => setArea(a.id)} className={`rounded border px-2.5 py-1.5 text-rotulo ${a.id === area ? 'border-acento-claro bg-realce text-white' : 'border-linha text-texto-2 hover:text-white'}`}>
+          <button key={a.id ?? 'todas'} type="button" aria-pressed={a.id === area} onClick={() => setArea(a.id)} className={`rounded border px-2.5 py-1.5 text-rotulo ${a.id === area ? 'border-acento-claro bg-realce text-tinta' : 'border-linha text-texto-2 hover:text-tinta'}`}>
             {a.curto}
           </button>
         ))}
@@ -95,7 +95,7 @@ export function TelaPrevisoes() {
                 <li key={`${a.tipo.id}${a.ra.id}`} className="border-t border-linha first:border-t-0">
                   <a href={`#/regioes?ra=${a.ra.id}`} className="grid grid-cols-[1fr_auto] items-baseline gap-3 py-2 hover:bg-poco">
                     <span className="min-w-0">
-                      <span className="text-nota text-white">{a.tipo.nome}</span> <span className="text-nota text-texto-2">· {a.ra.nome}</span>
+                      <span className="text-nota text-tinta">{a.tipo.nome}</span> <span className="text-nota text-texto-2">· {a.ra.nome}</span>
                       <span className="block text-micro text-texto-2">
                         {ORGAO_POR_ID[a.tipo.orgaoId]?.sigla} · {numero(a.semana)} em 7 dias, contra {numero(a.normal)} esperados
                       </span>
@@ -116,12 +116,12 @@ export function TelaPrevisoes() {
             <ul className="space-y-1.5">
               {reforcar.map((p) => (
                 <li key={p.ra.id} className="grid grid-cols-[9.5rem_1fr_7rem] items-center gap-3 text-nota">
-                  <a href={`#/regioes?ra=${p.ra.id}`} className="truncate text-texto hover:text-white">
+                  <a href={`#/regioes?ra=${p.ra.id}`} className="truncate text-texto hover:text-tinta">
                     {p.ra.nome}
                   </a>
                   <Barra valor={p.aMais / maiorAMais} />
                   <span className="text-right tabular-nums">
-                    <span className="text-white">+{numero(p.aMais)}</span> <span className="text-micro text-texto-2">{sinal(p.variacao)}</span>
+                    <span className="text-tinta">+{numero(p.aMais)}</span> <span className="text-micro text-texto-2">{sinal(p.variacao)}</span>
                   </span>
                 </li>
               ))}

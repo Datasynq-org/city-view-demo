@@ -351,3 +351,17 @@ lateral estreita (`ui/BarraLateral.tsx`).
 **Fora, por enquanto:** "pergunte à cidade" (I5), percepção (redes sociais) e
 os modos noturno e térmico. **A decidir:** a apresentação interativa (seção 6).
 
+*Acréscimo de 12/11/2026, tema claro.* Pedido da equipe (Sammuel). Branch
+`demo/tema-claro`.
+- A demo ganha um tema claro, além do escuro (que continua o padrão): para sala
+  iluminada, projetor e impressão. O botão fica no pé da barra lateral.
+- **Como:** as cores da interface já eram variáveis; o claro redefine a paleta
+  (`:root[data-tema='claro']` em `src/estilos.css`). O branco fixo dos títulos e
+  números virou a "tinta" (`--color-tinta`), que muda com o tema; sobre fundos
+  de cor cheia o texto continua branco. O acento escurece no claro, para manter
+  o contraste.
+- **Mapas:** os de dados (regiões, cidadão, grafo da inteligência) têm versão
+  clara. O de satélite (sala e mini mapa da jornada) fica escuro nos dois temas:
+  o calor e os contornos foram ajustados para a imagem escurecida.
+- Testes: 277.
+

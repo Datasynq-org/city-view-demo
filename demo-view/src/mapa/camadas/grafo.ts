@@ -11,6 +11,7 @@ import type { Layer } from '@deck.gl/core';
 import { ColumnLayer, PathLayer, ScatterplotLayer, TextLayer } from '@deck.gl/layers';
 import { type Chamado, type Incidente, type Ligacao, metros, type Resultado } from '../../inteligencia/agrupamento';
 import { type Severidade, siglaDoOrgao } from '../../inteligencia/casos';
+import { ehClaro } from '../../ui/tema';
 import { CORES, type RGB, rgb } from '../../ui/tokens';
 import { NA_PILHA, SEMPRE_POR_CIMA } from './pilha';
 
@@ -25,8 +26,9 @@ export const ETAPAS: { nome: string; dica: string }[] = [
 type Pos3 = [number, number, number];
 type RGBA = [number, number, number, number];
 
-const NEUTRO: RGB = [198, 204, 210];
-const ACENTO = rgb(CORES.acentoClaro);
+/** A tinta dos pontos e das ligações: clara sobre o grafite, escura sobre o papel. */
+const neutro = (): RGB => (ehClaro() ? [58, 70, 82] : [198, 204, 210]);
+const ACENTO_ESCURO = rgb(CORES.acentoClaro);
 /** Cor só para o que pede atenção: crítico e sério. O resto é neutro. */
 export const COR_DA_SEVERIDADE: Record<Severidade, RGB> = { crítico: rgb(CORES.alerta), sério: rgb(CORES.aviso), atenção: [150, 158, 166] };
 
@@ -135,7 +137,11 @@ export function camadasDoGrafo(e: EstadoDoGrafo): Layer[] {
   const grupoDe = (i: number) => resultado.grupo[i] ?? -1;
   const noIncidente = (i: number) => grupoDe(i) >= 0 && !descartados.has(grupoDe(i));
   const haAberto = aberto >= 0;
-  const chave = [etapa, aberto, descartados];
+  const claro = ehClaro();
+  const NEUTRO = neutro();
+  // No papel, o acento precisa ser mais escuro para aparecer.
+  const ACENTO: RGB = claro ? [1, 107, 128] : ACENTO_ESCURO;
+  const chave = [etapa, aberto, descartados, claro];
 
   const alfaDoPonto = (p: PontoDoGrafo): number => {
     const g = grupoDe(p.i);
@@ -268,12 +274,12 @@ export function camadasDoGrafo(e: EstadoDoGrafo): Layer[] {
         getPosition: (c) => [c.centro[0], c.centro[1], c.k === aberto ? 0 : alturaDaColuna(c.chamados) + 350],
         getText: (c) => Math.round(c.chamados).toLocaleString('pt-BR'),
         getSize: 13,
-        getColor: [255, 255, 255, 255],
+        getColor: claro ? [12, 17, 22, 255] : [255, 255, 255, 255],
         fontFamily: 'Bahnschrift, "Barlow Condensed", system-ui, sans-serif',
         fontWeight: 600,
         characterSet: '0123456789.',
         background: true,
-        getBackgroundColor: [12, 14, 16, 215],
+        getBackgroundColor: claro ? [255, 255, 255, 225] : [12, 14, 16, 215],
         backgroundPadding: [5, 2, 5, 2],
         getTextAnchor: 'middle',
         getAlignmentBaseline: 'bottom',
@@ -304,7 +310,7 @@ export function camadasVivas(e: EstadoDoGrafo, ondas: readonly Onda[], t: number
         getPosition: (a) => pontoNoArco(a.caminho, (t / DURACAO_DO_SINAL + a.fase) % 1),
         getRadius: 3,
         radiusUnits: 'pixels',
-        getFillColor: [235, 250, 255, 255],
+        getFillColor: ehClaro() ? [1, 107, 128, 255] : [235, 250, 255, 255],
         updateTriggers: { getPosition: t },
         ...SEMPRE_POR_CIMA,
         ...NA_PILHA,

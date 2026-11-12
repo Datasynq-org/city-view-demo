@@ -59,7 +59,7 @@ export function App() {
         <div className="faixa-superior z-10" aria-hidden="true" />
         <p className="pointer-events-none absolute top-0 left-4 z-30 flex h-[3.75rem] max-w-[calc(50%-14rem)] items-center text-nota text-texto-2 lg:left-5">
           <span className="truncate">
-            <span className="text-white">{atual.nome}</span>
+            <span className="text-tinta">{atual.nome}</span>
             <span className="ml-2 hidden 2xl:inline">· {atual.pergunta}</span>
           </span>
         </p>

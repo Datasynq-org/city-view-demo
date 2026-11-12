@@ -49,7 +49,7 @@ function Contra({ rotulo, valor, df, formato, piorSeMaior }: { rotulo: string; v
   return (
     <div className="rounded border border-linha px-3 py-2">
       <p className="condensado text-micro text-texto-2">{rotulo}</p>
-      <p className="text-corpo font-semibold text-white tabular-nums">{valor === null ? '–' : formato(valor)}</p>
+      <p className="text-corpo font-semibold text-tinta tabular-nums">{valor === null ? '–' : formato(valor)}</p>
       <Barra valor={(valor ?? 0) / maximo} marca={df === null ? undefined : df / maximo} className="my-1.5" />
       <p className={`text-micro ${pior ? 'text-aviso' : melhor ? 'text-acento-claro' : 'text-texto-2'}`}>
         {razao === null ? 'sem dado' : pior ? 'pior que o DF' : melhor ? 'melhor que o DF' : 'perto do DF'} · DF: {df === null ? '–' : formato(df)}
@@ -83,7 +83,7 @@ export function TelaRegioes() {
         <Grupo rotulo="O que comparar" opcoes={MEDIDAS} valor={medida} aoMudar={setMedida} />
         <div className="flex flex-wrap gap-1.5" role="group" aria-label="Área">
           {[{ id: null, curto: 'Todas as áreas' } as { id: AreaId | null; curto: string }, ...AREAS].map((a) => (
-            <button key={a.id ?? 'todas'} type="button" aria-pressed={a.id === area} onClick={() => setArea(a.id)} className={`rounded border px-2.5 py-1.5 text-rotulo ${a.id === area ? 'border-acento-claro bg-realce text-white' : 'border-linha text-texto-2 hover:text-white'}`}>
+            <button key={a.id ?? 'todas'} type="button" aria-pressed={a.id === area} onClick={() => setArea(a.id)} className={`rounded border px-2.5 py-1.5 text-rotulo ${a.id === area ? 'border-acento-claro bg-realce text-tinta' : 'border-linha text-texto-2 hover:text-tinta'}`}>
               {a.curto}
             </button>
           ))}
@@ -107,7 +107,7 @@ export function TelaRegioes() {
                   <button type="button" onClick={() => setRa(p.ra)} className="grid w-full grid-cols-[10rem_1fr_4rem] items-center gap-3 rounded px-1 py-1 text-left text-nota hover:bg-poco">
                     <span className="truncate text-texto">{REGIAO_POR_ID[p.ra]?.nome}</span>
                     <Barra valor={(p.tempo ?? 0) / (esperam[0]?.tempo || 1)} marca={df.tempo === null ? undefined : df.tempo / (esperam[0]?.tempo || 1)} />
-                    <span className="text-right text-white tabular-nums">{duracao(p.tempo)}</span>
+                    <span className="text-right text-tinta tabular-nums">{duracao(p.tempo)}</span>
                   </button>
                 </li>
               ))}
@@ -126,7 +126,7 @@ export function TelaRegioes() {
                 <span className="text-texto-2 tabular-nums">{k + 1}</span>
                 <span className="truncate text-texto">{REGIAO_POR_ID[p.ra]?.nome}</span>
                 <Barra valor={(p[medida] ?? 0) / maior} />
-                <span className="text-right text-white tabular-nums">{p[medida] === null ? '–' : FORMATO[medida](p[medida]!)}</span>
+                <span className="text-right text-tinta tabular-nums">{p[medida] === null ? '–' : FORMATO[medida](p[medida]!)}</span>
               </button>
             </li>
           ))}
@@ -146,12 +146,12 @@ function Perfil({ perfil, df, lista, dias, aoFechar }: { perfil: PerfilDaRa; df:
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="condensado text-micro text-texto-2">{r.codigo} · perfil da região</p>
-          <h2 className="text-corpo font-semibold text-white">{r.nome}</h2>
+          <h2 className="text-corpo font-semibold text-tinta">{r.nome}</h2>
           <p className="mt-0.5 text-rotulo text-texto-2">
             {numero(r.populacao)} habitantes ({r.populacaoEstimada ? 'estimativa' : 'Censo 2022'}) · {numero(perfil.chamados)} chamados em {dias} dias
           </p>
         </div>
-        <button type="button" onClick={aoFechar} aria-label="Fechar o perfil" className="rounded px-2 py-1 text-texto-2 hover:bg-poco hover:text-white">
+        <button type="button" onClick={aoFechar} aria-label="Fechar o perfil" className="rounded px-2 py-1 text-texto-2 hover:bg-poco hover:text-tinta">
           ✕
         </button>
       </div>
@@ -161,7 +161,7 @@ function Perfil({ perfil, df, lista, dias, aoFechar }: { perfil: PerfilDaRa; df:
         <Contra rotulo="No prazo" valor={perfil.noPrazo} df={df.noPrazo} formato={FORMATO.noPrazo} piorSeMaior={false} />
         <div className="rounded border border-linha px-3 py-2">
           <p className="condensado text-micro text-texto-2">Em aberto</p>
-          <p className="text-corpo font-semibold text-white tabular-nums">{numero(perfil.abertos)}</p>
+          <p className="text-corpo font-semibold text-tinta tabular-nums">{numero(perfil.abertos)}</p>
           <p className="mt-1.5 text-micro text-texto-2">{perfil.chamados ? percentual(perfil.abertos / perfil.chamados) : '–'} dos chamados do período</p>
         </div>
       </div>
@@ -172,7 +172,7 @@ function Perfil({ perfil, df, lista, dias, aoFechar }: { perfil: PerfilDaRa; df:
           <li key={a.area} className="grid grid-cols-[7rem_1fr_3rem] items-center gap-2 text-rotulo">
             <span className="text-texto">{a.nome}</span>
             <Barra valor={a.parte / (areas[0]?.parte || 1)} />
-            <span className="text-right text-white tabular-nums">{percentual(a.parte)}</span>
+            <span className="text-right text-tinta tabular-nums">{percentual(a.parte)}</span>
           </li>
         ))}
       </ul>
@@ -182,14 +182,14 @@ function Perfil({ perfil, df, lista, dias, aoFechar }: { perfil: PerfilDaRa; df:
         {tipos.map((t) => (
           <li key={t.tipoId} className="flex justify-between gap-2">
             <span className="truncate text-texto">{TIPO_POR_ID[t.tipoId]?.nome ?? t.tipoId}</span>
-            <span className="text-white tabular-nums">{numero(t.chamados)}</span>
+            <span className="text-tinta tabular-nums">{numero(t.chamados)}</span>
           </li>
         ))}
       </ol>
 
       <div className="mt-4 flex flex-wrap gap-2">
         {casos.map((c) => (
-          <a key={c.id} href={`#/inteligencia?caso=${c.id}`} className="rounded border border-linha-forte px-3 py-2 text-rotulo text-texto hover:border-acento-claro hover:text-white">
+          <a key={c.id} href={`#/inteligencia?caso=${c.id}`} className="rounded border border-linha-forte px-3 py-2 text-rotulo text-texto hover:border-acento-claro hover:text-tinta">
             <span className="condensado block text-micro text-acento-claro">Insight nesta região →</span>
             {c.titulo}
           </a>

@@ -23,7 +23,7 @@ function Relogio() {
     return () => clearInterval(t);
   }, []);
   const hora = agora.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  return <span className="tabular-nums text-white">{hora}</span>;
+  return <span className="tabular-nums text-tinta">{hora}</span>;
 }
 
 function Tecla({ children }: { children: ReactNode }) {
@@ -33,7 +33,7 @@ function Tecla({ children }: { children: ReactNode }) {
 function Botao({ ativo, aoClicar, rotulo, tecla, children }: { ativo?: boolean; aoClicar: () => void; rotulo: string; tecla: string; children: ReactNode }) {
   return (
     <button type="button" onClick={aoClicar} aria-pressed={ativo} aria-label={rotulo} title={`${rotulo} (tecla ${tecla})`}
-      className={`condensado flex items-center rounded-[3px] px-2 py-2 text-rotulo whitespace-nowrap transition-colors 2xl:px-3 2xl:text-nota ${ativo ? ATIVO : 'text-texto-2 hover:bg-realce/60 hover:text-white'}`}>
+      className={`condensado flex items-center rounded-[3px] px-2 py-2 text-rotulo whitespace-nowrap transition-colors 2xl:px-3 2xl:text-nota ${ativo ? ATIVO : 'text-texto-2 hover:bg-realce/60 hover:text-tinta'}`}>
       {children}
       <Tecla>{tecla}</Tecla>
     </button>
@@ -103,7 +103,7 @@ export function PainelDeCamadas({ contexto, ligadas, aoAlternar, erro, modo, aoM
               <label className="flex cursor-pointer items-center gap-2 rounded px-1 py-1.5 text-corpo hover:bg-poco">
                 <input type="checkbox" checked={on} disabled={!contexto} onChange={() => aoAlternar(c.id)} className="accent-acento" />
                 <span className="size-2.5 shrink-0 rounded-full" style={{ background: COR_CONTEXTO[c.id] }} aria-hidden="true" />
-                <span className={`flex-1 ${on ? 'text-white' : ''}`}>
+                <span className={`flex-1 ${on ? 'text-tinta' : ''}`}>
                   {c.nome}
                   {contexto && <span className="text-texto-2"> ({numero(tamanho(contexto, c.id))})</span>}
                 </span>
@@ -140,16 +140,16 @@ export function CartaoDaRa({ ra, dados, chamadosDf, tipos, aoFechar }: {
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="condensado text-rotulo text-texto-2">{r.codigo}</p>
-          <p className="text-xl leading-tight font-semibold text-white">{r.nome}</p>
+          <p className="text-xl leading-tight font-semibold text-tinta">{r.nome}</p>
           <p className="mt-0.5 text-nota text-texto-2">
             {numero(r.populacao)} habitantes · {r.populacaoEstimada ? 'estimativa' : 'Censo 2022'}
           </p>
         </div>
         <button type="button" onClick={aoFechar} aria-label="Voltar ao DF inteiro (Esc)" title="Voltar ao DF inteiro (Esc)"
-          className="rounded px-2 py-1 text-texto-2 hover:bg-realce hover:text-white">✕</button>
+          className="rounded px-2 py-1 text-texto-2 hover:bg-realce hover:text-tinta">✕</button>
       </div>
       <div className="mt-3 flex items-baseline gap-2">
-        <span className="text-valor font-semibold text-white tabular-nums">{taxa.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}</span>
+        <span className="text-valor font-semibold text-tinta tabular-nums">{taxa.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}</span>
         <span className="text-nota text-texto-2">chamados por 10 mil hab.</span>
       </div>
       <p className={`text-nota ${relacao > 1.15 ? 'text-aviso' : relacao < 0.85 ? 'text-texto' : 'text-texto-2'}`}>
@@ -162,14 +162,14 @@ export function CartaoDaRa({ ra, dados, chamadosDf, tipos, aoFechar }: {
             {tipos.map((t) => (
               <li key={t.tipoId} className="flex justify-between gap-2">
                 <span className="truncate">{TIPO_POR_ID[t.tipoId]?.nome ?? t.tipoId}</span>
-                <span className="text-white tabular-nums">{numero(t.chamados)}</span>
+                <span className="text-tinta tabular-nums">{numero(t.chamados)}</span>
               </li>
             ))}
           </ol>
         </>
       )}
       {casosDaRa(ra).map((c) => (
-        <a key={c.id} href={`#/inteligencia?caso=${c.id}`} className="mt-3 block rounded border border-linha-forte px-3 py-2 text-nota text-texto hover:border-acento-claro hover:text-white">
+        <a key={c.id} href={`#/inteligencia?caso=${c.id}`} className="mt-3 block rounded border border-linha-forte px-3 py-2 text-nota text-texto hover:border-acento-claro hover:text-tinta">
           <span className="condensado block text-micro text-acento-claro">Insight nesta região →</span>
           {c.titulo}
         </a>
@@ -187,7 +187,7 @@ export function LegendaDoTour({ parada, indice, total, texto }: { parada: Parada
         <Painel className="w-[min(40rem,calc(100vw-2rem))] overflow-hidden p-0">
           <div className="px-5 pt-4 pb-3">
             <p className="condensado text-rotulo text-texto-2">{indice + 1} de {total} · {parada.titulo}</p>
-            <p className="mt-1.5 text-lg leading-snug text-white">“{parada.frase}”</p>
+            <p className="mt-1.5 text-lg leading-snug text-tinta">“{parada.frase}”</p>
             <p className="mt-1 text-nota text-texto-2">Conversa de 10/11/2026 · ATA, linhas {parada.ata}</p>
             <p className="mt-2 text-corpo">{texto}</p>
           </div>
