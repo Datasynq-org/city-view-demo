@@ -39,9 +39,11 @@ export function Cena({ id, fim, base, montar, lado, nome, pausa = 4, children }:
   );
 
   return (
-    <section ref={raiz} className="cena relative z-10 flex min-h-screen items-center px-[6vw]" data-cena={id} data-passos={Children.count(children)} data-nome={nome} data-pausa={pausa}>
-      <div className="passos grid w-full max-w-[34rem]">{children}</div>
-      {lado}
+    <section ref={raiz} className="cena relative z-10" data-cena={id} data-passos={Children.count(children)} data-nome={nome} data-pausa={pausa}>
+      <div className="palco">
+        <div className="passos coluna grid">{children}</div>
+        {lado}
+      </div>
     </section>
   );
 }

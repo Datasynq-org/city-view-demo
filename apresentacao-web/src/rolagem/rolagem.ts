@@ -54,7 +54,9 @@ export async function irParaCaptura() {
   await document.fonts.ready;
   const p = Math.min(1, Math.max(0, Number(params.get('p') ?? 0)));
   const l = linhas.get(cenaCapturada ?? '');
-  if (l) { Object.assign(estado, l.base); l.tl.progress(p); }
+  // progress(0) antes de progress(p) força o redesenho mesmo se a função rodar duas vezes
+  // (o modo estrito do React, em desenvolvimento, monta tudo duas vezes)
+  if (l) { Object.assign(estado, l.base); l.tl.progress(0).progress(p); }
   document.documentElement.dataset.pronto = '1';
 }
 

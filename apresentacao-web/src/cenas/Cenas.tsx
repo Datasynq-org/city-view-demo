@@ -33,20 +33,22 @@ export function Abertura() {
   }, { scope: raiz });
   const t = N.abertura;
   return (
-    <section ref={raiz} className="cena relative z-10 flex min-h-screen items-center px-[6vw]" data-cena="abertura" data-passos={2} data-nome="Abertura" data-pausa={3.5}>
-      <div className="passos grid w-full max-w-[38rem]">
-        <div className="ab-1 passo">
-          <Rotulo>{t.rotulo}</Rotulo>
-          <h1 className="titulo text-[7.5rem]">{t.titulo}</h1>
-          <p className="mt-5 text-3xl fraco">{t.sub}</p>
+    <section ref={raiz} className="cena relative z-10" data-cena="abertura" data-passos={2} data-nome="Abertura" data-pausa={3.5}>
+      <div className="palco">
+        <div className="passos coluna grid">
+          <div className="ab-1 passo">
+            <Rotulo>{t.rotulo}</Rotulo>
+            <h1 className="titulo text-[7.5rem]">{t.titulo}</h1>
+            <p className="mt-5 text-3xl fraco">{t.sub}</p>
+          </div>
+          <div className="ab-2 passo">
+            <h2 className="titulo text-6xl">{t.cidadeTitulo}</h2>
+            <p className="mt-6 text-xl fraco">{t.cidadeTexto}</p>
+          </div>
         </div>
-        <div className="ab-2 passo">
-          <h2 className="titulo text-6xl">{t.cidadeTitulo}</h2>
-          <p className="mt-6 text-xl fraco">{t.cidadeTexto}</p>
-        </div>
+        <p className="ab-dica rotulo absolute bottom-8 left-16 fraco">{t.dica} ↓</p>
+        <p className="absolute bottom-8 right-16 text-xs fraco">{t.aviso}</p>
       </div>
-      <p className="ab-dica rotulo absolute bottom-8 left-[6vw] fraco">{t.dica} ↓</p>
-      <p className="absolute bottom-8 right-[4vw] text-xs fraco">{t.aviso}</p>
     </section>
   );
 }
@@ -138,17 +140,19 @@ export function Inteligencia() {
 export function Sala() {
   const t = N.sala;
   const hud = (
-    <div className="hud pointer-events-none absolute right-[3vw] top-[7vh] flex flex-col items-end gap-3">
-      <Selo>{t.selo}</Selo>
-      <div className="flex gap-3">
-        {t.kpis.map((k) => (
-          <div key={k.rotulo} className="painel px-5 py-3 text-right">
-            <p className="rotulo fraco">{k.rotulo}</p>
-            <p className="titulo mt-1 text-3xl">{k.valor}</p>
-          </div>
-        ))}
+    <div className="hud pointer-events-none absolute inset-0">
+      <div className="absolute right-16 top-10 flex flex-col items-end gap-3">
+        <Selo>{t.selo}</Selo>
+        <div className="flex gap-3">
+          {t.kpis.map((k) => (
+            <div key={k.rotulo} className="painel px-5 py-3 text-right">
+              <p className="rotulo fraco">{k.rotulo}</p>
+              <p className="titulo mt-1 text-3xl">{k.valor}</p>
+            </div>
+          ))}
+        </div>
       </div>
-      <div className="painel mt-[46vh] w-[22rem] px-5 py-4">
+      <div className="painel absolute bottom-10 right-16 w-[22rem] px-5 py-4">
         <p className="rotulo c-alerta">Alertas agora</p>
         <ul className="mt-2 flex flex-col gap-2 text-sm">
           {t.alertas.map((a) => <li key={a} className="flex items-center gap-2"><span className="c-atencao">●</span>{a}</li>)}
@@ -219,7 +223,7 @@ export function Cidadao() {
 export function Prova() {
   const t = N.prova;
   const mapa = (
-    <div className="pointer-events-none absolute right-[4vw] top-1/2 w-[42vw] -translate-y-1/2">
+    <div className="pointer-events-none absolute right-16 top-1/2 w-[48rem] -translate-y-1/2">
       <MapaDF destaque={t.ra} className="w-full" />
       <p className="mt-2 text-right text-xs fraco">Limites oficiais das regiões administrativas (IDE/DF)</p>
     </div>

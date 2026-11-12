@@ -88,31 +88,34 @@ export function CidadeViva() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
 
-      // enquadramento do mapa: à direita, deixando a coluna de texto livre
-      const esc = Math.min((w * 0.6) / L, (h * 0.82) / A);
-      const ox = w - L * esc - w * 0.035, oy = (h - A * esc) / 2;
-      const alvo = [w * 0.66, h * 0.5];
+      // palco 16:9 (o mesmo do CSS): tudo se posiciona e escala por ele, em qualquer tela
+      const pw = Math.min(w, (h * 16) / 9), px0 = (w - pw) / 2;
+      const k = pw / 1600; // 1 num palco de 1600 px
+      // enquadramento do mapa: grande, à direita da coluna de texto (que ocupa ~34% do palco)
+      const esc = Math.min((pw * 0.64) / L, (h * 0.88) / A);
+      const ox = px0 + pw - L * esc - pw * 0.025, oy = (h - A * esc) / 2;
+      const alvo = [px0 + pw * 0.67, h * 0.5];
       const foco = Math.round(e.foco);
       const cf = foco >= 0 ? [ox + CENTROS[foco][0] * esc, oy + CENTROS[foco][1] * esc] : alvo;
       const Z = 1 + AMPLIA * e.zoom;
       const cam = (x: number, y: number): [number, number] => [x + (alvo[0] + (x - cf[0]) * Z - x) * e.zoom, y + (alvo[1] + (y - cf[1]) * Z - y) * e.zoom];
 
       // contorno das RAs
-      const vis = e.aparecer * (1 - 0.7 * e.apagar);
+      const vis = e.aparecer * (1 - 0.85 * e.apagar);
       ctx.save();
-      ctx.globalAlpha = 0.55 * vis * (1 - e.silos);
+      ctx.globalAlpha = 0.9 * vis * (1 - e.silos);
       // cam() é linear: escala efetiva 1 + AMPLIA·zoom², a mesma aplicada aos pontos
       const S = esc * (1 + AMPLIA * e.zoom * e.zoom);
       const [tx, ty] = cam(ox, oy);
       ctx.translate(tx, ty);
       ctx.scale(S, S);
-      ctx.lineWidth = 0.8 / S;
+      ctx.lineWidth = (1.1 * k) / S;
       ctx.strokeStyle = paleta.traco;
       caminhos.forEach((p) => ctx.stroke(p));
       ctx.restore();
 
       // silos: colunas por área
-      const x0 = w * 0.38, colW = (w * 0.6) / AREAS.length, passo = 6;
+      const x0 = px0 + pw * 0.38, colW = (pw * 0.6) / AREAS.length, passo = 6.5 * k;
       const porLinha = Math.max(4, Math.floor((colW * 0.72) / passo));
       const chao = h * 0.8;
 
@@ -120,12 +123,12 @@ export function CidadeViva() {
         let [x, y] = cam(ox + base[i][0] * esc, oy + base[i][1] * esc);
         const m = membroDe.get(i);
         if (m === foco && e.agrupar > 0) {
-          const gx = cf[0] + (alvo[0] - cf[0]) * e.zoom + jitter[i][0] * 30, gy = cf[1] + (alvo[1] - cf[1]) * e.zoom + jitter[i][1] * 30;
+          const gx = cf[0] + (alvo[0] - cf[0]) * e.zoom + jitter[i][0] * 30 * k, gy = cf[1] + (alvo[1] - cf[1]) * e.zoom + jitter[i][1] * 30 * k;
           x += (gx - x) * e.agrupar; y += (gy - y) * e.agrupar;
         }
         if (e.silos > 0) {
-          const k = area[i];
-          const sx = x0 + k * colW + colW * 0.14 + (ordem[i] % porLinha) * passo;
+          const col = area[i];
+          const sx = x0 + col * colW + colW * 0.14 + (ordem[i] % porLinha) * passo;
           const sy = chao - Math.floor(ordem[i] / porLinha) * passo;
           x += (sx - x) * e.silos; y += (sy - y) * e.silos;
         }
@@ -134,7 +137,7 @@ export function CidadeViva() {
 
       // mapa de calor (densidade em grade)
       if (e.calor > 0.01) {
-        const cel = 26, cols = Math.ceil(w / cel), lin = Math.ceil(h / cel);
+        const cel = 26 * k, cols = Math.ceil(w / cel), lin = Math.ceil(h / cel);
         const g = new Uint16Array(cols * lin);
         let max = 1;
         for (let i = 0; i < base.length; i++) {
@@ -170,14 +173,14 @@ export function CidadeViva() {
 
       // pontos
       for (let i = 0; i < base.length; i++) {
-        let r = 1.7 + 1.3 * e.zoom;
+        let r = (2.3 + 1.3 * e.zoom) * k;
         let alfa = vis * (0.72 + 0.28 * Math.sin(t * 2 + fase[i])) * (1 - 0.6 * e.calor);
         if (e.filtro > 0) {
           if (area[i] !== Math.round(e.area)) alfa *= 1 - 0.88 * e.filtro;
-          else r += 1.1 * e.filtro;
+          else r += 1.4 * e.filtro * k;
         }
         if (foco >= 0 && e.zoom > 0 && membroDe.get(i) !== foco) alfa *= 1 - 0.35 * e.zoom;
-        else if (foco >= 0 && e.zoom > 0) r += 0.8 * e.zoom;
+        else if (foco >= 0 && e.zoom > 0) r += 0.8 * e.zoom * k;
         let cor = paleta.areas[area[i]];
         if (e.status > 0.5) {
           cor = paleta.status[situacao[i]];
@@ -192,26 +195,26 @@ export function CidadeViva() {
 
       // anel do incidente em foco
       if (foco >= 0 && e.agrupar > 0.5) {
-        const k = (e.agrupar - 0.5) * 2;
+        const forca = (e.agrupar - 0.5) * 2;
         ctx.strokeStyle = paleta.anel;
-        ctx.globalAlpha = k;
-        ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.arc(alvo[0] * e.zoom + cf[0] * (1 - e.zoom), alvo[1] * e.zoom + cf[1] * (1 - e.zoom), 44 + 6 * Math.sin(t * 3), 0, Math.PI * 2); ctx.stroke();
+        ctx.globalAlpha = forca;
+        ctx.lineWidth = 1.5 * k;
+        ctx.beginPath(); ctx.arc(alvo[0] * e.zoom + cf[0] * (1 - e.zoom), alvo[1] * e.zoom + cf[1] * (1 - e.zoom), (44 + 6 * Math.sin(t * 3)) * k, 0, Math.PI * 2); ctx.stroke();
         ctx.globalAlpha = 1;
       }
 
       // rótulos dos silos
       if (e.silos > 0.6) {
-        const k = (e.silos - 0.6) / 0.4;
-        ctx.globalAlpha = k * vis;
+        const forca = (e.silos - 0.6) / 0.4;
+        ctx.globalAlpha = forca * vis;
         ctx.textAlign = 'left';
         AREAS.forEach((a, i) => {
           const x = x0 + i * colW + colW * 0.14;
-          ctx.fillStyle = paleta.tinta; ctx.font = '600 13px "Geist Variable", system-ui';
-          ctx.fillText(a.nome, x, chao + 26);
-          ctx.fillStyle = paleta.tinta2; ctx.font = '11px "Geist Mono Variable", monospace';
-          ctx.fillText(a.canal, x, chao + 42);
-          const topo = chao - Math.ceil(contagem[i] / porLinha) * passo - 14;
+          ctx.fillStyle = paleta.tinta; ctx.font = `600 ${Math.round(14 * k)}px "Geist Variable", system-ui`;
+          ctx.fillText(a.nome, x, chao + 28 * k);
+          ctx.fillStyle = paleta.tinta2; ctx.font = `${Math.round(12 * k)}px "Geist Mono Variable", monospace`;
+          ctx.fillText(a.canal, x, chao + 46 * k);
+          const topo = chao - Math.ceil(contagem[i] / porLinha) * passo - 16 * k;
           ctx.fillStyle = paleta.ok; ctx.fillText(`● ${textoSilos.okColuna}`, x, topo);
         });
         ctx.globalAlpha = 1;

@@ -24,7 +24,7 @@
   --brilho-1: rgba(14, 116, 144, 0.16);
   --brilho-2: rgba(91, 33, 182, 0.12);
   /* canvas */
-  --mapa-traco: rgba(125, 211, 252, 0.35);
+  --mapa-traco: rgba(125, 211, 252, 0.42);
   --conexao: rgba(226, 232, 240, 0.22);
   --anel: rgba(255, 255, 255, 0.85);
   --calor-modo: lighter;
@@ -52,7 +52,7 @@
   --alerta: #dc2626;
   --brilho-1: rgba(56, 189, 248, 0.14);
   --brilho-2: rgba(167, 139, 250, 0.12);
-  --mapa-traco: rgba(3, 105, 161, 0.3);
+  --mapa-traco: rgba(3, 105, 161, 0.38);
   --conexao: rgba(15, 23, 42, 0.18);
   --anel: rgba(11, 18, 32, 0.8);
   --calor-modo: source-over;
@@ -67,6 +67,13 @@
   --fonte-corpo: "Geist Variable", system-ui, sans-serif;
   --fonte-mono: "Geist Mono Variable", ui-monospace, monospace;
 }
+
+/* Palco 16:9. A fonte base acompanha a tela (16px num palco de 1600×900), e como todo
+   tamanho é em rem, texto, painéis e espaçamentos mantêm a mesma proporção e posição em
+   qualquer monitor, sem zoom no navegador. */
+html { font-size: max(9px, min(1vw, 1.7778vh)); }
+.palco { position: relative; width: min(100vw, 177.78vh); height: 100vh; margin-inline: auto; padding-inline: 4rem; display: flex; align-items: center; }
+.coluna { width: 30rem; }
 
 html, body { background: var(--fundo); color: var(--tinta); }
 body {
@@ -118,6 +125,7 @@ body {
 .arq .ar-s { font-family: var(--fonte-mono); font-size: 13px; fill: var(--tinta-2); }
 .arq .ar-pq { font-size: 16px; }
 .arq .ar-pq2 { font-size: 11.5px; }
+.arq .ar-dep { fill: var(--atencao); }
 .arq .caixa { fill: var(--caixa); stroke: var(--caixa-borda); }
 .arq .caixa.destaque { fill: var(--destaque); stroke: var(--acento); stroke-width: 1.6; }
 .arq .liga { stroke: var(--acento); fill: none; }

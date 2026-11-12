@@ -116,8 +116,8 @@ export const cidadao = {
 export const arquitetura = {
   rotulo: 'Como funciona',
   passos: [
-    // ATA 169–175 ("Portal do cidadão, ADM24, ADM72, o nome que tiver")
-    { titulo: 'Conecta o que já existe.', texto: 'Portal do Cidadão, ADM 24h, ADM72, o nome que tiver. Seja qual for o sistema, inclusive os que hoje não se integram com nada.' },
+    // ATA 169–175 ("o nome que tiver"; "inclusive os que não estão integrados em lugar nenhum hoje")
+    { titulo: 'Conecta o que já existe.', texto: 'Seja qual for o nome do sistema, inclusive os que hoje não se integram com nada.' },
     // ATA 171–172, 199–205; robô só com autorização formal (CV-REF-001 §7)
     { titulo: 'Do jeito que cada sistema permitir.', texto: 'API, robô autorizado ou troca de arquivos, em qualquer tecnologia. A gestão aponta os sistemas; ligar cada um faz parte da implantação.' },
     // ATA 196–212 e 269–275 (a abertura de demandas é uma ponte)
@@ -127,11 +127,10 @@ export const arquitetura = {
     // ATA 148–149, 177–186, 220–237
     { titulo: 'E a inteligência cruza tudo.', texto: 'Classifica, agrupa, cruza e prevê. Disso saem as visões da governadora, de cada gestor e do cidadão.' },
   ],
-  // situação: CV-REF-002 §4.1; ADM 24h e ADM72 citados pelo Daniel, ainda não identificados (magno 9.6)
+  // situação: CV-REF-002 §4.1. ADM 24h junto do Portal do Cidadão, como no fluxograma da equipe
+  // (CV-REF-002, camada 3): decisão da equipe em 11/11/2026.
   legados: [
-    { nome: 'Portal do Cidadão', situacao: 'integrado' },
-    { nome: 'ADM 24h', situacao: 'citado' },
-    { nome: 'ADM72', situacao: 'citado' },
+    { nome: 'Portal do Cidadão · ADM 24h', situacao: 'integrado' },
     { nome: 'ParticipaDF', situacao: 'integrado' },
     { nome: 'IluminaDF · CEB', situacao: 'pronto' },
     { nome: '190 · PMDF', situacao: 'exemplo' },
@@ -146,7 +145,10 @@ export const arquitetura = {
   tecnologias: 'Qualquer tecnologia: .NET · Java · grande porte · site sem API',
   conectores: ['API', 'Robô autorizado', 'Troca de arquivos'],
   canais: ['WhatsApp', 'App', 'SMS', 'Instagram'],
-  legenda: 'Linha cheia: integração já construída (Águas Claras). Tracejada: exemplos que a gestão pode apontar. ADM 24h e ADM72: citados pelo Daniel.',
+  // ADM72: citado pelo Daniel (ATA 174), ainda não identificado (magno 9.6). Fica fora do fluxo,
+  // só como dependência a esclarecer com o governo.
+  dependencias: 'Dependência a identificar com o governo: ADM72 (citado pelo Daniel)',
+  legenda: 'Linha cheia: integração já construída (Águas Claras). Tracejada: exemplos que a gestão pode apontar.',
 };
 
 // Magno 6.1 e CV-REF-001 §2. Não dizer "últimos 12 meses"; preferência do cidadão não foi medida.

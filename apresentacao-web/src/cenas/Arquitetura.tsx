@@ -3,11 +3,11 @@ import { arquitetura as t } from '../conteudo/narrativa';
 import { gsap, useGSAP, COM_MOVIMENTO, linhaDaCena } from '../rolagem/rolagem';
 
 // Diagrama da arquitetura (viewBox 1400 × 640): legados → conectores → núcleo → visões.
-const LX = 0, LW = 250, LH = 40, LY0 = 44, LP = 48; // coluna dos legados
-const BUS = { x: 330, y: 214, w: 160, h: 212 }; // conectores
-const NX = 590, NW = 330; // núcleo
+const LX = 0, LW = 345, LH = 42, LY0 = 44, LP = 52; // coluna dos legados
+const BUS = { x: 415, y: 214, w: 160, h: 212 }; // conectores
+const NX = 650, NW = 330; // núcleo
 const CAN = { y: 22, h: 92 }, ABE = { y: 150, h: 70 }, INC = { y: 286, h: 84 }, INT = { y: 418, h: 110 };
-const SX = 1030, SW = 350, SH = 92, SYS = [150, 286, 422]; // visões
+const SX = 1050, SW = 345, SH = 92, SYS = [150, 286, 422]; // visões
 
 const RO = { integrado: 'integrado', pronto: 'pronta', citado: 'citado pelo Daniel', exemplo: 'exemplo' } as const;
 
@@ -72,7 +72,8 @@ export function Arquitetura() {
   const fluxoBus = `M${BUS.x + BUS.w},${BUS.y + BUS.h / 2} C${BUS.x + BUS.w + 50},${BUS.y + BUS.h / 2} ${NX - 50},${meioInc} ${NX},${meioInc}`;
 
   return (
-    <section ref={raiz} className="cena relative z-10 flex min-h-screen flex-col justify-center gap-6 px-[5vw] py-10" data-cena="arquitetura" data-passos={t.passos.length} data-nome="Como funciona" data-pausa="4.5">
+    <section ref={raiz} className="cena relative z-10" data-cena="arquitetura" data-passos={t.passos.length} data-nome="Como funciona" data-pausa="4.5">
+      <div className="palco flex-col !items-stretch justify-center gap-6">
       <div className="passos grid max-w-[56rem]">
         {t.passos.map((p, i) => (
           <div key={p.titulo} className="passo">
@@ -83,7 +84,7 @@ export function Arquitetura() {
         ))}
       </div>
 
-      <svg className="arq w-full" viewBox="0 0 1400 660" role="img" aria-label="Arquitetura do City View: sistemas legados, conectores, núcleo e visões">
+      <svg className="arq w-full" viewBox="0 0 1400 660" preserveAspectRatio="xMinYMid meet" role="img" aria-label="Arquitetura do City View: sistemas legados, conectores, núcleo e visões">
         <text x={LX} y={24} className="ar-h">SISTEMAS QUE JÁ EXISTEM</text>
         <text x={BUS.x} y={BUS.y - 16} className="ar-h ar-bus">CONECTORES</text>
         <text x={NX} y={CAN.y - 6} className="ar-h ar-canais" dy={-8}>CITY VIEW</text>
@@ -103,7 +104,8 @@ export function Arquitetura() {
             <text x={LX + LW - 14} y={LY0 + i * LP + 25} textAnchor="end" className={`ar-s ar-pq2 t-${l.situacao}`}>{RO[l.situacao]}</text>
           </g>
         ))}
-        <text x={LX} y={LY0 + t.legados.length * LP + 14} className="ar-s ar-tec">{t.tecnologias}</text>
+        <text x={LX} y={LY0 + t.legados.length * LP + 10} className="ar-s ar-tec">{t.tecnologias}</text>
+        <text x={LX} y={LY0 + t.legados.length * LP + 34} className="ar-s ar-tec ar-dep">{t.dependencias}</text>
 
         {/* conectores */}
         <g className="ar-bus">
@@ -155,6 +157,7 @@ export function Arquitetura() {
           <marker id="seta-volta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" className="ponta" /></marker>
         </defs>
       </svg>
+      </div>
     </section>
   );
 }
