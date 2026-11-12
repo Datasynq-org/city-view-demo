@@ -13,6 +13,7 @@ import { avancar, cancelarEnvio, confirmar, decisaoDe, type Decisoes, descartar,
 import { camadasDoGrafo, camadasVivas, COR_DA_SEVERIDADE, type Etapa, ETAPAS, type Onda, prepararGrafo, zoomDoIncidente } from '../../mapa/camadas/grafo';
 import { Mapa } from '../../mapa/Mapa';
 import type { Destino } from '../../mapa/vista';
+import { parametrosDoHash } from '../../navegacao';
 import { Painel } from '../../ui/Painel';
 import { Fila, Insight, PorOrgao } from './partes';
 
@@ -20,7 +21,7 @@ const CLICAVEIS = ['grafo-colunas', 'grafo-nos', 'grafo-chamados'] as const;
 const DF: Destino = { tipo: 'df' };
 
 /** `#/inteligencia?caso=apagao-planaltina` abre já no insight daquele caso. */
-const casoDoEndereco = () => new URLSearchParams(window.location.hash.split('?')[1] ?? '').get('caso');
+const casoDoEndereco = () => parametrosDoHash().get('caso');
 
 export function TelaInteligencia() {
   // ------------------------------------------------ o motor
@@ -154,7 +155,7 @@ export function TelaInteligencia() {
       <Mapa margens={margens} camadas={camadas} animadas={animadas} alvo={alvo} semImagem dicaDasRas={false} clicaveis={CLICAVEIS} aoClicarObjeto={aoClicarObjeto} />
 
       {/* As três etapas, no alto: o único controle sempre à vista. */}
-      <div className="absolute top-3 left-[23.5rem] z-20 hidden items-center gap-2 lg:flex 2xl:left-1/2 2xl:-translate-x-1/2">
+      <div className="absolute top-3 left-1/2 z-20 hidden -translate-x-1/2 items-center gap-2 lg:flex">
         <ol className="flex rounded-lg border border-linha bg-painel p-0.5" aria-label="Etapas">
           {ETAPAS.map((e, k) => (
             <li key={e.nome}>
