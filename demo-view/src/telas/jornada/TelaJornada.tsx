@@ -275,7 +275,7 @@ export function TelaJornada() {
         </div>
         <div>
           <p className="text-corpo text-white">{experimentando ? 'Experimente: registre uma demanda' : jornada.nome}</p>
-          <p className="text-nota text-texto-2">{experimentando ? 'O mesmo roteiro do assistente que funciona em Águas Claras. Nada é enviado.' : jornada.resumo}</p>
+          <p className="text-nota text-texto-2">{experimentando ? 'O mesmo roteiro que já funciona numa região do DF. Nada é enviado.' : jornada.resumo}</p>
         </div>
         {!experimentando && (
           <ol className="flex gap-1" aria-label="Passos">

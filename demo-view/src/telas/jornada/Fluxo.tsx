@@ -1,4 +1,6 @@
 import { motion } from 'motion/react';
+import { useEffect, useRef } from 'react';
+import { reduzMovimento } from '../../mapa/vista';
 import { CAMADA_DA_PECA, CAMADAS, ROTULO_PECA, SAIDAS, type SituacaoPeca } from '../../dominio/ponte';
 
 /** O sinal de cada situação, sempre com texto: a cor nunca vem sozinha. */
@@ -21,24 +23,45 @@ export function Marca({ situacao, comTexto = false }: { situacao: SituacaoPeca; 
   );
 }
 
+/** O traço de cada sinal: cheio para as demandas, tracejado em acento para a operação (proposta). */
+function Traco({ proposta }: { proposta: boolean }) {
+  return proposta ? <i className="block w-3 border-t border-dashed border-acento-claro" /> : <i className="block h-px w-3 bg-texto-2" />;
+}
+
 /**
  * O diagrama-mestre do slide 10: as cinco camadas e as três saídas. A peça do
  * passo atual acende; as que o relato já percorreu ficam marcadas.
  */
 export function Fluxo({ pecaAtual, percorridas }: { pecaAtual: string; percorridas: ReadonlySet<string> }) {
   const camadaAtual = CAMADA_DA_PECA[pecaAtual];
+  const ativaRef = useRef<HTMLLIElement>(null);
+  useEffect(() => {
+    ativaRef.current?.scrollIntoView({ block: 'nearest', behavior: reduzMovimento() ? 'auto' : 'smooth' });
+  }, [camadaAtual]);
   return (
     <section aria-label="As cinco camadas do City View" className="flex h-full min-h-0 flex-col gap-2">
       <ol className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
         {CAMADAS.map((c) => {
           const ativa = c.numero === camadaAtual;
           return (
-            <li key={c.numero} className={`flex shrink-0 flex-1 flex-col justify-center rounded-lg border px-4 py-2 transition-colors ${ativa ? 'border-acento-claro/70 bg-acento/10' : 'border-linha bg-painel/80'}`}>
+            <li key={c.numero} ref={ativa ? ativaRef : undefined} className={`flex shrink-0 flex-1 flex-col justify-center rounded-lg border px-4 py-2 transition-colors ${ativa ? 'border-acento-claro/70 bg-acento/10' : 'border-linha bg-painel/80'}`}>
               <div className="flex flex-wrap items-baseline gap-x-2">
                 <span className={`condensado text-rotulo ${ativa ? 'text-acento-claro' : 'text-texto-2'}`}>Camada {c.numero}</span>
                 <span className={`text-corpo ${ativa ? 'text-white' : 'text-texto'}`}>{c.nome}</span>
                 <span className="text-rotulo text-texto-2">· {c.ideia}</span>
               </div>
+              {c.fluxos && (
+                <p className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-micro text-texto-2">
+                  Cada conector traz
+                  {c.fluxos.map((f) => (
+                    <span key={f.nome} className="inline-flex items-center gap-1.5" title={f.nota}>
+                      <Traco proposta={f.proposta} />
+                      <span className="text-texto">{f.nome}</span>
+                      {f.nota.startsWith('Qualidade') && <span>({f.nota.toLowerCase()})</span>}
+                    </span>
+                  ))}
+                </p>
+              )}
               {[...new Set(c.pecas.map((p) => p.grupo))].map((grupo) => (
               <div key={grupo ?? 'unico'} className="mt-2 flex flex-wrap items-center gap-1.5">
                 {grupo && <span className="w-full text-micro text-texto-2">{grupo}</span>}
@@ -55,6 +78,12 @@ export function Fluxo({ pecaAtual, percorridas }: { pecaAtual: string; percorrid
                       >
                         <Marca situacao={p.situacao} />
                         {p.nome}
+                        {(c.fluxos || p.situacao === 'orgao') && (
+                          <span className="ml-0.5 flex flex-col gap-[3px]" title="Traz demandas e operação" aria-hidden="true">
+                            <Traco proposta={false} />
+                            <Traco proposta />
+                          </span>
+                        )}
                       </span>
                     </li>
                   );

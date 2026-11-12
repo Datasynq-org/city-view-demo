@@ -1,8 +1,9 @@
 /**
  * A coleta guiada do WhatsApp, para o modo "experimente" da jornada (I2).
  *
- * Segue a ordem e os textos do assistente que já funciona em Águas Claras
- * (dfac, `api/ouvidoria_flow.py`, commit `0eec955`): nome, tipo do problema,
+ * Segue a ordem e os textos do assistente que já funciona numa região do DF
+ * (dfac, `api/ouvidoria_flow.py`, commit `0eec955`), com o nome trocado para
+ * City View e sem os detalhes daquele piloto: nome, tipo do problema,
  * descrição, localização, conferência do local, ponto de referência, foto,
  * resumo e CONFIRMAR. Como lá, é um roteiro fixo: sem rede e sem IA.
  *
@@ -11,10 +12,10 @@
  * nunca são enviadas a lugar nenhum.
  */
 
-// ---------------------------------------------------------------- textos (literais do dfac)
+// ---------------------------------------------------------------- textos (do piloto, com o nome City View)
 
 /** `WELCOME_WHATSAPP` (sem a opção de reunião, que no WhatsApp fica de fora). */
-export const BOAS_VINDAS = `Olá! Sou o assistente do DFÁGUASCLARAS🙋‍♀️🌆.
+export const BOAS_VINDAS = `Olá! Sou o assistente do City View🙋‍♀️🌆.
 Como posso ajudar?
 
 1. Registrar uma demanda
@@ -41,8 +42,7 @@ Responda com o número da opção.`,
   local:
     'Compartilhe a *localização* do fato usando o botão de localização do WhatsApp. ' +
     'Se não estiver no local, pesquise o lugar na barra de pesquisa desse recurso ' +
-    'e compartilhe a localização encontrada. Fique atento porque o Whatsapp pode ' +
-    'interpretar *Águas claras* como *Taguatinga*.',
+    'e compartilhe a localização encontrada.',
   confirmaLocal: 'Essa localização é a do problema relatado? Responda SIM ou NÃO.',
   referencia: 'Informe um ponto de referência próximo ao local.',
   foto: 'Agora envie uma foto do problema.',

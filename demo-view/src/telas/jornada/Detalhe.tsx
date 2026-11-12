@@ -5,6 +5,7 @@ import { ROTULO_SITUACAO, type Situacao } from '../../dominio/incidente';
 import { CAMADA_DA_PECA, CAMADAS, PECA_POR_ID, ROTULO_DFAC } from '../../dominio/ponte';
 import { reduzMovimento } from '../../mapa/vista';
 import { Marca } from './Fluxo';
+import { Operacao } from './Operacao';
 
 function Campos({ linhas }: { linhas: [string, string][] }) {
   return (
@@ -108,6 +109,15 @@ function Conteudo({ painel }: { painel: Painel }) {
           <Rotulo>{painel.rotulo}</Rotulo>
           <Campos linhas={painel.campos} />
         </>
+      );
+    case 'operacao':
+      return (
+        <div className="space-y-3">
+          {painel.sistemas.map((s) => (
+            <Operacao key={s.orgaoId} sistema={s} />
+          ))}
+          <p className="rounded border border-dashed border-acento-claro/60 px-3 py-2 text-nota text-white">{painel.leitura}</p>
+        </div>
       );
     case 'cruzamento':
       return (

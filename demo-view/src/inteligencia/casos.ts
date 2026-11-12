@@ -149,6 +149,7 @@ export const CASOS: Caso[] = [
       { orgaoId: "detran", canal: "Site Detran-DF", quantidade: 51, descricao: "Semáforos apagados em 7 cruzamentos" },
       { orgaoId: "defesa-civil", canal: "199", quantidade: 14, descricao: "Queda de árvore sobre a rede" },
       // Sinais de operação e contexto ficam no fim: não viram pontos no mapa.
+      { orgaoId: "neoenergia", canal: "Operação da rede", quantidade: 3, descricao: "Alimentadores desligados após o temporal: 18.400 clientes sem energia, fora do normal", fonte: "operação" },
       { orgaoId: "detran", canal: "Câmeras do DF 360 (proposta)", quantidade: 7, descricao: "Eventos de trânsito parado nos mesmos 7 cruzamentos; só o evento, sem imagem", fonte: "operação" },
       { orgaoId: "defesa-civil", canal: "Alerta meteorológico", quantidade: 1, descricao: "Alerta de temporal com rajadas para a região, emitido na véspera", fonte: "contexto" },
     ],

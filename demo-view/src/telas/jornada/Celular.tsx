@@ -88,7 +88,7 @@ export function Celular({ mensagens, digitando, experimente }: {
         <span className="grid size-8 place-items-center rounded-full bg-acento/30 text-rotulo text-white" aria-hidden="true">DF</span>
         <div className="min-w-0">
           <p className="truncate text-nota text-white">Assistente no WhatsApp</p>
-          <p className="text-micro text-texto-2">{digitando ? 'digitando…' : 'Canal do City View · textos do piloto de Águas Claras'}</p>
+          <p className="text-micro text-texto-2">{digitando ? 'digitando…' : 'Canal do City View'}</p>
         </div>
       </header>
       <div ref={lista} className="min-h-0 flex-1 space-y-2 overflow-y-auto px-3 py-3" aria-live="polite">
@@ -162,7 +162,14 @@ export function RegistroDoOrgao({ registro }: { registro: { sistema: string; not
           </div>
         ))}
       </dl>
-      <p className="mt-auto border-t border-linha px-4 py-3 text-rotulo text-texto-2">{registro.nota}</p>
+      <div className="mt-auto border-t border-linha px-4 py-3 text-rotulo text-texto-2">
+        <p>{registro.nota}</p>
+        <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-texto">
+          O City View lê deste sistema:
+          <span className="inline-flex items-center gap-1.5"><i className="h-0.5 w-3 bg-texto-2" aria-hidden="true" />demandas</span>
+          <span className="inline-flex items-center gap-1.5"><i className="w-3 border-t border-dashed border-acento-claro" aria-hidden="true" />operação</span>
+        </p>
+      </div>
     </section>
   );
 }

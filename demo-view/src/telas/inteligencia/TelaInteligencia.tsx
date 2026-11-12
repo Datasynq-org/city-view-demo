@@ -88,10 +88,15 @@ export function TelaInteligencia() {
   useEffect(() => {
     if (abertoAntes.current === aberto) return;
     const primeira = abertoAntes.current === null;
-    abertoAntes.current = aberto;
-    if (primeira && aberto < 0) return;
-    // Depois que as margens mudam (o painel do insight abre ou fecha).
-    const t = setTimeout(() => voar(inc ? { tipo: 'vista', vista: { centro: inc.centro, zoom: zoomDoIncidente(inc), inclinacao: 55, rotacao: -14 } } : DF), primeira ? 2800 : 0);
+    if (primeira && aberto < 0) {
+      abertoAntes.current = aberto;
+      return;
+    }
+    // Depois que as margens mudam (o painel do insight abre ou fecha). Na abertura, depois do mapa carregar.
+    const t = setTimeout(() => {
+      abertoAntes.current = aberto;
+      voar(inc ? { tipo: 'vista', vista: { centro: inc.centro, zoom: zoomDoIncidente(inc), inclinacao: 55, rotacao: -14 } } : DF);
+    }, primeira ? 3200 : 0);
     return () => clearTimeout(t);
   }, [aberto, inc, voar]);
 

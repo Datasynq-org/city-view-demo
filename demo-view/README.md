@@ -83,8 +83,9 @@ gráficos são SVG feito à mão, sem biblioteca; a escolha é revista na I4.
 quando o cidadão relata?" (slides 10, 11 e 12). Abre em `#/jornada` (ou pela
 aba no título). Capturas: `capturas/i2-jornada-*.png`.
 
-- **O celular:** a conversa no WhatsApp, com os textos reais do assistente que
-  funciona em Águas Claras (dfac, `api/ouvidoria_flow.py`). Nenhuma mensagem de
+- **O celular:** a conversa no WhatsApp com o assistente do City View. O roteiro e
+  os textos são os do piloto que já funciona numa região (dfac,
+  `api/ouvidoria_flow.py`), com o nome trocado e sem os detalhes daquele piloto. Nenhuma mensagem de
   cidadão é real; os nomes, o telefone (sempre mascarado) e os protocolos são
   fictícios e vêm marcados.
 - **As cinco camadas:** o diagrama do slide 10 (canais · ponte · conectores ·
@@ -108,6 +109,14 @@ aba no título). Capturas: `capturas/i2-jornada-*.png`.
   Neoenergia. O celular dá lugar ao registro do órgão (fictício), a jornada pula
   a coleta, entra pelo conector e chega ao mesmo incidente. A camada 1 lista os
   canais do City View e os sistemas que os órgãos já têm (`?origem=orgao`).
+- **A operação dos sistemas dos órgãos** (`dominio/operacao.ts`): cada conector
+  traz dois sinais, as **demandas** e a **operação** do sistema do órgão
+  (qualidade da rede, qualidade do serviço e saúde do próprio sistema). No caso
+  da rua no escuro, o passo "o que o sistema do órgão já sabe" mostra a rede da
+  Neoenergia fora do normal, e é isso que fecha o raciocínio. É **proposta**,
+  com valores simulados: a entrada de dados de operação ainda depende de
+  validação (magno 7.1 e 9.3). Na inteligência, o insight separa "o que os
+  cidadãos relataram" de "o que os sistemas dos órgãos registraram".
 - **Experimente** (`dados/coleta.ts`): a pessoa escreve no celular e o roteiro é
   o mesmo do dfac (tipo de 1 a 5, descrição com ao menos 12 caracteres, local,
   SIM/NÃO, referência, foto, CONFIRMAR / CORRIGIR RELATO / CORRIGIR LOCAL /
@@ -280,8 +289,8 @@ simulação; a mancha é dado oficial.
 - A I2 reproduz, sem copiar código, o roteiro do assistente do dfac
   (`api/ouvidoria_flow.py`, `api/ouvidoria_service.py`, `api/citizen_tracking.py`
   e `api/demand_triage.py`, repositório `Datasynq-org/dfac-agentic-saas`, só
-  leitura, commit `0eec955`). Os textos do assistente são literais, para a demo
-  mostrar o que existe; a triagem é um subconjunto das palavras de lá.
+  leitura, commit `0eec955`). Os textos do assistente vêm de lá, com o nome
+  trocado para City View; a triagem é um subconjunto das palavras de lá.
 - A I3 porta, da demo exploratória, os 9 casos (`data/inteligencia.ts`, com os
   textos como estavam) e a ideia do agrupamento e do grafo do Calebe
   (`data/grafo-neural.ts`, `components/grafo-deck.tsx`, `components/rede-neural.tsx`):

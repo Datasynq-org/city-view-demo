@@ -87,6 +87,31 @@ describe('a demanda que nasce no sistema do órgão', () => {
   });
 });
 
+describe('a operação dos sistemas e o nome no chat', () => {
+  it('o apagão mostra a operação da Neoenergia fora do normal, nas duas origens, antes do cruzamento', () => {
+    for (const origem of ['whatsapp', 'orgao'] as const) {
+      const j = jornadaDe('apagao', origem);
+      const k = j.passos.findIndex((p) => p.id === 'operacao');
+      expect(k, origem).toBeGreaterThan(0);
+      expect(k, origem).toBeLessThan(j.passos.findIndex((p) => p.id === 'cruzamento'));
+      const painel = j.passos[k]!.painel;
+      expect(painel.tipo === 'operacao' && painel.sistemas[0]!.indicadores.some((i) => i.situacao === 'fora'), origem).toBe(true);
+      expect(situacaoDoPasso(j.passos[k]!), origem).toBe('proposta');
+    }
+  });
+
+  it('no poste registrado na CEB, a operação é de um dia comum', () => {
+    const painel = jornadaDe('poste', 'orgao').passos.find((p) => p.id === 'operacao')!.painel;
+    expect(painel.tipo === 'operacao' && painel.sistemas[0]!.indicadores.every((i) => i.situacao !== 'fora')).toBe(true);
+  });
+
+  it('o assistente se apresenta como City View, e nenhum texto do chat cita o piloto', () => {
+    const falas = [...JORNADAS, ...JORNADAS_ALHEIAS].flatMap((j) => j.passos.flatMap((p) => p.mensagens)).map((m) => m.texto);
+    expect(falas.some((t) => t.includes('Sou o assistente do City View'))).toBe(true);
+    expect(falas.join('\n')).not.toMatch(/[ÁA]GUAS ?CLARAS|Taguatinga/i);
+  });
+});
+
 describe('experimente', () => {
   it('a conversa gerada intercala cidadão e assistente, com local e foto como anexos', () => {
     const { mensagens } = conversar([{ texto: 'oi' }, { texto: '1' }]);

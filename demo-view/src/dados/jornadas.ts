@@ -8,6 +8,7 @@
  */
 import { type EstadoDfac, PECA_POR_ID, type SituacaoPeca } from '../dominio/ponte';
 import type { Situacao } from '../dominio/incidente';
+import { type Cenario, operacaoDoOrgao, type SistemaDoOrgao } from '../dominio/operacao';
 import { REGIAO_POR_ID } from '../dominio/ras';
 import { acompanhamento, AVISO_ACOMPANHAMENTO, avancar, type Entrada, type EstadoDaColeta, inicial, NOME_DO_DESTINO, type Relato, type Triagem, triar } from './coleta';
 
@@ -29,6 +30,7 @@ export type Painel =
   | { tipo: 'acompanhamento'; consulta: string }
   | { tipo: 'incidente'; campos: [string, string][] }
   | { tipo: 'campos'; rotulo: string; campos: [string, string][] }
+  | { tipo: 'operacao'; sistemas: SistemaDoOrgao[]; leitura: string }
   | { tipo: 'cruzamento'; sinais: { orgao: string; canal: string; quantidade: number; descricao: string }[]; leitura: string; acao: string }
   | { tipo: 'saidas'; itens: { quem: string; ve: string; situacao: SituacaoPeca }[] };
 
@@ -105,6 +107,25 @@ function aviso(codigo: string, situacao: string, destino: string, protocolo: str
     AVISO_ACOMPANHAMENTO,
     'Para interromper esses avisos, digite DESATIVAR AVISOS.',
   ].join('\n');
+}
+
+// ---------------------------------------------------------------- a operação do sistema do órgão
+
+/**
+ * O que o sistema do próprio órgão já sabe (magno 7.1, "operação"): a rede, o
+ * serviço e a saúde do sistema. Proposta, com valores simulados.
+ */
+function passoDeOperacao(orgaoId: string, cenario: Cenario, situacao: Situacao, leitura: string): Passo {
+  const sistema = operacaoDoOrgao(orgaoId, cenario)!;
+  return {
+    id: 'operacao',
+    peca: orgaoId === 'ceb-ipes' ? 'iluminadf' : orgaoId,
+    titulo: 'O que o sistema do órgão já sabe',
+    texto: `Proposta: além dos chamados, o conector lê a operação do sistema da ${sistema.sigla}: a qualidade da rede, a qualidade do serviço e a saúde do próprio sistema. O cidadão não relata nada disso, mas o órgão já mede.`,
+    mensagens: [],
+    situacao,
+    painel: { tipo: 'operacao', sistemas: [sistema], leitura },
+  };
 }
 
 // ---------------------------------------------------------------- a parte comum: da coleta ao protocolo
@@ -364,6 +385,7 @@ function jornadaDoApagao(): Jornada {
           ],
         },
       },
+      passoDeOperacao('neoenergia', 'apagao', 'encaminhado', 'A rede da Neoenergia mostra 3 alimentadores desligados, na mesma área e na mesma hora dos chamados. Não é lâmpada: é rede.'),
       {
         id: 'cruzamento',
         peca: 'cruzar',
@@ -462,7 +484,7 @@ export const JORNADAS: Jornada[] = [jornadaDoPoste(), jornadaDoApagao()];
 const METODOS = 'API · robô autorizado · troca de arquivos';
 
 /** Os passos comuns de quem nasce fora: o registro do órgão, o conector e o incidente único. */
-function entradaAlheia(o: { pecaOrigem: string; pecaConector: string; sistema: string; orgao: string; incidente: [string, string][] }): Passo[] {
+function entradaAlheia(o: { pecaOrigem: string; pecaConector: string; sistema: string; orgao: string; orgaoId: string; cenario: Cenario; leitura: string; incidente: [string, string][] }): Passo[] {
   return [
     {
       id: 'origem',
@@ -482,6 +504,7 @@ function entradaAlheia(o: { pecaOrigem: string; pecaConector: string; sistema: s
       situacao: 'em-triagem',
       painel: { tipo: 'campos', rotulo: 'Como se conecta', campos: [['Métodos', METODOS], ['Quem aponta os sistemas', 'A gestão, na implantação'], ['O que o órgão muda', 'Nada']] },
     },
+    { ...passoDeOperacao(o.orgaoId, o.cenario, 'em-triagem', o.leitura), peca: o.pecaConector },
     {
       id: 'incidente',
       peca: 'incidente',
@@ -512,6 +535,9 @@ function alheiaDoPoste(): Jornada {
         pecaConector: 'iluminadf',
         sistema: '155 da CEB',
         orgao: 'a CEB',
+        orgaoId: 'ceb-ipes',
+        cenario: 'normal',
+        leitura: 'A rede de iluminação está num dia comum; o prazo médio de troca passa um pouco do combinado.',
         incidente: [['id', 'INC-2026-000125'], ['origem', '155 · CEB-2026-117802 (fictício)'], ['local', 'Águas Claras · quadra 107'], ['tipo e área', 'Lâmpada apagada · energia e iluminação'], ['órgão', 'CEB IPes'], ['situação', 'encaminhado'], ['vínculos', 'nenhum']],
       }),
       { ...base.passos.at(-1)!, situacao: 'em-atendimento' },
@@ -538,6 +564,9 @@ function alheiaDoApagao(): Jornada {
         pecaConector: 'neoenergia',
         sistema: '116 da Neoenergia',
         orgao: 'a Neoenergia',
+        orgaoId: 'neoenergia',
+        cenario: 'apagao',
+        leitura: 'A rede mostra 3 alimentadores desligados na área do chamado: ele é um entre milhares de clientes sem energia.',
         incidente: [['id', 'INC-2026-000126'], ['origem', '116 · NEO-2026-5520918 (fictício)'], ['local', 'Arapoanga · perto da feira'], ['tipo e área', 'Falta de energia · energia e iluminação'], ['órgão', 'Neoenergia'], ['situação', 'encaminhado'], ['vínculos', 'a cruzar']],
       }),
       fim[0]!,

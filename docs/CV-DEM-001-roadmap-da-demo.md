@@ -289,3 +289,22 @@ frente. Branch `demo/i2-origens`.
   ganho (texto original, que conta a Novacap), mas os chamados vêm de três
   (Neoenergia, Detran e Defesa Civil), e é isso que a fila mostra.
 - **Próximo:** decidir a apresentação interativa (seção 6) e seguir para a I4.
+
+*Acréscimo de 12/11/2026, o chat e a operação dos órgãos.* Pedido da equipe
+(Sammuel). Branch `demo/i2-operacao`.
+- **Chat:** o assistente da jornada se apresenta como City View, e não mais como
+  o do piloto; saiu também o aviso sobre Águas Claras e Taguatinga no pedido de
+  localização. Os selos "existe em Águas Claras" das camadas ficam: são a prova.
+- **Operação à vista:** os órgãos têm os seus sistemas, e a observabilidade
+  deles entra integrada. A camada 3 passa a dizer que cada conector traz dois
+  sinais, demandas e operação (qualidade da rede, qualidade do serviço e saúde
+  do sistema); a jornada ganha o passo "o que o sistema do órgão já sabe"; o
+  insight da inteligência separa o que os cidadãos relataram do que os sistemas
+  registraram. Vem do magno 7.1 ("três sinais da cidade") e do ponto de partida
+  da conversa (observabilidade de tecnologia, ATA 73–106).
+- **A confirmar com o Daniel (magno 9.3):** dados de operação são ideia da
+  equipe, ainda sem validação. Na demo aparecem como proposta, com indicadores,
+  valores e nomes de sistemas simulados; cada órgão teria de liberar o que se
+  mostra. Percepção (redes sociais) continua fora.
+- Testes: 225.
+

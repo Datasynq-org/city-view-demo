@@ -68,6 +68,7 @@ export function Fila({ resultado, aberto, decisaoDe, aoAbrir }: {
                 <span className="mt-1 flex items-center justify-between gap-2">
                   <span className="truncate text-rotulo text-texto-2">
                     {(inc.raId && REGIAO_POR_ID[inc.raId]?.nome) || '–'} · {n(inc.chamados)} chamados · {inc.orgaos.length} órgão{inc.orgaos.length === 1 ? '' : 's'}
+                    {inc.evidencias.some((e) => e.fonte === 'operação') && <span className="text-acento-claro" title="Cruza o que os cidadãos relataram com a operação dos sistemas dos órgãos"> · + operação</span>}
                   </span>
                   <Estado d={decisaoDe(inc.codigo)} />
                 </span>
@@ -106,7 +107,8 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
 }) {
   const [descartando, setDescartando] = useState(false);
   const deChamado = inc.evidencias.filter((e) => e.fonte === 'chamado');
-  const deContexto = inc.evidencias.filter((e) => e.fonte !== 'chamado');
+  const deOperacao = inc.evidencias.filter((e) => e.fonte === 'operação');
+  const deContexto = inc.evidencias.filter((e) => e.fonte === 'contexto');
   const falta = faltaParaEnviar(decisao, agora);
   return (
     <Painel className="flex min-h-0 flex-1 flex-col">
@@ -139,6 +141,9 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
         <section>
           <Rotulo>Por quê</Rotulo>
           <p className="mb-2 text-nota text-texto">{inc.motivo}</p>
+          <p className="mb-0.5 flex items-center gap-2 text-micro text-texto-2">
+            <i className="h-px w-3 bg-texto-2" aria-hidden="true" />O que os cidadãos relataram
+          </p>
           <ul>
             {deChamado.map((e) => (
               <li key={`${e.orgaoId}${e.descricao}`} className="flex items-baseline justify-between gap-3 border-t border-linha py-1.5 text-nota first:border-t-0">
@@ -150,11 +155,29 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
               </li>
             ))}
           </ul>
+          {deOperacao.length > 0 && (
+            <>
+              <p className="mt-3 mb-0.5 flex items-center gap-2 text-micro text-acento-claro">
+                <i className="w-3 border-t border-dashed border-acento-claro" aria-hidden="true" />O que os sistemas dos órgãos registraram
+              </p>
+              <ul>
+                {deOperacao.map((e) => (
+                  <li key={`${e.orgaoId}${e.descricao}`} className="flex items-baseline justify-between gap-3 border-t border-linha py-1.5 text-nota first:border-t-0">
+                    <span className="min-w-0">
+                      <span className="text-white">{siglaDoOrgao(e.orgaoId)}</span> <span className="text-texto-2">· {e.canal}</span>
+                      <span className="block text-rotulo text-texto-2">{e.descricao}</span>
+                    </span>
+                    <span className="text-corpo text-white tabular-nums">{n(e.quantidade)}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
           {deContexto.length > 0 && (
-            <ul className="mt-1 border-t border-dashed border-linha-forte pt-1.5">
+            <ul className="mt-2 border-t border-dashed border-linha-forte pt-1.5">
               {deContexto.map((e) => (
                 <li key={e.descricao} className="py-0.5 text-rotulo text-texto-2">
-                  <span className="condensado text-micro">{e.fonte === 'operação' ? 'Operação do órgão' : 'Contexto da cidade'}</span> · {siglaDoOrgao(e.orgaoId)}: {e.descricao}
+                  <span className="condensado text-micro">Contexto da cidade</span> · {siglaDoOrgao(e.orgaoId)}: {e.descricao}
                 </li>
               ))}
             </ul>
@@ -285,15 +308,15 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
  * importa mais que o lugar.
  */
 export function PorOrgao({ inc }: { inc: Incidente }) {
-  const filas = inc.evidencias.filter((e) => e.fonte === 'chamado');
-  const maior = Math.max(...filas.map((e) => e.quantidade));
+  const filas = inc.evidencias.filter((e) => e.fonte !== 'contexto');
+  const maior = Math.max(...filas.filter((e) => e.fonte === 'chamado').map((e) => e.quantidade));
   const altura = Math.max(150, filas.length * 54);
   const y = (k: number) => ((k + 0.5) / filas.length) * altura;
   return (
     <Painel className="w-[min(46rem,calc(100vw-2rem))] p-5">
       <p className="condensado text-micro text-texto-2">Por órgão · {inc.codigo}</p>
       <p className="mt-1 text-corpo text-white">
-        {filas.length} fila{filas.length === 1 ? '' : 's'} separada{filas.length === 1 ? '' : 's'}, um incidente
+        {filas.length} sina{filas.length === 1 ? 'l' : 'is'} separado{filas.length === 1 ? '' : 's'}, um incidente
       </p>
       <div className="mt-4 grid grid-cols-[minmax(0,1fr)_7rem_11rem] items-stretch">
         <ul className="flex flex-col justify-around" style={{ height: altura }}>
@@ -303,14 +326,15 @@ export function PorOrgao({ inc }: { inc: Incidente }) {
                 {siglaDoOrgao(e.orgaoId)} <span className="text-texto-2">· {e.canal}</span>
               </p>
               <p className="truncate text-rotulo text-texto-2">
-                {n(e.quantidade)} · {e.descricao}
+                {e.fonte === 'operação' ? <span className="text-acento-claro">operação · </span> : `${n(e.quantidade)} · `}
+                {e.descricao}
               </p>
             </li>
           ))}
         </ul>
         <svg viewBox={`0 0 100 ${altura}`} preserveAspectRatio="none" className="h-full w-full" aria-hidden="true">
           {filas.map((e, k) => (
-            <path key={k} d={`M0 ${y(k)} C 55 ${y(k)}, 45 ${altura / 2}, 100 ${altura / 2}`} fill="none" stroke={new Set(filas.map((f) => f.orgaoId)).size > 1 ? '#4cc3d6' : '#a4abb3'} strokeOpacity="0.75" strokeWidth={1 + 5 * Math.sqrt(e.quantidade / maior)} vectorEffect="non-scaling-stroke" />
+            <path key={k} d={`M0 ${y(k)} C 55 ${y(k)}, 45 ${altura / 2}, 100 ${altura / 2}`} fill="none" stroke={new Set(filas.map((f) => f.orgaoId)).size > 1 ? '#4cc3d6' : '#a4abb3'} strokeOpacity="0.75" strokeWidth={e.fonte === 'operação' ? 1.2 : 1 + 5 * Math.sqrt(e.quantidade / maior)} strokeDasharray={e.fonte === 'operação' ? '4 3' : undefined} vectorEffect="non-scaling-stroke" />
           ))}
         </svg>
         <div className="flex flex-col justify-center border-l border-linha-forte pl-4">

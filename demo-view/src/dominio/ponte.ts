@@ -36,6 +36,8 @@ export interface Camada {
   nome: string;
   /** A ideia da camada, como no deck (CV-APR-001, slides 10 a 13). */
   ideia: string;
+  /** O que a camada traz de cada sistema (só a dos conectores). */
+  fluxos?: { nome: string; nota: string; proposta: boolean }[];
   pecas: Peca[];
 }
 
@@ -86,7 +88,12 @@ export const CAMADAS: Camada[] = [
   {
     numero: 3,
     nome: 'Conectores com os sistemas dos órgãos',
-    ideia: 'Nada se substitui. Tudo se conecta',
+    ideia: 'O órgão continua no sistema dele. O City View lê as demandas e a operação',
+    // Os dois sinais do magno 7.1 que vêm dos órgãos. A operação é ideia da equipe (magno 9.3).
+    fluxos: [
+      { nome: 'Demandas', nota: 'Os chamados abertos no sistema do órgão', proposta: false },
+      { nome: 'Operação', nota: 'Qualidade da rede, qualidade do serviço e saúde do sistema', proposta: true },
+    ],
     pecas: [
       { id: 'participadf', nome: 'Participa DF', situacao: 'existe', nota: '12 protocolos até 28/10/2026', fonte: REF },
       { id: 'portal-cidadao', nome: 'Portal do Cidadão', situacao: 'existe', nota: 'Sessão gov.br compartilhada; 6 protocolos até 28/10/2026', fonte: REF },

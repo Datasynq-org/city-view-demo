@@ -30,6 +30,13 @@ describe('as camadas da ponte', () => {
   });
 });
 
+describe('o que os conectores trazem', () => {
+  it('a camada 3 traz dois sinais: as demandas e a operação, esta como proposta', () => {
+    expect(CAMADAS[2]!.fluxos).toEqual([expect.objectContaining({ nome: 'Demandas', proposta: false }), expect.objectContaining({ nome: 'Operação', proposta: true })]);
+    expect(CAMADAS.filter((c) => c.fluxos)).toHaveLength(1);
+  });
+});
+
 describe('os estados do dfac no modelo único', () => {
   it('todo estado do dfac tem rótulo para o cidadão', () => {
     expect(Object.keys(ROTULO_DFAC)).toHaveLength(14);
