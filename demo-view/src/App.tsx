@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { type Tela, TELAS, useTela } from './navegacao';
+import { TelaCidadao } from './telas/cidadao/TelaCidadao';
 import { TelaGestao } from './telas/gestao/TelaGestao';
 import { TelaInteligencia } from './telas/inteligencia/TelaInteligencia';
 import { TelaJornada } from './telas/jornada/TelaJornada';
@@ -34,6 +35,8 @@ function conteudo(tela: Tela) {
       return <TelaRegioes />;
     case 'previsoes':
       return <TelaPrevisoes />;
+    case 'cidadao':
+      return <TelaCidadao />;
     case 'jornada':
       return <TelaJornada />;
     case 'inteligencia':
