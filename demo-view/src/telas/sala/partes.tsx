@@ -157,6 +157,31 @@ export function Minigrafico({ serie }: { serie: number[] }) {
   );
 }
 
+/** Uma lista de "quem tem mais": órgãos ou tipos, com a barra relativa ao primeiro. */
+export function MaisFrequentes({ titulo, nota, linhas }: { titulo: string; nota: string; linhas: { id: string; nome: string; chamados: number }[] }) {
+  const maior = Math.max(1, ...linhas.map((l) => l.chamados));
+  return (
+    <Painel className="p-4">
+      <p className="titulo-painel">{titulo}</p>
+      <p className="mt-0.5 text-rotulo text-texto-2">{nota}</p>
+      <ul className="mt-2 space-y-1.5">
+        {linhas.map((l) => (
+          <li key={l.id}>
+            <div className="flex items-baseline justify-between gap-2 text-nota">
+              <span className="truncate text-texto">{l.nome}</span>
+              <span className="text-white tabular-nums">{numero(l.chamados)}</span>
+            </div>
+            <span className="mt-0.5 block h-1 rounded-full bg-realce" aria-hidden="true">
+              <span className="block h-1 rounded-full bg-texto-2" style={{ width: `${(l.chamados / maior) * 100}%` }} />
+            </span>
+          </li>
+        ))}
+        {linhas.length === 0 && <li className="text-rotulo text-texto-2">Sem chamados neste recorte.</li>}
+      </ul>
+    </Painel>
+  );
+}
+
 /** Os chamados mais recentes, entrando com animação. */
 export function ChegandoAgora({ lista, agora }: { lista: Incidente[]; agora: number }) {
   return (

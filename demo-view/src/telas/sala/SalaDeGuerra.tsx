@@ -1,8 +1,9 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { BaseSimulada } from '../../dados/gerador';
 import type { Incidente, Instante } from '../../dominio/incidente';
-import type { AreaId } from '../../dominio/orgaos';
+import { type AreaId, ORGAO_POR_ID, TIPO_POR_ID } from '../../dominio/orgaos';
+import { CASOS } from '../../inteligencia/casos';
 import {
   abertosAgora,
   type ChamadosDaRa,
@@ -18,7 +19,21 @@ import {
 } from '../../indicadores/indicadores';
 import type { ModoMapa } from '../../mapa/camadas';
 import { CartaoDaRa } from './hud';
-import { ChegandoAgora, Filtros, Legenda, Minigrafico, Numeros, Velocidade } from './partes';
+import { ChegandoAgora, Filtros, Legenda, Minigrafico, Numeros, Velocidade, Grupo, MaisFrequentes } from './partes';
+
+type Lista = 'agora' | 'orgaos' | 'problemas';
+const LISTAS: { id: Lista; nome: string }[] = [
+  { id: 'agora', nome: 'Agora' },
+  { id: 'orgaos', nome: 'Órgãos' },
+  { id: 'problemas', nome: 'Problemas' },
+];
+
+/** Conta os incidentes por uma chave e devolve os 8 maiores. */
+function contarPor(lista: readonly Incidente[], chave: (i: Incidente) => string, nome: (id: string) => string) {
+  const conta = new Map<string, number>();
+  for (const i of lista) conta.set(chave(i), (conta.get(chave(i)) ?? 0) + 1);
+  return [...conta].map(([id, chamados]) => ({ id, nome: nome(id), chamados })).sort((a, b) => b.chamados - a.chamados).slice(0, 8);
+}
 
 /**
  * I1 · Sala de guerra (CV-DEM-001, seção 6): "Onde a cidade precisa de mim agora?".
@@ -58,6 +73,10 @@ export function SalaDeGuerra({ base, incidentes, agora, doPeriodo, filtrados, po
   const serie = useMemo(() => serieDiaria(base, filtro.area, 30, ra), [base, filtro.area, ra]);
   const recentes = useMemo(() => chegandoAgora(filtrados, 8), [filtrados]);
   const tipos = useMemo(() => (ra ? tiposMaisFrequentes(filtrados, 3) : []), [ra, filtrados]);
+  const [lista, setLista] = useState<Lista>('agora');
+  // Só são contados quando a lista está à vista: a cada chegada, o conjunto muda.
+  const orgaos = useMemo(() => (lista === 'orgaos' ? contarPor(filtrados, (i) => i.orgaoId, (id) => ORGAO_POR_ID[id]?.sigla ?? id) : []), [lista, filtrados]);
+  const problemas = useMemo(() => (lista === 'problemas' ? tiposMaisFrequentes(filtrados, 8).map((t) => ({ id: t.tipoId, nome: TIPO_POR_ID[t.tipoId]?.nome ?? t.tipoId, chamados: t.chamados })) : []), [lista, filtrados]);
 
   const mudarPeriodo = (periodo: Periodo) => aoMudarFiltro({ ...filtro, periodo });
   const mudarArea = (area: AreaId | null) => aoMudarFiltro({ ...filtro, area });
@@ -78,7 +97,20 @@ export function SalaDeGuerra({ base, incidentes, agora, doPeriodo, filtrados, po
           )}
         </AnimatePresence>
         <Minigrafico serie={serie} />
-        <ChegandoAgora lista={recentes} agora={agora} />
+        <div className="flex gap-2">
+          <Grupo rotulo="O que listar" opcoes={LISTAS} valor={lista} aoMudar={setLista} />
+        </div>
+        {lista === 'agora' ? <ChegandoAgora lista={recentes} agora={agora} /> : <MaisFrequentes titulo={lista === 'orgaos' ? 'Órgãos com mais chamados' : 'Problemas mais relatados'} nota={lista === 'orgaos' ? 'Hoje cada fila está num sistema separado' : 'Tipos de todos os órgãos, lado a lado'} linhas={lista === 'orgaos' ? orgaos : problemas} />}
+        <nav aria-label="Ver mais" className="grid grid-cols-2 gap-2">
+          <a href="#/inteligencia" className="painel-vidro px-3 py-2 text-rotulo text-texto hover:text-white">
+            <span className="condensado block text-micro text-acento-claro">{CASOS.length} insights →</span>
+            O que os silos não veem
+          </a>
+          <a href="#/gestao" className="painel-vidro px-3 py-2 text-rotulo text-texto hover:text-white">
+            <span className="condensado block text-micro text-acento-claro">Gestão →</span>
+            A velocidade, órgão por órgão
+          </a>
+        </nav>
       </div>
       <div className="sala-legenda">
         <Legenda modo={modo} />

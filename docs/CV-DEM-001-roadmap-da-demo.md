@@ -3,7 +3,7 @@
 | Campo | Valor |
 | --- | --- |
 | Código | CV-DEM-001 |
-| Versão | 0.3 (12/11/2026), para revisão da equipe. Registra a revisão visual e do mapa da I1 (seção 9, último acréscimo). A 0.2, do mesmo dia, mudou a pasta para `demo-view/` e registrou a I0; a 0.1 é de 11/11/2026 |
+| Versão | 0.4 (12/11/2026), para revisão da equipe. Registra as oito telas e a comparação com a demo exploratória (seção 9.3). A 0.3, do mesmo dia: revisão visual e do mapa da I1. Registra a revisão visual e do mapa da I1 (seção 9, último acréscimo). A 0.2, do mesmo dia, mudou a pasta para `demo-view/` e registrou a I0; a 0.1 é de 11/11/2026 |
 | O que é | Como a demo do City View vai ser construída: em fatias pequenas, cada uma mostrável sozinha, planejada e revista antes da próxima |
 | Para que serve a demo | Complementar a apresentação ([CV-APR-001](CV-APR-001-roteiro-da-apresentacao.md)): "logar em alguma coisa e mostrar mais ou menos o que a gente falou" (ATA 267–268) |
 | Onde fica | Pasta `demo-view/` deste repositório. É autocontida (tem `package.json` próprio e não lê nada de fora), para poder ser movida inteira para outro repositório |
@@ -176,7 +176,9 @@ documento continua sendo o plano.
 | I1 · sala de guerra | **Feita**, integrada ao `main`; revista no visual e no mapa na branch `feature/demo-preview` (último acréscimo desta seção), aguardando revisão da equipe | 12/11/2026 | Refeita no mesmo dia como sala de comando em 3D (ver o acréscimo abaixo): o DF inclinado, que gira devagar; chamados em Regiões 3D, Hexágonos 3D ou Calor; prédios em 3D de perto; um chamado novo chegando a cada poucos segundos, com anel no mapa; RA clicável, com cartão; filtros de período, área e RA, que mudam mapa e números juntos; abertos, recebidos, tempo até resolver e % no prazo; velocidade da gestão por área; chamados por dia; camadas reais ligáveis (saúde CNES 2026, escolas INEP 2025, favelas IBGE 2022); tour de 5 paradas com frases literais da ATA (`?tour=1`); modos padrão, noturno e térmico; modo telão. Testes: 87. Capturas: `demo-view/capturas/i1-sala*.png`. *Acréscimo de 12/11/2026:* depois da revisão, o calor é o modo principal e o tour fica nele; saíram os modos noturno e térmico e a órbita ao abrir; testes: 152. As capturas são de antes da revisão. *Acréscimo de 12/11/2026:* revisão aceita pela equipe (Sammuel); a fila de pedidos de imagem passou a espaçar os inícios reais (um disparo atrasado juntava os seguintes numa rajada, o que a IDE/DF recusa); capturas refeitas no visual novo (`i1-sala.png`, `i1-sala-tour.png`, `i1-sala-contexto.png`); testes: 153 |
 | I2 · jornada de um chamado | **Feita**, aguardando revisão (branch `demo/i2-jornada`) | 12/11/2026 | Tela `#/jornada`, ao lado da sala (o app ganhou uma casca com as duas telas). O celular com os textos reais do assistente do dfac; o diagrama das cinco camadas com o selo existe · pronto · proposta e a fonte de cada peça (`dominio/ponte.ts`); o detalhe de cada passo com a situação no modelo único e o estado no dfac. Dois casos: o poste apagado em Águas Claras (o que existe, de ponta a ponta) e a rua no escuro que era falta de energia (a proposta: cruzamento entre órgãos, com texto rotulado como da equipe). Modo "experimente": a pessoa escreve no celular e a jornada anda com o relato dela, pelo mesmo roteiro do dfac; nada é enviado. Testes: 185. Capturas: `demo-view/capturas/i2-jornada-*.png` |
 | I3 · inteligência explicada | **Feita**, aguardando revisão (branch `demo/i3-inteligencia`) | 12/11/2026 | Tela `#/inteligencia`: o grafo em 3D sobre o DF, em três etapas (chamados → ligações → incidentes); a fila com os 9 casos da demo exploratória; o insight explicado nas quatro partes do slide 13 (o que a IA viu · por quê · confiança · o que sugere); confirmar (5 s para cancelar) e descartar com motivo; leitura "por órgão"; controle de sensibilidade. Motor em `src/inteligencia/` (casos, agrupamento, decisões). Testes: 216. Capturas: `demo-view/capturas/i3-*.png` |
-| I4 a I6 | A fazer | — | Seção 6 |
+| I4 · gestor e cidadão | **Feita**, aguardando revisão (branches `demo/i4-gestao`, `demo/i4-regioes`, `demo/i4-cidadao`) | 12/11/2026 | Telas Gestão (velocidade da gestão contra o período anterior, tabela de órgãos, visão do gestor), Regiões (mapa em cores, ranking, perfil contra o DF) e Cidadão (mapa público em três graus, acompanhamento). Seção 9.3 |
+| I5 · previsão | **Feita em parte**, aguardando revisão (branch `demo/i5-previsoes`) | 12/11/2026 | Tela Previsões: duas semanas à frente com margem, fora do normal, o que sobe e cai, onde reforçar, acerto medido. **Falta "pergunte à cidade"** (Claude ao vivo), que pede chave e um serviço intermediário. Seção 9.3 |
+| I6 · conectores | **Feita**, aguardando revisão (branch `demo/i6-integracoes`) | 12/11/2026 | Tela Integrações: as cinco camadas, catálogo de 14 conectores com situação, método, sinais e fonte, e as regras. Seção 9.3 |
 
 A casca visual feita em `demo/` (hoje `design-system-vitrine/`) no mesmo dia (barra, navegação, painel da sala, catálogo) fica como vitrine do design system e como referência de interface para a I1, sem código copiado.
 
@@ -307,4 +309,45 @@ frente. Branch `demo/i2-origens`.
   valores e nomes de sistemas simulados; cada órgão teria de liberar o que se
   mostra. Percepção (redes sociais) continua fora.
 - Testes: 225.
+
+### 9.3 As oito telas e a comparação com a demo exploratória
+
+*Acréscimo de 12/11/2026.* A equipe (Sammuel e Lucca) pediu o restante das
+telas, "igual ao outro": painel de inteligência e insights, velocidade da
+gestão e as demais. Foram construídas em sequência, uma branch por tela, para
+uma revisão do conjunto antes do `main`. A navegação passou a ser uma barra
+lateral estreita (`ui/BarraLateral.tsx`).
+
+| Tela da demo exploratória | Na demo nova | Situação |
+| --- | --- | --- |
+| Visão geral | **Sala de situação**: calor, números, velocidade por área, série, chegando agora; e agora órgãos com mais chamados, problemas mais relatados e atalhos | Coberta |
+| Visão da cidade (3D) | **Sala**: camadas, tour, hexágonos e regiões 3D | Coberta (sem os modos noturno e térmico, por decisão da revisão da I1) |
+| Regiões | **Regiões**: mapa em cores, quem espera mais, ranking, perfil contra o DF | Coberta |
+| Órgãos | **Gestão**: tabela de órgãos e visão do gestor | Coberta |
+| Velocidade da gestão | **Gestão**: contra o período anterior, com a mesma idade | Coberta |
+| Inteligência (insights ocultos) | **Inteligência · Painel**: resumo e cartões | Coberta |
+| Do chamado ao incidente | **Inteligência · Grafo**: três etapas, confirmar e descartar | Coberta |
+| Padrões e previsões | **Previsões** | Coberta |
+| Visão do cidadão | **Cidadão**: três graus (lá eram dois) e acompanhamento | Coberta |
+| Integrações | **Integrações**: camadas, catálogo, regras | Coberta |
+| (não havia) | **Jornada de um chamado**, com as duas origens e a operação dos órgãos | Nova |
+
+**Decisões:**
+- **Gráficos:** continuam em SVG à mão (`ui/graficos.tsx`: linha com faixa,
+  minilinha, barra; `ui/MapaDasRas.tsx`). A I4 era o ponto de rever a biblioteca:
+  os gráficos seguem poucos e simples, e ficar sem ela mantém a demo leve.
+- **Comparação justa na velocidade da gestão:** o período anterior entra como
+  estava na época (`comoEm`). Sem isso, a tela diria "mais rápida" sempre.
+- **Prazo cumprido por dia:** só chamados com o prazo vencido entram na conta.
+- **Repetidos:** mesmo tipo, a menos de 150 m e de 24 h. Regra simples, da
+  equipe, para valer na base inteira; o agrupamento da inteligência é outro.
+- **Previsão:** método portado sem mudança; é proposta (magno 9.9).
+- **Conectores:** só Participa DF e Portal do Cidadão aparecem como existentes,
+  e IluminaDF como pronto. O método dos três foi conferido no código do dfac e
+  é descrito como é (chamadas ao serviço, sessão de navegador), sem chamar de
+  API oficial o que não foi verificado. O ADM 24h segue "não identificado".
+- **Uma cidade para todas as telas** (`dados/cidade.ts`).
+
+**Fora, por enquanto:** "pergunte à cidade" (I5), percepção (redes sociais) e
+os modos noturno e térmico. **A decidir:** a apresentação interativa (seção 6).
 

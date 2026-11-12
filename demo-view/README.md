@@ -10,6 +10,23 @@ fora dela. Pode ser movida inteira para outro repositório.
 
 ## Onde está
 
+Oito telas, na barra lateral (recolhe com a tecla `[`). Cada uma responde a uma
+pergunta e abre pelo endereço (`#/sala`, `#/gestao`…) ou por `?tela=`.
+
+| Tela | Pergunta | Slide |
+| --- | --- | --- |
+| Sala de situação | Onde a cidade precisa de mim agora? | 14 |
+| Gestão | Como está a velocidade da gestão? Como está a minha área? | 14, 15 |
+| Regiões | Como está cada região? | 15 |
+| Inteligência | O que os silos não estão vendo? | 13 |
+| Previsões | O que vem por aí? | 13 |
+| Jornada | O que acontece quando o cidadão relata? | 10, 11, 12 |
+| Cidadão | O que o governo está entregando? | 15 |
+| Integrações | Com o que isso se conecta? | 12 |
+
+A cidade simulada é a mesma em todas as telas (`dados/cidade.ts`); só a sala
+anda "ao vivo".
+
 **I0 · Fundação** (pronta): o mapa do DF com as 37 regiões administrativas sobre
 o mapa de fundo, o selo e o gerador de incidentes no modelo único, com testes.
 
@@ -163,6 +180,53 @@ assunto × proximidade × simultaneidade; grupos por union-find); a leitura, a
 recomendação e o ganho de cada caso são escritos à mão (`inteligencia/casos.ts`).
 Tudo simulado. Esta tela não depende de rede.
 
+**Gestão** (feita, aguardando revisão): a velocidade da gestão e a visão de cada
+órgão. Capturas: `capturas/i4-gestao.png` e `i4-gestor.png`.
+
+- **Velocidade da gestão:** % resolvido no prazo e tempo até resolver, contra o
+  período anterior. Os dois períodos são medidos com a mesma idade (o anterior
+  entra como estava há 7 ou 14 dias); sem isso, o período atual pareceria
+  sempre mais rápido, porque dele só os chamados fáceis já foram resolvidos.
+- **Prazo cumprido, dia a dia:** só entram os chamados cujo prazo já venceu.
+- **Órgãos:** tabela ordenável (chamados, em aberto, fora do prazo, no prazo,
+  tempo, repetidos). **Repetidos** são chamados do mesmo tipo a menos de 150 m e
+  de 24 h: o que o City View agruparia.
+- **Visão do gestor** (clicar num órgão, ou `#/gestao?orgao=caesb`): os tipos
+  dele com prazo, onde, a operação do sistema quando a demo simula, e os
+  insights que cruzam com outros órgãos.
+
+**Regiões** (feita, aguardando revisão): as 37 RAs lado a lado. Captura:
+`capturas/i4-regioes.png`. O mapa em cores (por 10 mil habitantes, chamados,
+tempo de espera ou % no prazo), quem espera mais, o ranking e o perfil de cada
+região contra o DF (`#/regioes?ra=ceilandia`).
+
+**Inteligência · painel de insights** (feita, aguardando revisão): a tela abre
+no **Painel** (tecla P) e alterna com o **Grafo** (tecla G). O painel soma o que
+os insights valem (chamados, incidentes, atendimentos repetidos a menos,
+cruzamentos entre órgãos, decisões) e mostra um cartão por insight, com filtros
+por severidade, tipo de caso e órgão. Captura: `capturas/i3-painel.png`.
+
+**Previsões** (feita, aguardando revisão; proposta): as próximas duas semanas
+com a margem, o que está fora do normal agora, o que deve subir e cair, onde
+reforçar as equipes e o acerto do método, medido ao prever as duas últimas
+semanas sem vê-las. Captura: `capturas/i5-previsoes.png`. "Pergunte à cidade"
+(pergunta em linguagem natural) **não está feita**: precisa de chave e de um
+serviço intermediário, e fica para um passo próprio.
+
+**Cidadão** (feita, aguardando revisão): o mapa público com os **três graus** de
+transparência que a gestão escolhe (só o resolvido · + em resolução · + em
+aberto) e o acompanhamento da demanda. Segurança pública não entra no mapa, em
+nenhum grau. Captura: `capturas/i4-cidadao.png`.
+
+**Integrações** (feita, aguardando revisão): as cinco camadas, o catálogo de
+conectores (14 ligações, com situação, método, sinais e fonte) e as regras.
+Para os três que já existem, a coluna do método diz como a ligação é feita
+hoje, conferido no código do dfac; os propostos ficam "a mapear". Captura:
+`capturas/i6-integracoes.png`.
+
+Na **sala**, a coluna da direita alterna entre "Agora", "Órgãos" (com mais
+chamados) e "Problemas" (mais relatados), e tem atalhos para os insights e a gestão.
+
 ## Rodar
 
 Precisa de Node 22.12 ou mais novo.
@@ -203,10 +267,10 @@ O mapa exige WebGL2. Onde não há, a tela mostra um aviso no lugar do mapa.
 src/
   dominio/   modelo único de incidente, ciclo de vida, órgãos, canais, RAs e a ponte (camadas 1 a 5, com o que existe e o que é proposta)
   dados/     gerador determinístico, a mancha urbana (mancha.json), a coleta do WhatsApp e as jornadas roteirizadas
-  indicadores/ contas da sala de guerra: filtros, velocidade, séries (funções puras)
+  indicadores/ contas das telas: sala, gestão, regiões, transparência (funções puras)
   inteligencia/ os 9 casos, o agrupamento de chamados em incidentes e as decisões (confirmar, descartar)
   mapa/      MapLibre, estilo do mapa, calor, imagem de perto, câmera e camadas deck.gl (camadas/)
-  ui/        painel, selo e cores
+  ui/        painel, selo, cores, barra lateral, gráficos em SVG e o mapa das RAs em cores
   telas/     uma pasta por iteração (sala/: painéis, HUD e tour da I1; jornada/: celular, fluxo e detalhe da I2)
   navegacao.ts  as telas, pelo hash do endereço (#/sala, #/jornada)
 public/dados/  contexto real (escolas, saúde, favelas), servido junto com o build
