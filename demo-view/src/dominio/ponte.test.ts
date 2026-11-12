@@ -18,6 +18,16 @@ describe('as camadas da ponte', () => {
     expect(PECA_POR_ID.coleta!.nota).toMatch(/sem IA/);
     expect(PECA_POR_ID.incidente!.situacao).toBe('proposta');
   });
+
+  it('a demanda pode nascer num canal do City View ou no sistema que o órgão já tem', () => {
+    const grupos = [...new Set(CAMADAS[0]!.pecas.map((p) => p.grupo))];
+    expect(grupos).toEqual(['Canais do City View', 'Sistemas que os órgãos já têm']);
+    const doOrgao = CAMADAS[0]!.pecas.filter((p) => p.situacao === 'orgao');
+    expect(doOrgao.length).toBeGreaterThanOrEqual(6);
+    expect(doOrgao.every((p) => p.id.startsWith('origem-'))).toBe(true);
+    // Só a camada 1 tem sistemas alheios: dali para frente é City View.
+    expect(CAMADAS.slice(1).flatMap((c) => c.pecas).some((p) => p.situacao === 'orgao')).toBe(false);
+  });
 });
 
 describe('os estados do dfac no modelo único', () => {

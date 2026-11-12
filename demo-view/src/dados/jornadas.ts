@@ -28,6 +28,7 @@ export type Painel =
   | { tipo: 'envio'; destino: string; campos: [string, string][]; protocolo: [string, string] }
   | { tipo: 'acompanhamento'; consulta: string }
   | { tipo: 'incidente'; campos: [string, string][] }
+  | { tipo: 'campos'; rotulo: string; campos: [string, string][] }
   | { tipo: 'cruzamento'; sinais: { orgao: string; canal: string; quantidade: number; descricao: string }[]; leitura: string; acao: string }
   | { tipo: 'saidas'; itens: { quem: string; ve: string; situacao: SituacaoPeca }[] };
 
@@ -47,6 +48,10 @@ export interface Passo {
 
 export interface Jornada {
   id: 'poste' | 'apagao' | 'experimente';
+  /** Onde a demanda nasce: num canal do City View ou no sistema que o órgão já tem. */
+  origem: 'whatsapp' | 'orgao';
+  /** Quando nasce no sistema do órgão: o registro de lá, no lugar da conversa. */
+  registro?: { sistema: string; nota: string; campos: [string, string][] };
   nome: string;
   resumo: string;
   ra: string;
@@ -125,7 +130,7 @@ function passosAteOProtocolo(b: Base): Passo[] {
       id: 'canal',
       peca: 'whatsapp',
       titulo: 'O cidadão fala onde já está',
-      texto: 'Chama o assistente no WhatsApp. Não precisa baixar app, criar conta nem saber qual órgão cuida do quê.',
+      texto: 'Chama o assistente no WhatsApp, ou no canal que a gestão escolher. Não precisa baixar app, criar conta nem saber qual órgão cuida do quê.',
       mensagens: abertura,
       painel: { tipo: 'conversa', coletado: [] },
     },
@@ -222,6 +227,7 @@ function jornadaDoPoste(): Jornada {
   };
   return {
     id: 'poste',
+    origem: 'whatsapp',
     nome: 'Poste apagado em Águas Claras',
     resumo: 'O caminho que já funciona, de ponta a ponta, numa região.',
     ra: 'aguas-claras',
@@ -323,6 +329,7 @@ function jornadaDoApagao(): Jornada {
   const ate = passosAteOProtocolo(base);
   return {
     id: 'apagao',
+    origem: 'whatsapp',
     nome: 'A rua no escuro era falta de energia',
     resumo: 'Parece iluminação, é energia: o que só aparece quando se olha o todo.',
     ra: 'arapoanga',
@@ -361,7 +368,7 @@ function jornadaDoApagao(): Jornada {
         id: 'cruzamento',
         peca: 'cruzar',
         titulo: 'Parece iluminação, é falta de energia',
-        texto: 'Proposta: no mesmo lugar e nas mesmas horas, outros órgãos recebem centenas de chamados. A inteligência liga as filas e explica por quê; uma pessoa confirma.',
+        texto: 'Proposta: no mesmo lugar e nas mesmas horas, outros órgãos recebem centenas de chamados. Eles nasceram nos sistemas de cada órgão e entraram pelo mesmo caminho. A inteligência liga as filas e explica por quê; uma pessoa confirma.',
         mensagens: [],
         situacao: 'encaminhado',
         painel: {
@@ -438,6 +445,7 @@ export function jornadaDoRelato(estado: EstadoDaColeta, conversa: Mensagem[]): J
   });
   return {
     id: 'experimente',
+    origem: 'whatsapp',
     nome: 'O seu relato',
     resumo: 'O mesmo caminho, com o que você digitou. Nada sai desta tela.',
     ra: '',
@@ -448,3 +456,97 @@ export function jornadaDoRelato(estado: EstadoDaColeta, conversa: Mensagem[]): J
 }
 
 export const JORNADAS: Jornada[] = [jornadaDoPoste(), jornadaDoApagao()];
+
+// ---------------------------------------------------------------- a mesma demanda, nascendo no sistema do órgão
+
+const METODOS = 'API · robô autorizado · troca de arquivos';
+
+/** Os passos comuns de quem nasce fora: o registro do órgão, o conector e o incidente único. */
+function entradaAlheia(o: { pecaOrigem: string; pecaConector: string; sistema: string; orgao: string; incidente: [string, string][] }): Passo[] {
+  return [
+    {
+      id: 'origem',
+      peca: o.pecaOrigem,
+      titulo: `A demanda nasce no ${o.sistema}`,
+      texto: `O cidadão usa o canal que já conhece, e ${o.orgao} trabalha como sempre trabalhou. Ninguém precisa saber que o City View existe.`,
+      mensagens: [],
+      situacao: 'recebido',
+      painel: { tipo: 'campos', rotulo: 'O que muda para o órgão', campos: [['Sistema', 'o mesmo'], ['Atendimento', 'o mesmo'], ['Protocolo', 'o do próprio órgão']] },
+    },
+    {
+      id: 'conector',
+      peca: o.pecaConector,
+      titulo: 'O conector lê o chamado',
+      texto: 'Proposta: o City View se liga ao sistema do órgão, em qualquer tecnologia, e passa a enxergar o chamado. Só lê o que a gestão autorizar; robô, só com autorização formal do órgão.',
+      mensagens: [],
+      situacao: 'em-triagem',
+      painel: { tipo: 'campos', rotulo: 'Como se conecta', campos: [['Métodos', METODOS], ['Quem aponta os sistemas', 'A gestão, na implantação'], ['O que o órgão muda', 'Nada']] },
+    },
+    {
+      id: 'incidente',
+      peca: 'incidente',
+      titulo: 'Vira um incidente, no mesmo formato de todos',
+      texto: 'Proposta: daqui para frente, é igual a uma demanda que nasceu no WhatsApp. O mesmo formato, a mesma inteligência, as mesmas visões.',
+      mensagens: [],
+      situacao: 'encaminhado',
+      painel: { tipo: 'incidente', campos: o.incidente },
+    },
+  ];
+}
+
+function alheiaDoPoste(): Jornada {
+  const base = JORNADAS[0]!;
+  return {
+    ...base,
+    origem: 'orgao',
+    nome: 'Poste apagado, registrado no 155 da CEB',
+    resumo: 'A mesma demanda, nascendo no canal do órgão. O City View cuida dali para frente.',
+    registro: {
+      sistema: '155 · CEB Iluminação Pública',
+      nota: 'Registro no sistema do órgão (fictício). O City View não muda nada aqui.',
+      campos: [['Protocolo', 'CEB-2026-117802 (fictício)'], ['Serviço', 'Lâmpada apagada'], ['Local', 'Águas Claras · quadra 107'], ['Aberto em', '12/11/2026, 19:42'], ['Situação', 'Em atendimento']],
+    },
+    passos: [
+      ...entradaAlheia({
+        pecaOrigem: 'origem-155',
+        pecaConector: 'iluminadf',
+        sistema: '155 da CEB',
+        orgao: 'a CEB',
+        incidente: [['id', 'INC-2026-000125'], ['origem', '155 · CEB-2026-117802 (fictício)'], ['local', 'Águas Claras · quadra 107'], ['tipo e área', 'Lâmpada apagada · energia e iluminação'], ['órgão', 'CEB IPes'], ['situação', 'encaminhado'], ['vínculos', 'nenhum']],
+      }),
+      { ...base.passos.at(-1)!, situacao: 'em-atendimento' },
+    ],
+  };
+}
+
+function alheiaDoApagao(): Jornada {
+  const base = JORNADAS[1]!;
+  const fim = base.passos.slice(-2);
+  return {
+    ...base,
+    origem: 'orgao',
+    nome: 'Falta de energia, registrada no 116 da Neoenergia',
+    resumo: 'Um dos 640 chamados do 116. Nasceu fora, e chega ao mesmo incidente.',
+    registro: {
+      sistema: '116 · Neoenergia',
+      nota: 'Registro no sistema do órgão (fictício). O City View não muda nada aqui.',
+      campos: [['Protocolo', 'NEO-2026-5520918 (fictício)'], ['Serviço', 'Falta de energia'], ['Local', 'Arapoanga · perto da feira'], ['Aberto em', '11/11/2026, 21:05'], ['Situação', 'Equipe a caminho']],
+    },
+    passos: [
+      ...entradaAlheia({
+        pecaOrigem: 'origem-116',
+        pecaConector: 'neoenergia',
+        sistema: '116 da Neoenergia',
+        orgao: 'a Neoenergia',
+        incidente: [['id', 'INC-2026-000126'], ['origem', '116 · NEO-2026-5520918 (fictício)'], ['local', 'Arapoanga · perto da feira'], ['tipo e área', 'Falta de energia · energia e iluminação'], ['órgão', 'Neoenergia'], ['situação', 'encaminhado'], ['vínculos', 'a cruzar']],
+      }),
+      fim[0]!,
+      { ...fim[1]!, mensagens: [], texto: 'Proposta: confirmado o vínculo, todos os que relataram, em qualquer canal, recebem a mesma explicação e a previsão da Neoenergia, cada um por onde entrou.' },
+    ],
+  };
+}
+
+/** Os mesmos casos, com a demanda nascendo no sistema do órgão. */
+export const JORNADAS_ALHEIAS: Jornada[] = [alheiaDoPoste(), alheiaDoApagao()];
+
+export const jornadaDe = (id: 'poste' | 'apagao', origem: Jornada['origem']): Jornada => (origem === 'orgao' ? JORNADAS_ALHEIAS : JORNADAS).find((j) => j.id === id)!;

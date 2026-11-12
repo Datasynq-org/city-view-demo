@@ -6,6 +6,8 @@ export function Marca({ situacao, comTexto = false }: { situacao: SituacaoPeca; 
   const forma =
     situacao === 'existe' ? (
       <span className="size-2 shrink-0 rounded-full bg-acento-claro" />
+    ) : situacao === 'orgao' ? (
+      <span className="size-2 shrink-0 rounded-[2px] bg-texto-2" />
     ) : situacao === 'pronto' ? (
       <span className="size-2 shrink-0 rounded-full border border-acento-claro bg-[linear-gradient(90deg,var(--color-acento-claro)_50%,transparent_50%)]" />
     ) : (
@@ -37,15 +39,18 @@ export function Fluxo({ pecaAtual, percorridas }: { pecaAtual: string; percorrid
                 <span className={`text-corpo ${ativa ? 'text-white' : 'text-texto'}`}>{c.nome}</span>
                 <span className="text-rotulo text-texto-2">· {c.ideia}</span>
               </div>
-              <ul className="mt-2 flex flex-wrap gap-1.5">
-                {c.pecas.map((p) => {
+              {[...new Set(c.pecas.map((p) => p.grupo))].map((grupo) => (
+              <div key={grupo ?? 'unico'} className="mt-2 flex flex-wrap items-center gap-1.5">
+                {grupo && <span className="w-full text-micro text-texto-2">{grupo}</span>}
+              <ul className="flex flex-wrap gap-1.5">
+                {c.pecas.filter((p) => p.grupo === grupo).map((p) => {
                   const atual = p.id === pecaAtual;
                   const feita = percorridas.has(p.id);
                   return (
                     <li key={p.id} className="relative">
                       {atual && <motion.span layoutId="marcador-do-passo" className="absolute -inset-px rounded-md border-2 border-acento-claro shadow-[0_0_14px_rgba(76,195,214,0.45)]" transition={{ type: 'spring', stiffness: 380, damping: 34 }} />}
                       <span
-                        className={`relative flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-nota ${p.situacao === 'proposta' ? 'border border-dashed border-linha-forte' : 'border border-linha'} ${atual ? 'text-white' : feita ? 'bg-realce/70 text-texto' : 'text-texto-2'}`}
+                        className={`relative flex items-center gap-1.5 rounded-md text-nota ${p.grupo ? 'px-2 py-1' : 'px-2.5 py-1.5'} ${p.situacao === 'proposta' ? 'border border-dashed border-linha-forte' : 'border border-linha'} ${atual ? 'text-white' : feita ? 'bg-realce/70 text-texto' : 'text-texto-2'}`}
                         title={`${p.nota} · ${p.fonte}`}
                       >
                         <Marca situacao={p.situacao} />
@@ -55,6 +60,8 @@ export function Fluxo({ pecaAtual, percorridas }: { pecaAtual: string; percorrid
                   );
                 })}
               </ul>
+              </div>
+              ))}
             </li>
           );
         })}
@@ -73,6 +80,7 @@ export function Fluxo({ pecaAtual, percorridas }: { pecaAtual: string; percorrid
       <p className="flex shrink-0 flex-wrap gap-x-4 gap-y-1">
         <Marca situacao="existe" comTexto />
         <Marca situacao="pronto" comTexto />
+        <Marca situacao="orgao" comTexto />
         <Marca situacao="proposta" comTexto />
       </p>
     </section>

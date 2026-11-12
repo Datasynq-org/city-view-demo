@@ -250,3 +250,15 @@ funcionalidade nova. Entraram no commit `1289335` da branch `feature/demo-previe
   é gerada uma vez por visita, para quem vai à jornada e volta encontrar a mesma.
 - **Fica para a I3:** o caso da rua no escuro termina no cruzamento entre
   órgãos; a I3 mostra esse cruzamento acontecendo, com o grafo do Calebe.
+
+*Acréscimo de 12/11/2026, a demanda nasce em qualquer lugar (I2).* Pedido da
+equipe, a partir da arquitetura da conversa de 10/11 ("eu integro com todos
+eles, independente do nome", ATA 174): não importa se a demanda nasce no dfac,
+no Portal do Cidadão, no 190 ou num sistema legado; o City View cuida dali para
+frente. Branch `demo/i2-origens`.
+- A camada 1 virou "Onde a demanda nasce", com os canais do City View e os
+  sistemas que os órgãos já têm (situação nova: "sistema do órgão, já existe").
+- Cada caso da jornada ganhou a versão "pelo sistema do órgão": o registro no
+  155 da CEB ou no 116 da Neoenergia, o conector (proposta) e o mesmo incidente.
+- O celular deixou de se apresentar como o dfac: é "um canal do City View", com
+  os textos do piloto de Águas Claras. Testes: 190.

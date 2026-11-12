@@ -103,6 +103,11 @@ aba no título). Capturas: `capturas/i2-jornada-*.png`.
   mesmo começo desemboca na proposta: o relato é cruzado com os chamados da
   Neoenergia, do Detran e da Defesa Civil, e uma resposta só volta a todos. O
   que é proposta vem rotulado, inclusive a mensagem escrita pela equipe.
+- **A demanda pode nascer em qualquer lugar:** o seletor "Pelo WhatsApp · Pelo
+  sistema do órgão" mostra o mesmo caso nascendo no 155 da CEB ou no 116 da
+  Neoenergia. O celular dá lugar ao registro do órgão (fictício), a jornada pula
+  a coleta, entra pelo conector e chega ao mesmo incidente. A camada 1 lista os
+  canais do City View e os sistemas que os órgãos já têm (`?origem=orgao`).
 - **Experimente** (`dados/coleta.ts`): a pessoa escreve no celular e o roteiro é
   o mesmo do dfac (tipo de 1 a 5, descrição com ao menos 12 caracteres, local,
   SIM/NÃO, referência, foto, CONFIRMAR / CORRIGIR RELATO / CORRIGIR LOCAL /

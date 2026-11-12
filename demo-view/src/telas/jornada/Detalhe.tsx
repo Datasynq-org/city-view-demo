@@ -102,6 +102,13 @@ function Conteudo({ painel }: { painel: Painel }) {
           <Campos linhas={painel.campos} />
         </>
       );
+    case 'campos':
+      return (
+        <>
+          <Rotulo>{painel.rotulo}</Rotulo>
+          <Campos linhas={painel.campos} />
+        </>
+      );
     case 'cruzamento':
       return (
         <div className="space-y-3">

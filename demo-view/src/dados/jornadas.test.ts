@@ -3,7 +3,7 @@ import { podeTransitar } from '../dominio/incidente';
 import { CAMADA_DA_PECA, PECA_POR_ID } from '../dominio/ponte';
 import { dentroDaRegiao, REGIAO_POR_ID } from '../dominio/ras';
 import { avancar, inicial } from './coleta';
-import { conversar, JORNADAS, jornadaDoRelato, situacaoDoPasso } from './jornadas';
+import { conversar, jornadaDe, JORNADAS, JORNADAS_ALHEIAS, jornadaDoRelato, situacaoDoPasso } from './jornadas';
 
 describe('jornadas roteirizadas', () => {
   it('são duas: o poste (o que existe) e o apagão (a proposta)', () => {
@@ -51,6 +51,39 @@ describe('jornadas roteirizadas', () => {
   it('todo protocolo mostrado é marcado como fictício', () => {
     for (const j of JORNADAS)
       for (const p of j.passos) if (p.painel.tipo === 'envio') expect(p.painel.protocolo[1], `${j.id}/${p.id}`).toMatch(/fictício/);
+  });
+});
+
+describe('a demanda que nasce no sistema do órgão', () => {
+  it('existe para os dois casos, e começa numa peça "do órgão"', () => {
+    expect(JORNADAS_ALHEIAS.map((j) => j.id)).toEqual(['poste', 'apagao']);
+    for (const j of JORNADAS_ALHEIAS) {
+      expect(j.origem).toBe('orgao');
+      expect(j.registro, j.id).toBeDefined();
+      expect(PECA_POR_ID[j.passos[0]!.peca]!.situacao, j.id).toBe('orgao');
+    }
+    expect(jornadaDe('apagao', 'orgao').registro!.sistema).toMatch(/Neoenergia/);
+    expect(jornadaDe('apagao', 'whatsapp').registro).toBeUndefined();
+  });
+
+  it('não passa pela coleta nem pela revisão, e não tem conversa de WhatsApp', () => {
+    for (const j of JORNADAS_ALHEIAS) {
+      const pecas = j.passos.map((p) => p.peca);
+      for (const daPonte of ['whatsapp', 'coleta', 'triagem', 'revisao']) expect(pecas, j.id).not.toContain(daPonte);
+      expect(j.passos.flatMap((p) => p.mensagens), j.id).toEqual([]);
+    }
+  });
+
+  it('toda origem chega ao incidente único, por passagens que o modelo permite', () => {
+    for (const j of [...JORNADAS, ...JORNADAS_ALHEIAS]) {
+      expect(j.passos.some((p) => p.peca === 'incidente'), `${j.id}/${j.origem}`).toBe(true);
+      const seq = j.passos.map((p) => p.situacao).filter((s) => s !== undefined);
+      for (let k = 1; k < seq.length; k++) if (seq[k] !== seq[k - 1]) expect(podeTransitar(seq[k - 1]!, seq[k]!), `${j.id}/${j.origem}: ${seq[k - 1]} → ${seq[k]}`).toBe(true);
+    }
+  });
+
+  it('o protocolo do órgão é marcado como fictício', () => {
+    for (const j of JORNADAS_ALHEIAS) expect(j.registro!.campos[0]![1]).toMatch(/fictício/);
   });
 });
 

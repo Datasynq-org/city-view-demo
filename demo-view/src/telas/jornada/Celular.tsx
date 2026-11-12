@@ -87,8 +87,8 @@ export function Celular({ mensagens, digitando, experimente }: {
       <header className="flex items-center gap-3 border-b border-linha bg-painel px-4 py-2.5">
         <span className="grid size-8 place-items-center rounded-full bg-acento/30 text-rotulo text-white" aria-hidden="true">DF</span>
         <div className="min-w-0">
-          <p className="truncate text-nota text-white">Assistente DFÁGUASCLARAS</p>
-          <p className="text-micro text-texto-2">{digitando ? 'digitando…' : 'WhatsApp · textos reais do assistente (dfac)'}</p>
+          <p className="truncate text-nota text-white">Assistente no WhatsApp</p>
+          <p className="text-micro text-texto-2">{digitando ? 'digitando…' : 'Canal do City View · textos do piloto de Águas Claras'}</p>
         </div>
       </header>
       <div ref={lista} className="min-h-0 flex-1 space-y-2 overflow-y-auto px-3 py-3" aria-live="polite">
@@ -139,6 +139,30 @@ export function Celular({ mensagens, digitando, experimente }: {
           </form>
         </footer>
       )}
+    </section>
+  );
+}
+
+/**
+ * Quando a demanda nasce fora do City View: o registro no sistema que o órgão
+ * já tem, no lugar da conversa. Visual neutro, de sistema antigo, de propósito.
+ */
+export function RegistroDoOrgao({ registro }: { registro: { sistema: string; nota: string; campos: [string, string][] } }) {
+  return (
+    <section aria-label="Registro no sistema do órgão" className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-linha-forte bg-[#101214]">
+      <header className="border-b border-linha-forte bg-poco px-4 py-2.5">
+        <p className="condensado text-micro text-texto-2">Sistema do órgão</p>
+        <p className="text-corpo text-white">{registro.sistema}</p>
+      </header>
+      <dl className="grid grid-cols-[6.5rem_1fr] gap-x-3 gap-y-2 px-4 py-4 font-mono text-rotulo">
+        {registro.campos.map(([k, v]) => (
+          <div key={k} className="contents">
+            <dt className="text-texto-2">{k}</dt>
+            <dd className="text-texto">{v}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="mt-auto border-t border-linha px-4 py-3 text-rotulo text-texto-2">{registro.nota}</p>
     </section>
   );
 }

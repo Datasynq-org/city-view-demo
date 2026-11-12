@@ -8,12 +8,14 @@
  */
 import { podeTransitar, type Situacao } from './incidente';
 
-export type SituacaoPeca = 'existe' | 'pronto' | 'proposta';
+/** `orgao`: sistema que o órgão já tem e continua usando; o City View não o substitui. */
+export type SituacaoPeca = 'existe' | 'pronto' | 'proposta' | 'orgao';
 
 export const ROTULO_PECA: Record<SituacaoPeca, string> = {
   existe: 'Existe em Águas Claras',
   pronto: 'Pronto, não ativo',
   proposta: 'Proposta',
+  orgao: 'Sistema do órgão, já existe',
 };
 
 export interface Peca {
@@ -23,6 +25,8 @@ export interface Peca {
   /** Uma linha: o que ela faz, com o cuidado de fala quando houver. */
   nota: string;
   fonte: string;
+  /** Subtítulo dentro da camada, quando ela tem mais de um grupo de peças. */
+  grupo?: string;
 }
 
 export type NumeroCamada = 1 | 2 | 3 | 4 | 5;
@@ -37,16 +41,34 @@ export interface Camada {
 
 const REF = 'CV-REF-002, seção 4.1';
 
+/**
+ * A demanda também nasce fora do City View, nos canais que cada órgão já tem.
+ * "Eu integro com todos eles, independente do nome" (ATA 174): o órgão continua
+ * como está, e o City View cuida dali para frente.
+ */
+const GRUPO_ORGAOS = 'Sistemas que os órgãos já têm';
+const doOrgao = (id: string, nome: string, nota: string, fonte: string): Peca => ({ id: `origem-${id}`, grupo: GRUPO_ORGAOS, nome, situacao: 'orgao', nota, fonte });
+const SISTEMAS_DOS_ORGAOS: Peca[] = [
+  doOrgao('156', 'Portal do Cidadão · 156', 'Zeladoria e serviços urbanos', 'magno 4.8'),
+  doOrgao('162', 'Participa DF · 162', 'Ouvidoria do GDF', 'magno, seção 8'),
+  doOrgao('190', '190', 'PMDF', 'magno, seção 8'),
+  doOrgao('116', '116 · Neoenergia', 'Falta de energia', 'magno 5.2'),
+  doOrgao('115', '115 e app · CAESB', 'Água e esgoto', 'magno, seção 8'),
+  doOrgao('155', '155 · CEB', 'Iluminação pública', 'magno, seção 8'),
+  doOrgao('legado', 'Sistema legado do órgão', 'Qualquer tecnologia: API, robô autorizado ou troca de arquivos', 'ATA 169–174'),
+];
+
 export const CAMADAS: Camada[] = [
   {
     numero: 1,
-    nome: 'Canais do cidadão',
-    ideia: 'O cidadão fala onde a gestão escolher',
+    nome: 'Onde a demanda nasce',
+    ideia: 'Não importa onde nasce: daqui para frente é igual',
     pecas: [
-      { id: 'whatsapp', nome: 'WhatsApp', situacao: 'existe', nota: 'Em produção desde 30/09/2026', fonte: `${REF}; dfac api/ouvidoria_flow.py` },
-      { id: 'instagram', nome: 'Instagram', situacao: 'pronto', nota: 'Código pronto, travado na verificação da Meta', fonte: REF },
-      { id: 'app', nome: 'App', situacao: 'proposta', nota: 'O Zela DF foi só protótipo', fonte: REF },
-      { id: 'sms', nome: 'SMS e outros', situacao: 'proposta', nota: 'Onde a gestão escolher', fonte: 'ATA 204–212' },
+      { id: 'whatsapp', grupo: 'Canais do City View', nome: 'WhatsApp', situacao: 'existe', nota: 'Em produção desde 30/09/2026', fonte: `${REF}; dfac api/ouvidoria_flow.py` },
+      { id: 'instagram', grupo: 'Canais do City View', nome: 'Instagram', situacao: 'pronto', nota: 'Código pronto, travado na verificação da Meta', fonte: REF },
+      { id: 'app', grupo: 'Canais do City View', nome: 'App', situacao: 'proposta', nota: 'O Zela DF foi só protótipo', fonte: REF },
+      { id: 'sms', grupo: 'Canais do City View', nome: 'SMS e outros', situacao: 'proposta', nota: 'Onde a gestão escolher', fonte: 'ATA 204–212' },
+      ...SISTEMAS_DOS_ORGAOS,
     ],
   },
   {

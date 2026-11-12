@@ -10,12 +10,12 @@ import type { Layer } from '@deck.gl/core';
 import { ScatterplotLayer } from '@deck.gl/layers';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { avancar, type EstadoDaColeta, inicial } from '../../dados/coleta';
-import { JORNADAS, type Jornada, jornadaDoRelato, type Mensagem } from '../../dados/jornadas';
+import { jornadaDe, type Jornada, jornadaDoRelato, type Mensagem } from '../../dados/jornadas';
 import { NA_PILHA, SEMPRE_POR_CIMA } from '../../mapa/camadas/pilha';
 import { Mapa } from '../../mapa/Mapa';
 import { type Destino, reduzMovimento } from '../../mapa/vista';
 import { CORES, rgb } from '../../ui/tokens';
-import { Celular } from './Celular';
+import { Celular, RegistroDoOrgao } from './Celular';
 import { Detalhe } from './Detalhe';
 import { Fluxo } from './Fluxo';
 
@@ -73,6 +73,7 @@ function camadasDoMapa(local: [number, number] | null, vizinhos: [number, number
 export function TelaJornada() {
   const parametros = useMemo(() => new URLSearchParams(window.location.search), []);
   const [caso, setCaso] = useState<Caso>(() => (parametros.get('caso') === 'apagao' ? 'apagao' : 'poste'));
+  const [origem, setOrigem] = useState<Jornada['origem']>(() => (parametros.get('origem') === 'orgao' ? 'orgao' : 'whatsapp'));
   const [indice, setIndice] = useState(0);
   const [revelados, setRevelados] = useState(0);
   const [tocando, setTocando] = useState(() => parametros.get('auto') === '1');
@@ -84,7 +85,7 @@ export function TelaJornada() {
   const [relatoPronto, setRelatoPronto] = useState<Jornada | null>(null);
   const experimentando = caso === 'experimente' && !relatoPronto;
 
-  const jornada: Jornada = caso === 'experimente' ? (relatoPronto ?? jornadaDoRelato(coleta, conversa)) : JORNADAS.find((j) => j.id === caso)!;
+  const jornada: Jornada = caso === 'experimente' ? (relatoPronto ?? jornadaDoRelato(coleta, conversa)) : jornadaDe(caso, origem);
   const passo = jornada.passos[Math.min(indice, jornada.passos.length - 1)]!;
 
   // ------------------------------------------------ mensagens na tela
@@ -113,7 +114,13 @@ export function TelaJornada() {
       setColeta(inicial());
       setConversa([{ de: 'nota', texto: 'Escreva como se fosse no WhatsApp. É uma simulação: nada é enviado.' }]);
       setRevelados(0);
-    } else setRevelados(tocando ? 0 : (JORNADAS.find((j) => j.id === c)?.passos[0]?.mensagens.length ?? 0));
+    } else setRevelados(tocando ? 0 : (jornadaDe(c, origem).passos[0]?.mensagens.length ?? 0));
+  };
+  const escolherOrigem = (o: Jornada['origem']) => {
+    setOrigem(o);
+    setIndice(0);
+    setDigitando(false);
+    setRevelados(tocando || caso === 'experimente' ? 0 : (jornadaDe(caso, o).passos[0]?.mensagens.length ?? 0));
   };
 
   // Ao abrir parado, o primeiro passo aparece inteiro.
@@ -222,11 +229,11 @@ export function TelaJornada() {
   return (
     <main className="jornada">
       <div className="jornada-celular">
-        <Celular
-          mensagens={mensagens}
-          digitando={digitando}
-          experimente={experimentando ? { etapa: coleta.etapa, aoEnviar, aoFoto, bloqueado: digitando } : undefined}
-        />
+        {jornada.registro ? (
+          <RegistroDoOrgao registro={jornada.registro} />
+        ) : (
+          <Celular mensagens={mensagens} digitando={digitando} experimente={experimentando ? { etapa: coleta.etapa, aoEnviar, aoFoto, bloqueado: digitando } : undefined} />
+        )}
       </div>
 
       <div className="jornada-centro">
@@ -238,6 +245,15 @@ export function TelaJornada() {
               </button>
             ))}
           </div>
+          {caso !== 'experimente' && (
+            <div role="group" aria-label="Onde a demanda nasce" className="flex rounded-lg border border-linha bg-painel p-0.5">
+              {([['whatsapp', 'Pelo WhatsApp'], ['orgao', 'Pelo sistema do órgão']] as const).map(([id, nome]) => (
+                <button key={id} type="button" aria-pressed={id === origem} onClick={() => escolherOrigem(id)} className={`condensado rounded-md px-3 py-1.5 text-rotulo ${id === origem ? 'bg-realce text-white' : 'text-texto-2 hover:text-white'}`}>
+                  {nome}
+                </button>
+              ))}
+            </div>
+          )}
           {!experimentando && (
             <div className="flex items-center gap-1" role="group" aria-label="Controles da história">
               <button type="button" onClick={() => irPara(indice - 1)} disabled={indice === 0} aria-label="Passo anterior (←)" className="rounded-md border border-linha px-2.5 py-1.5 text-rotulo text-texto hover:text-white disabled:opacity-30">
