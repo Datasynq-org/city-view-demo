@@ -2,28 +2,14 @@ import { useEffect, useState } from 'react';
 import { type Tela, TELAS, useTela } from './navegacao';
 import { TelaCidadao } from './telas/cidadao/TelaCidadao';
 import { TelaGestao } from './telas/gestao/TelaGestao';
+import { TelaIntegracoes } from './telas/integracoes/TelaIntegracoes';
 import { TelaInteligencia } from './telas/inteligencia/TelaInteligencia';
 import { TelaJornada } from './telas/jornada/TelaJornada';
 import { TelaPrevisoes } from './telas/previsoes/TelaPrevisoes';
 import { TelaRegioes } from './telas/regioes/TelaRegioes';
 import { TelaSala } from './telas/sala/TelaSala';
 import { BarraLateral } from './ui/BarraLateral';
-import { Painel } from './ui/Painel';
 import { Selo } from './ui/Selo';
-
-/** Tela ainda não construída: diz o que vem, em vez de uma página em branco. */
-function EmConstrucao({ tela }: { tela: Tela }) {
-  const t = TELAS.find((x) => x.id === tela)!;
-  return (
-    <main className="grid h-full place-items-center p-6">
-      <Painel className="max-w-md p-6">
-        <p className="condensado text-micro text-texto-2">Em construção</p>
-        <p className="mt-1 text-corpo text-white">{t.nome}</p>
-        <p className="mt-1 text-nota text-texto-2">{t.pergunta}</p>
-      </Painel>
-    </main>
-  );
-}
 
 function conteudo(tela: Tela) {
   switch (tela) {
@@ -41,8 +27,8 @@ function conteudo(tela: Tela) {
       return <TelaJornada />;
     case 'inteligencia':
       return <TelaInteligencia />;
-    default:
-      return <EmConstrucao tela={tela} />;
+    case 'integracoes':
+      return <TelaIntegracoes />;
   }
 }
 
