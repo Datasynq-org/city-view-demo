@@ -1,4 +1,4 @@
-﻿@import "tailwindcss" source(".");
+@import "tailwindcss" source(".");
 
 /* Base neutra (grafite) e cor com função: o teal da marca para o que está ativo
    ou ao vivo, o âmbar para o aviso de demonstração, o vermelho para alerta.
@@ -325,5 +325,15 @@
 @media (min-width: 1100px) {
   .pagina { padding: 4.75rem 1.25rem 1.5rem; }
   .pagina-grade { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+}
+
+/* O painel de insights: cartões em grade; com o insight aberto ao lado, a grade cede espaço. */
+.grade-de-insights {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(21rem, 1fr));
+}
+@media (min-width: 1024px) {
+  .pagina-com-insight { padding-right: 29rem; }
 }
 

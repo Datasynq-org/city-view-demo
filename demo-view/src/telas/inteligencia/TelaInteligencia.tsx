@@ -15,6 +15,8 @@ import { Mapa } from '../../mapa/Mapa';
 import type { Destino } from '../../mapa/vista';
 import { parametrosDoHash } from '../../navegacao';
 import { Painel } from '../../ui/Painel';
+import { resumir } from '../../inteligencia/resumo';
+import { PainelDeInsights } from './Painel';
 import { Fila, Insight, PorOrgao } from './partes';
 
 const CLICAVEIS = ['grafo-colunas', 'grafo-nos', 'grafo-chamados'] as const;
@@ -33,6 +35,8 @@ export function TelaInteligencia() {
 
   // ------------------------------------------------ o que a pessoa vê e decide
   const pedido = useMemo(casoDoEndereco, []);
+  // Abre no painel; quem chega por um link de caso vai direto ao grafo, no insight.
+  const [vista, setVista] = useState<'painel' | 'grafo'>(() => (pedido || parametrosDoHash().get('vista') === 'grafo' ? 'grafo' : 'painel'));
   const [etapa, setEtapa] = useState<Etapa>(pedido ? 2 : 0);
   const [aberto, setAberto] = useState(() => (pedido ? resultado.incidentes.findIndex((i) => i.casoId === pedido) : -1));
   const [decisoes, setDecisoes] = useState<Decisoes>({});
@@ -44,6 +48,8 @@ export function TelaInteligencia() {
   const inc = aberto >= 0 ? resultado.incidentes[aberto] : undefined;
 
   const descartados = useMemo(() => new Set(resultado.incidentes.flatMap((i, k) => (decisaoDe(decisoes, i.codigo).situacao === 'descartado' ? [k] : []))), [resultado, decisoes]);
+
+  const resumo = useMemo(() => resumir(resultado, decisoes), [resultado, decisoes]);
 
   // Mudar a sensibilidade refaz os grupos: as decisões e a seleção eram dos grupos antigos.
   const mudarSens = (v: number) => {
@@ -134,9 +140,11 @@ export function TelaInteligencia() {
   atalhos.current = { aberto, total: resultado.incidentes.length, aoConfirmar, fechar };
   useEffect(() => {
     const tecla = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement || e.metaKey || e.ctrlKey || e.altKey) return;
       const a = atalhos.current;
       if (e.key === '1' || e.key === '2' || e.key === '3') setEtapa((Number(e.key) - 1) as Etapa);
+      else if (e.key.toLowerCase() === 'p') setVista('painel');
+      else if (e.key.toLowerCase() === 'g') setVista('grafo');
       else if (e.key === 'ArrowDown') {
         e.preventDefault();
         setAberto(Math.min(a.total - 1, a.aberto + 1));
@@ -152,11 +160,22 @@ export function TelaInteligencia() {
 
   return (
     <main className="relative h-full overflow-hidden">
-      <Mapa margens={margens} camadas={camadas} animadas={animadas} alvo={alvo} semImagem dicaDasRas={false} clicaveis={CLICAVEIS} aoClicarObjeto={aoClicarObjeto} />
+      {vista === 'grafo' ? (
+        <Mapa margens={margens} camadas={camadas} animadas={animadas} alvo={alvo} semImagem dicaDasRas={false} clicaveis={CLICAVEIS} aoClicarObjeto={aoClicarObjeto} />
+      ) : (
+        <PainelDeInsights resultado={resultado} resumo={resumo} decisaoDe={(c) => decisaoDe(decisoes, c)} aberto={aberto} aoAbrir={abrir} comInsight={Boolean(inc)} />
+      )}
 
-      {/* As três etapas, no alto: o único controle sempre à vista. */}
+      {/* No alto: painel ou grafo e, no grafo, as três etapas. */}
       <div className="absolute top-3 left-1/2 z-20 hidden -translate-x-1/2 items-center gap-2 lg:flex">
-        <ol className="flex rounded-lg border border-linha bg-painel p-0.5" aria-label="Etapas">
+        <div role="group" aria-label="Como ver" className="flex rounded-lg border border-linha bg-painel p-0.5">
+          {(['painel', 'grafo'] as const).map((v) => (
+            <button key={v} type="button" aria-pressed={v === vista} onClick={() => setVista(v)} title={v === 'painel' ? 'Os insights em cartões (tecla P)' : 'Os chamados no mapa (tecla G)'} className={`condensado rounded-md px-3 py-1.5 text-rotulo ${v === vista ? 'bg-acento text-white' : 'text-texto-2 hover:text-white'}`}>
+              {v === 'painel' ? 'Painel' : 'Grafo'}
+            </button>
+          ))}
+        </div>
+        <ol className={`rounded-lg border border-linha bg-painel p-0.5 ${vista === 'grafo' ? 'flex' : 'hidden'}`} aria-label="Etapas">
           {ETAPAS.map((e, k) => (
             <li key={e.nome}>
               <button type="button" onClick={() => setEtapa(k as Etapa)} aria-current={k === etapa ? 'step' : undefined} title={`${e.dica} (tecla ${k + 1})`} className={`condensado flex items-center gap-2 rounded-md px-3 py-1.5 text-rotulo ${k === etapa ? 'bg-realce text-white' : 'text-texto-2 hover:text-white'}`}>
@@ -166,7 +185,7 @@ export function TelaInteligencia() {
             </li>
           ))}
         </ol>
-        <button type="button" onClick={() => setPorOrgao((v) => !v)} disabled={!inc} aria-pressed={porOrgao} title="A mesma leitura, sem o mapa: fila por fila" className={`condensado rounded-lg border border-linha px-3 py-2 text-rotulo disabled:opacity-35 ${porOrgao ? 'bg-realce text-white' : 'bg-painel text-texto-2 hover:text-white'}`}>
+        <button type="button" onClick={() => setPorOrgao((v) => !v)} disabled={!inc} aria-pressed={porOrgao} title="A mesma leitura, sem o mapa: fila por fila" className={`condensado rounded-lg border border-linha px-3 py-2 text-rotulo disabled:opacity-35 ${vista === 'grafo' ? '' : 'hidden'} ${porOrgao ? 'bg-realce text-white' : 'bg-painel text-texto-2 hover:text-white'}`}>
           Por órgão
         </button>
         <div className="relative">
@@ -189,11 +208,11 @@ export function TelaInteligencia() {
         </div>
       </div>
 
-      <p className="pointer-events-none absolute bottom-3 left-1/2 z-10 hidden -translate-x-1/2 rounded bg-base/80 px-3 py-1 text-rotulo text-texto-2 lg:block">
+      <p className={`pointer-events-none absolute bottom-3 left-1/2 z-10 hidden -translate-x-1/2 rounded bg-base/80 px-3 py-1 text-rotulo text-texto-2 ${vista === 'grafo' ? 'lg:block' : ''}`}>
         {etapa + 1} de 3 · {ETAPAS[etapa]!.dica}
       </p>
 
-      <div className={`intel-coluna intel-esquerda ${filaAberta ? '' : 'intel-recolhida'}`}>
+      <div className={`intel-coluna intel-esquerda ${filaAberta ? '' : 'intel-recolhida'} ${vista === 'grafo' ? '' : 'hidden!'}`}>
         <Fila resultado={resultado} aberto={aberto} decisaoDe={(c) => decisaoDe(decisoes, c)} aoAbrir={abrir} />
       </div>
       <button
@@ -203,14 +222,14 @@ export function TelaInteligencia() {
           setTimeout(() => !inc && voar(DF), 0);
         }}
         aria-label={filaAberta ? 'Recolher a fila de insights' : 'Mostrar a fila de insights'}
-        className={`absolute top-1/2 z-20 hidden h-12 w-5 -translate-y-1/2 place-items-center rounded-r border border-l-0 border-linha bg-painel text-texto-2 hover:text-white lg:grid ${filaAberta ? 'left-[23rem]' : 'left-0'}`}
+        className={`absolute top-1/2 z-20 hidden h-12 w-5 -translate-y-1/2 place-items-center rounded-r border border-l-0 border-linha bg-painel text-texto-2 hover:text-white ${vista === 'grafo' ? 'lg:grid' : ''} ${filaAberta ? 'left-[23rem]' : 'left-0'}`}
       >
         {filaAberta ? '‹' : '›'}
       </button>
 
       {inc && (
         <div className="intel-coluna intel-direita">
-          <Insight key={inc.codigo} inc={inc} decisao={decisaoDe(decisoes, inc.codigo)} agora={agora} aoConfirmar={aoConfirmar} aoCancelar={aoCancelar} aoDescartar={aoDescartar} aoDesfazer={aoDesfazer} aoFechar={fechar} />
+          <Insight key={inc.codigo} inc={inc} decisao={decisaoDe(decisoes, inc.codigo)} agora={agora} aoConfirmar={aoConfirmar} aoCancelar={aoCancelar} aoDescartar={aoDescartar} aoDesfazer={aoDesfazer} aoFechar={fechar} aoVerNoGrafo={vista === 'painel' ? () => { setEtapa(2); setVista('grafo'); } : undefined} />
         </div>
       )}
 

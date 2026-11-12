@@ -95,7 +95,7 @@ function Barra({ valor, rotulo }: { valor: number; rotulo: string }) {
   );
 }
 
-export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescartar, aoDesfazer, aoFechar }: {
+export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescartar, aoDesfazer, aoFechar, aoVerNoGrafo }: {
   inc: Incidente;
   decisao: Decisao;
   agora: number;
@@ -104,6 +104,8 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
   aoDescartar: (m: MotivoDeDescarte) => void;
   aoDesfazer: () => void;
   aoFechar: () => void;
+  /** Só no painel: leva ao mesmo insight no mapa. */
+  aoVerNoGrafo?: () => void;
 }) {
   const [descartando, setDescartando] = useState(false);
   const deChamado = inc.evidencias.filter((e) => e.fonte === 'chamado');
@@ -128,6 +130,11 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
         </div>
         <h2 className="mt-1.5 text-corpo leading-snug font-semibold text-white">{inc.titulo}</h2>
         <p className="mt-0.5 text-rotulo text-texto-2">{inc.local}</p>
+        {aoVerNoGrafo && (
+          <button type="button" onClick={aoVerNoGrafo} className="condensado mt-2 rounded border border-linha-forte px-2.5 py-1 text-micro text-texto hover:border-acento-claro hover:text-white">
+            Ver no grafo →
+          </button>
+        )}
       </header>
 
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-3">
