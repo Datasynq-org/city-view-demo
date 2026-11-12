@@ -694,3 +694,4 @@ versão fica dentro do documento, nunca no nome do arquivo.
 | 11/11/2026 | Seção 11: o roteiro do vídeo (CV-VID-001, r0), portão 0 do framework de vídeo |
 | 12/11/2026 | Seção 11: o roteiro do vídeo passa à r1, reescrito a partir da crítica à r0 (o histórico está no próprio CV-VID-001) |
 | 12/11/2026 | Seção 11: o design system "Sala de Operações" (CV-DS-001), com o pacote `design-system/` e a casca da demo (`demo/`) vestida por ele |
+| 12/11/2026 | Roteiro do vídeo na r2 (o caso vira o apagão) e primeira montagem do filme na pasta `video/` (`entregas/CityView_filme_16x9_r1.mp4`); o que mudou do roteiro para a montagem está na seção 9.2 do CV-VID-001 |
