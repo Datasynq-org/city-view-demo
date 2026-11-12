@@ -8,7 +8,7 @@
 | Onde está o código | `design-system/` (pacote compartilhado). Usado por `apresentacao-web/` e `design-system-vitrine/` pelo atalho `@ds` |
 | Catálogo vivo | A vitrine com `?catalogo` (`design-system-vitrine/src/catalogo/Catalogo.tsx`): tokens e componentes lado a lado nos dois temas |
 | Origem | A estética da página de rolagem aprovada pela equipe; inspirações registradas no magno 7.5 (Sala de Operações) e no CV-DEM-001 |
-| Onde vale | *Acréscimo de 12/11/2026 (decisão da equipe):* na apresentação em rolagem (`apresentacao-web/`) e na vitrine `design-system-vitrine/`. A demo de verdade, `demo-view/`, segue o visual da direção C, com tokens próprios (CV-DEM-001, seção 9.1). *Acréscimo de 12/11/2026:* a vitrine se chamava `demo/`; foi renomeada para não se confundir com a demo |
+| Onde vale | *Acréscimo de 12/11/2026 (decisão da equipe):* na apresentação em rolagem (`apresentacao-web/`) e na vitrine `design-system-vitrine/`. A demo de verdade, `demo-view/`, segue o visual da direção C, com tokens próprios (CV-DEM-001, seção 9.1); *acréscimo de 12/11/2026:* depois trocado por uma base grafite, também com tokens próprios (CV-DEM-001, seção 9). *Acréscimo de 12/11/2026:* a vitrine se chamava `demo/`; foi renomeada para não se confundir com a demo |
 
 ## 1. Princípios
 

@@ -3,7 +3,7 @@
 | Campo | Valor |
 | --- | --- |
 | Código | CV-DEM-001 |
-| Versão | 0.2 (12/11/2026), para revisão da equipe. Muda a pasta para `demo-view/` e registra a I0 construída. A 0.1 é de 11/11/2026 |
+| Versão | 0.3 (12/11/2026), para revisão da equipe. Registra a revisão visual e do mapa da I1 (seção 9, último acréscimo). A 0.2, do mesmo dia, mudou a pasta para `demo-view/` e registrou a I0; a 0.1 é de 11/11/2026 |
 | O que é | Como a demo do City View vai ser construída: em fatias pequenas, cada uma mostrável sozinha, planejada e revista antes da próxima |
 | Para que serve a demo | Complementar a apresentação ([CV-APR-001](CV-APR-001-roteiro-da-apresentacao.md)): "logar em alguma coisa e mostrar mais ou menos o que a gente falou" (ATA 267–268) |
 | Onde fica | Pasta `demo-view/` deste repositório. É autocontida (tem `package.json` próprio e não lê nada de fora), para poder ser movida inteira para outro repositório |
@@ -34,10 +34,10 @@ Esta demo aproveita o **motor** e refaz as **telas**, uma fatia por vez.
 | Peça | Escolha | Por quê |
 | --- | --- | --- |
 | Base | Vite + React 19 + TypeScript + Tailwind CSS v4 | A mesma da demo antiga: conhecida e rápida |
-| Mapa | MapLibre GL JS + deck.gl (`@deck.gl/maplibre`, modo intercalado) | deck.gl dá hexágonos 3D, mancha de calor, arcos entre órgãos e animação de trajetos sobre o MapLibre. É a integração recomendada para MapLibre 5/6 |
-| Fundo do mapa | OpenFreeMap (sem chave, sem limite de uso), estilo recolorido para o navy da direção C; queda para fundo liso sem rede | Resolve o limite de uso gratuito da CARTO, que a demo antiga usava |
+| Mapa | MapLibre GL JS + deck.gl (`@deck.gl/maplibre`, modo intercalado) | deck.gl dá hexágonos 3D, mancha de calor, arcos entre órgãos e animação de trajetos sobre o MapLibre. É a integração recomendada para MapLibre 5/6. *Acréscimo de 12/11/2026:* o mapa de calor passou a ser desenhado pelo próprio MapLibre; o deck.gl segue nos hexágonos, nas regiões e nos pontos |
+| Fundo do mapa | OpenFreeMap (sem chave, sem limite de uso), estilo recolorido para o navy da direção C; queda para fundo liso sem rede | Resolve o limite de uso gratuito da CARTO, que a demo antiga usava. *Acréscimo de 12/11/2026:* o fundo virou imagem de satélite: Sentinel-2 de 2016 (EOX, CC BY 4.0) na vista geral e, de perto, a imagem de 50 cm de 2021 publicada pelo GDF na IDE/DF. O OpenFreeMap ficou com água, vias, nomes de vias e prédios. Sem rede, o fundo continua caindo para liso |
 | Animação | Motion (React) para microanimações e transições | Leve e declarativo |
-| Visual | Painéis de vidro (backdrop-blur) sobre o mapa, tokens da direção C (navy, teal, âmbar) | A estética escolhida para o deck, levada para a tela |
+| Visual | Painéis de vidro (backdrop-blur) sobre o mapa, tokens da direção C (navy, teal, âmbar) | A estética escolhida para o deck, levada para a tela. *Acréscimo de 12/11/2026:* na demo, a direção C deu lugar a uma base grafite com cor só para função (seção 9, último acréscimo) |
 | Fonte | Bahnschrift (nativa no Windows), com Barlow / Barlow Condensed (OFL) hospedada junto como alternativa | Mesma família visual do deck, sem depender de internet |
 | Gráficos | A definir na I1 (Recharts, já usado antes, ou visx) | Decidir quando houver o primeiro gráfico |
 | Testes | Vitest nas pastas `dominio/`, `dados/`, `mapa/` e `inteligencia/` | O motor portado precisa provar que continua certo |
@@ -149,6 +149,8 @@ houver componentes prontos.
 | OpenFreeMap fora do ar | O serviço público não tem garantia; o mapa cai para o fundo liso com as RAs |
 | Licença do GSAP | Conferir os termos atuais antes de usar na apresentação interativa |
 | Demo parecer produto pronto | Selo fixo, rótulos existe/proposta, fala do apresentador (CV-APR-001) |
+| Servidores públicos de imagem (EOX, IDE/DF) | *Acréscimo de 12/11/2026.* Sem garantia de disponibilidade. O da IDE/DF recusa tudo por cerca de 1 s depois de uns 200 pedidos num segundo; a demo pede no máximo 50 por segundo. A imagem de perto leva de 4 a 7 s numa área nova: passar antes pelo trajeto da apresentação (o navegador guarda por 12 horas) |
+| Licença da imagem de 50 cm | *Acréscimo de 12/11/2026.* É imagem Maxar de 2021, licenciada ao GDF e publicada por ele na IDE/DF sem declarar licença. Serve à demo para o próprio GDF; antes de virar produto, confirmar os termos com a SEDUH. Tirá-la é simples: o mapa segue com o Sentinel |
 
 ---
 
@@ -162,7 +164,7 @@ documento continua sendo o plano.
 
 *Revisto em 12/11/2026, ao juntar o trabalho do Lucca (decisão da equipe).*
 
-- **A demo é a `demo-view/`:** autocontida (pacote, build, porta 5200 e README próprios; não lê nada de fora). Visual próprio na direção C (navy, teal, âmbar, Barlow condensada). A demo não mexe em `apresentacao-web/`, `apresentacao/`, `design-system/` nem `design-system-vitrine/`; em `docs/`, só nesta seção.
+- **A demo é a `demo-view/`:** autocontida (pacote, build, porta 5200 e README próprios; não lê nada de fora). Visual próprio na direção C (navy, teal, âmbar, Barlow condensada); *acréscimo de 12/11/2026:* trocada por base grafite com cor só para função (último acréscimo desta seção). A demo não mexe em `apresentacao-web/`, `apresentacao/`, `design-system/` nem `design-system-vitrine/`; em `docs/`, só nesta seção.
 - **A `design-system-vitrine/` é a vitrine do design system** "Sala de Operações" ([CV-DS-001](CV-DS-001-design-system.md)), que vale para a apresentação em rolagem. Ela não recebe as iterações da demo. *Acréscimo de 12/11/2026:* a pasta se chamava `demo/`; foi renomeada para não se confundir com a demo. As branches das iterações continuam com o prefixo `demo/`, que é nome de branch, não de pasta.
 - **Uma iteração por vez:** cada uma ganha uma branch própria (`demo/iN-<nome>`), um plano curto antes de começar e uma revisão com a equipe antes de entrar no `main`. A próxima só começa depois disso.
 
@@ -171,7 +173,7 @@ documento continua sendo o plano.
 | It. | Situação | Data | O que entrou |
 | --- | --- | --- | --- |
 | I0 · fundação | **Feita** (Lucca), integrada ao `main` | 12/11/2026 | `demo-view/`: modelo único de incidente com ciclo de vida e validação; 10 órgãos e 24 tipos com fonte no magno; 37 RAs; gerador portado (contagens de 180 dias e incidentes dos últimos 30), com testes (50); mapa MapLibre com as RAs; selo e painel de exemplo. As transições entre situações e os percentuais simulados (ver a "Situação em 12/11/2026" na seção 6) seguem como proposta inicial da equipe, aceitos provisoriamente em 12/11/2026 para a construção continuar; voltam à revisão quando houver referência dos órgãos. Captura: `demo-view/capturas/i0-fundacao.png` |
-| I1 · sala de guerra | **Feita**, aguardando revisão (branch `demo/i1-sala-de-guerra`) | 12/11/2026 | Refeita no mesmo dia como sala de comando em 3D (ver o acréscimo abaixo): o DF inclinado, que gira devagar; chamados em Regiões 3D, Hexágonos 3D ou Calor; prédios em 3D de perto; um chamado novo chegando a cada poucos segundos, com anel no mapa; RA clicável, com cartão; filtros de período, área e RA, que mudam mapa e números juntos; abertos, recebidos, tempo até resolver e % no prazo; velocidade da gestão por área; chamados por dia; camadas reais ligáveis (saúde CNES 2026, escolas INEP 2025, favelas IBGE 2022); tour de 5 paradas com frases literais da ATA (`?tour=1`); modos padrão, noturno e térmico; modo telão. Testes: 87. Capturas: `demo-view/capturas/i1-sala*.png` |
+| I1 · sala de guerra | **Feita**, integrada ao `main`; revista no visual e no mapa na branch `feature/demo-preview` (último acréscimo desta seção), aguardando revisão da equipe | 12/11/2026 | Refeita no mesmo dia como sala de comando em 3D (ver o acréscimo abaixo): o DF inclinado, que gira devagar; chamados em Regiões 3D, Hexágonos 3D ou Calor; prédios em 3D de perto; um chamado novo chegando a cada poucos segundos, com anel no mapa; RA clicável, com cartão; filtros de período, área e RA, que mudam mapa e números juntos; abertos, recebidos, tempo até resolver e % no prazo; velocidade da gestão por área; chamados por dia; camadas reais ligáveis (saúde CNES 2026, escolas INEP 2025, favelas IBGE 2022); tour de 5 paradas com frases literais da ATA (`?tour=1`); modos padrão, noturno e térmico; modo telão. Testes: 87. Capturas: `demo-view/capturas/i1-sala*.png`. *Acréscimo de 12/11/2026:* depois da revisão, o calor é o modo principal e o tour fica nele; saíram os modos noturno e térmico e a órbita ao abrir; testes: 152. As capturas são de antes da revisão |
 | I2 a I6 | A fazer | — | Seção 6. Na I3, a base é o grafo do Calebe (ver o acréscimo abaixo) |
 
 A casca visual feita em `demo/` (hoje `design-system-vitrine/`) no mesmo dia (barra, navegação, painel da sala, catálogo) fica como vitrine do design system e como referência de interface para a I1, sem código copiado.
@@ -199,3 +201,30 @@ nesse nível, completa mas sem poluir, e levar o grafo para a I3.
 - **I3:** o grafo do Calebe é a base (chamados com brilho, arcos que cruzam
   órgãos com sinais correndo, colapso no incidente sugerido, confirmação humana),
   refinado no mesmo visual.
+
+*Acréscimo de 12/11/2026, revisão visual e do mapa da I1.* Antes de seguir para
+a I2, a equipe (Lucca) pediu duas rodadas de refinamento da I1, sem
+funcionalidade nova. Entraram no commit `1289335` da branch `feature/demo-preview`.
+- **Visual:** a tela parecia "dashboard genérico" pelo excesso de azul. A direção C
+  deu lugar a uma base grafite; o teal da marca ficou só para o que está ativo ou
+  ao vivo, o âmbar só para o selo de demonstração, e a concentração de chamados
+  usa uma rampa quente de um só matiz (substitui o teal → âmbar → vermelho do
+  acréscimo "decisões da I1"). Referências da equipe: Palantir, LandViewer e TIM
+  SmartSignal. Escala tipográfica nomeada, de 11 a 30 px.
+- **Mapa de calor como leitura principal:** é o que abre e o único modo do tour.
+  Desenhado pelo próprio MapLibre a partir de células de 120 m, com raio em
+  metros no chão e cor relativa ao maior foco da seleção. A camada anterior
+  (deck.gl) travava o mapa por cerca de 300 ms a cada chegada; agora o mapa
+  roda a 60 quadros por segundo do DF inteiro até a rua. Hexágonos 3D e Regiões
+  3D continuam, no painel de camadas.
+- **Onde os chamados caem:** dentro da mancha urbana oficial do DF (IDE/DF,
+  2023), com mais peso perto de escolas, unidades de saúde e comunidades. Antes
+  caíam numa nuvem em volta de um ponto por RA, inclusive sobre cerrado e
+  lavoura. Continuam fictícios.
+- **Imagem e navegação:** satélite na vista geral e imagem de 50 cm de perto
+  (pilha, seção 3), com nomes de vias. Saíram os modos noturno e térmico. "Girar"
+  virou rotação manual por arrasto; o mapa ganhou bússola e botões de zoom;
+  escolher uma RA enquadra os limites dela. Os chamados recém-chegados viraram
+  pontos pequenos, com legenda e dica.
+- **Pendências:** a licença da imagem de 50 cm (riscos, seção 8) e a revisão da
+  I1 com a equipe.
