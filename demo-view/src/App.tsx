@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { type Tela, TELAS, useTela } from './navegacao';
+import { TelaGestao } from './telas/gestao/TelaGestao';
 import { TelaInteligencia } from './telas/inteligencia/TelaInteligencia';
 import { TelaJornada } from './telas/jornada/TelaJornada';
 import { TelaSala } from './telas/sala/TelaSala';
@@ -25,6 +26,8 @@ function conteudo(tela: Tela) {
   switch (tela) {
     case 'sala':
       return <TelaSala />;
+    case 'gestao':
+      return <TelaGestao />;
     case 'jornada':
       return <TelaJornada />;
     case 'inteligencia':

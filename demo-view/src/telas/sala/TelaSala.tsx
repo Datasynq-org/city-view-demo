@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type CamadaContexto, carregarContexto, type Contexto } from '../../dados/contexto';
-import { type BaseSimulada, gerarBase } from '../../dados/gerador';
+import { cidade } from '../../dados/cidade';
 import type { Incidente } from '../../dominio/incidente';
 import { type AreaId, TIPO_POR_ID } from '../../dominio/orgaos';
 import { REGIAO_POR_ID } from '../../dominio/ras';
 import { chamadosPorRa, type Filtro, filtrar, PERIODOS } from '../../indicadores/indicadores';
-import { ADIANTE_MS, intervaloDeChegada, receber, separarFila } from '../../indicadores/relogio';
+import { intervaloDeChegada, receber } from '../../indicadores/relogio';
 import { anelAtivo, camadasDeChamados, camadasDeContexto, camadasDePulsos, type Chegada, MODO_INICIAL, type ModoMapa } from '../../mapa/camadas';
 import { Mapa } from '../../mapa/Mapa';
 import { type Destino, reduzMovimento } from '../../mapa/vista';
@@ -30,26 +30,13 @@ interface ChegadaViva extends Chegada {
 
 const DF: Destino = { tipo: 'df' };
 
-/**
- * A cidade simulada é gerada uma vez por visita à página: quem vai à jornada e
- * volta encontra a mesma cidade (o relógio da demo recomeça da hora em que voltou).
- */
-let cidade: { inicio: number; base: BaseSimulada } | null = null;
-function daCidade() {
-  if (!cidade) {
-    const inicio = Date.now();
-    cidade = { inicio, base: gerarBase({ agora: inicio + ADIANTE_MS }) };
-  }
-  return cidade;
-}
 const SEM_CHAMADOS: Incidente[] = [];
 
 export function TelaSala() {
   const parametros = useMemo(() => new URLSearchParams(window.location.search), []);
 
   // ------------------------------------------------ a cidade simulada e o relógio da demo
-  const { inicio, base } = useMemo(daCidade, []);
-  const { chegados, fila } = useMemo(() => separarFila(base.incidentes, inicio), [base, inicio]);
+  const { inicio, base, chegados, fila } = useMemo(cidade, []);
   const [vivo, setVivo] = useState<{ incidentes: Incidente[]; proximo: number; agora: number; chegadas: ChegadaViva[] }>(() => ({
     incidentes: chegados,
     proximo: 0,
