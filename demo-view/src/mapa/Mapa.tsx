@@ -61,6 +61,8 @@ interface Props {
   aoInteragir?: () => void;
   /** Clique numa RA. */
   aoClicarRa?: (id: string) => void;
+  /** Clique em qualquer ponto do mapa, em [lon, lat] (a jornada usa no lugar do pino do WhatsApp). */
+  aoClicarPonto?: (ponto: [number, number]) => void;
   /** Sem painéis em volta (telão, tour): o DF inteiro chega mais perto. */
   telaCheia?: boolean;
   /** O nome da RA sob o mouse (desligado quando a camada 3D já diz o nome). */
@@ -122,6 +124,7 @@ export function Mapa({
   alvo,
   aoInteragir,
   aoClicarRa,
+  aoClicarPonto,
   dicaDasRas = true,
   raSelecionada = null,
   telaCheia = false,
@@ -136,8 +139,8 @@ export function Mapa({
   const voando = useRef(false);
   const estadoDoCalor = useRef<EstadoDoCalor | null>(null);
   // Props lidas dentro dos eventos do MapLibre, que são ligados uma vez só.
-  const props = useRef({ camadas, aoInteragir, aoClicarRa, dicaDasRas, telaCheia });
-  props.current = { camadas, aoInteragir, aoClicarRa, dicaDasRas, telaCheia };
+  const props = useRef({ camadas, aoInteragir, aoClicarRa, aoClicarPonto, dicaDasRas, telaCheia });
+  props.current = { camadas, aoInteragir, aoClicarRa, aoClicarPonto, dicaDasRas, telaCheia };
 
   useEffect(() => {
     const el = container.current;
@@ -214,6 +217,7 @@ export function Mapa({
     mapa.on('mouseleave', CAMADA_RAS, soltar);
     mapa.on('movestart', soltar);
     mapa.on('click', (e) => {
+      props.current.aoClicarPonto?.([e.lngLat.lng, e.lngLat.lat]);
       if (props.current.dicaDasRas) {
         // RAs no chão: o MapLibre sabe qual está sob o clique.
         const ra = mapa.queryRenderedFeatures(e.point, { layers: [CAMADA_RAS] })[0];

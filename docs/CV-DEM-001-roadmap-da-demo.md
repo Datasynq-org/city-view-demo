@@ -174,7 +174,8 @@ documento continua sendo o plano.
 | --- | --- | --- | --- |
 | I0 · fundação | **Feita** (Lucca), integrada ao `main` | 12/11/2026 | `demo-view/`: modelo único de incidente com ciclo de vida e validação; 10 órgãos e 24 tipos com fonte no magno; 37 RAs; gerador portado (contagens de 180 dias e incidentes dos últimos 30), com testes (50); mapa MapLibre com as RAs; selo e painel de exemplo. As transições entre situações e os percentuais simulados (ver a "Situação em 12/11/2026" na seção 6) seguem como proposta inicial da equipe, aceitos provisoriamente em 12/11/2026 para a construção continuar; voltam à revisão quando houver referência dos órgãos. Captura: `demo-view/capturas/i0-fundacao.png` |
 | I1 · sala de guerra | **Feita**, integrada ao `main`; revista no visual e no mapa na branch `feature/demo-preview` (último acréscimo desta seção), aguardando revisão da equipe | 12/11/2026 | Refeita no mesmo dia como sala de comando em 3D (ver o acréscimo abaixo): o DF inclinado, que gira devagar; chamados em Regiões 3D, Hexágonos 3D ou Calor; prédios em 3D de perto; um chamado novo chegando a cada poucos segundos, com anel no mapa; RA clicável, com cartão; filtros de período, área e RA, que mudam mapa e números juntos; abertos, recebidos, tempo até resolver e % no prazo; velocidade da gestão por área; chamados por dia; camadas reais ligáveis (saúde CNES 2026, escolas INEP 2025, favelas IBGE 2022); tour de 5 paradas com frases literais da ATA (`?tour=1`); modos padrão, noturno e térmico; modo telão. Testes: 87. Capturas: `demo-view/capturas/i1-sala*.png`. *Acréscimo de 12/11/2026:* depois da revisão, o calor é o modo principal e o tour fica nele; saíram os modos noturno e térmico e a órbita ao abrir; testes: 152. As capturas são de antes da revisão. *Acréscimo de 12/11/2026:* revisão aceita pela equipe (Sammuel); a fila de pedidos de imagem passou a espaçar os inícios reais (um disparo atrasado juntava os seguintes numa rajada, o que a IDE/DF recusa); capturas refeitas no visual novo (`i1-sala.png`, `i1-sala-tour.png`, `i1-sala-contexto.png`); testes: 153 |
-| I2 a I6 | A fazer | — | Seção 6. Na I3, a base é o grafo do Calebe (ver o acréscimo abaixo) |
+| I2 · jornada de um chamado | **Feita**, aguardando revisão (branch `demo/i2-jornada`) | 12/11/2026 | Tela `#/jornada`, ao lado da sala (o app ganhou uma casca com as duas telas). O celular com os textos reais do assistente do dfac; o diagrama das cinco camadas com o selo existe · pronto · proposta e a fonte de cada peça (`dominio/ponte.ts`); o detalhe de cada passo com a situação no modelo único e o estado no dfac. Dois casos: o poste apagado em Águas Claras (o que existe, de ponta a ponta) e a rua no escuro que era falta de energia (a proposta: cruzamento entre órgãos, com texto rotulado como da equipe). Modo "experimente": a pessoa escreve no celular e a jornada anda com o relato dela, pelo mesmo roteiro do dfac; nada é enviado. Testes: 185. Capturas: `demo-view/capturas/i2-jornada-*.png` |
+| I3 a I6 | A fazer | — | Seção 6. Na I3, a base é o grafo do Calebe (ver o acréscimo abaixo) |
 
 A casca visual feita em `demo/` (hoje `design-system-vitrine/`) no mesmo dia (barra, navegação, painel da sala, catálogo) fica como vitrine do design system e como referência de interface para a I1, sem código copiado.
 
@@ -229,3 +230,23 @@ funcionalidade nova. Entraram no commit `1289335` da branch `feature/demo-previe
 - **Pendências:** a licença da imagem de 50 cm (riscos, seção 8) e a revisão da
   I1 com a equipe. *Acréscimo de 12/11/2026:* a revisão foi aceita como está
   (sem os modos noturno e térmico e sem a órbita); fica só a licença.
+
+*Acréscimo de 12/11/2026, decisões da I2.*
+- **O que é real na jornada:** os textos do assistente, a ordem da coleta, os
+  estados da demanda e as palavras da triagem vêm do dfac (commit `0eec955`),
+  conferidos no código; a situação de cada canal e conector vem da seção 4.1 do
+  CV-REF-002. As conversas, os nomes, os protocolos e o cruzamento entre órgãos
+  são fictícios, e tudo o que é proposta aparece rotulado, inclusive a única
+  mensagem ao cidadão que não é do dfac.
+- **Dois formatos** (decisão da equipe): a história guiada, que toca sozinha, e o
+  "experimente", que corre a mesma máquina de coleta (`dados/coleta.ts`), com o
+  pino do WhatsApp trocado por um toque no mapa e o código `TESTE-`, como as
+  simulações do dfac, que nunca são enviadas.
+- **Correspondência de estados:** os 14 estados do dfac entram no modelo único
+  por `SITUACAO_DO_DFAC`; "duplicada" vira o vínculo "mesmo incidente que". Um
+  teste garante que o caminho feliz do dfac é um caminho permitido no modelo.
+- **Casca:** `App.tsx` passou a ser só a casca (título, abas e selo); a sala foi
+  para `telas/sala/TelaSala.tsx` sem mudar de comportamento, e a cidade simulada
+  é gerada uma vez por visita, para quem vai à jornada e volta encontrar a mesma.
+- **Fica para a I3:** o caso da rua no escuro termina no cruzamento entre
+  órgãos; a I3 mostra esse cruzamento acontecendo, com o grafo do Calebe.

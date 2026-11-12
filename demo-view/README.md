@@ -79,6 +79,45 @@ gráficos são SVG feito à mão, sem biblioteca; a escolha é revista na I4.
 - **Câmera** (`mapa/vista.ts`): escolher uma RA enquadra os limites dela, no
   ângulo em que a pessoa já está; o voo comum dura 1,5 s e o do tour, 3,2 s.
 
+**I2 · Jornada de um chamado** (feita, aguardando revisão): "o que acontece
+quando o cidadão relata?" (slides 10, 11 e 12). Abre em `#/jornada` (ou pela
+aba no título). Capturas: `capturas/i2-jornada-*.png`.
+
+- **O celular:** a conversa no WhatsApp, com os textos reais do assistente que
+  funciona em Águas Claras (dfac, `api/ouvidoria_flow.py`). Nenhuma mensagem de
+  cidadão é real; os nomes, o telefone (sempre mascarado) e os protocolos são
+  fictícios e vêm marcados.
+- **As cinco camadas:** o diagrama do slide 10 (canais · ponte · conectores ·
+  incidente único · inteligência), com as três visões embaixo. Cada peça traz o
+  selo **● existe em Águas Claras**, **◐ pronto, não ativo** ou **○ proposta**,
+  com a fonte (`dominio/ponte.ts`). O marcador percorre as peças conforme o
+  relato anda.
+- **O detalhe do passo:** o que acontece ali (o que a coleta guardou, as
+  palavras da triagem, os três passos da revisão humana, a prévia do envio e o
+  protocolo, o aviso que volta ao cidadão, o incidente no modelo único, o
+  cruzamento entre órgãos) e a situação no modelo único, com o nome do estado no
+  dfac.
+- **Dois casos roteirizados** (`dados/jornadas.ts`): *Poste apagado em Águas
+  Claras*, o caminho que existe de ponta a ponta (CEB pelo IluminaDF, Participa
+  DF, avisos até "resolvida"); e *A rua no escuro era falta de energia*, em que o
+  mesmo começo desemboca na proposta: o relato é cruzado com os chamados da
+  Neoenergia, do Detran e da Defesa Civil, e uma resposta só volta a todos. O
+  que é proposta vem rotulado, inclusive a mensagem escrita pela equipe.
+- **Experimente** (`dados/coleta.ts`): a pessoa escreve no celular e o roteiro é
+  o mesmo do dfac (tipo de 1 a 5, descrição com ao menos 12 caracteres, local,
+  SIM/NÃO, referência, foto, CONFIRMAR / CORRIGIR RELATO / CORRIGIR LOCAL /
+  CANCELAR), com a triagem por um subconjunto das palavras-chave de
+  `api/demand_triage.py`. O local é um toque no mapa; a foto, uma imagem de
+  exemplo; o código começa com `TESTE-` e, como no dfac, nada é enviado.
+
+| Tecla | Faz |
+| --- | --- |
+| Espaço | Toca e pausa a história |
+| ← → | Passo anterior e próximo |
+
+`?tela=jornada&auto=1` abre a jornada já tocando; `&caso=apagao` abre no
+segundo caso. O relógio da sala continua andando enquanto a jornada está aberta.
+
 ## Rodar
 
 Precisa de Node 22.12 ou mais novo.
@@ -117,12 +156,13 @@ O mapa exige WebGL2. Onde não há, a tela mostra um aviso no lugar do mapa.
 
 ```
 src/
-  dominio/   modelo único de incidente, ciclo de vida, órgãos, canais e RAs (funções puras)
-  dados/     gerador determinístico dos dados simulados e a mancha urbana (mancha.json)
+  dominio/   modelo único de incidente, ciclo de vida, órgãos, canais, RAs e a ponte (camadas 1 a 5, com o que existe e o que é proposta)
+  dados/     gerador determinístico, a mancha urbana (mancha.json), a coleta do WhatsApp e as jornadas roteirizadas
   indicadores/ contas da sala de guerra: filtros, velocidade, séries (funções puras)
   mapa/      MapLibre, estilo do mapa, calor, imagem de perto, câmera e camadas deck.gl (camadas/)
   ui/        painel, selo e cores
-  telas/     uma pasta por iteração (sala/: painéis, HUD e tour da I1)
+  telas/     uma pasta por iteração (sala/: painéis, HUD e tour da I1; jornada/: celular, fluxo e detalhe da I2)
+  navegacao.ts  as telas, pelo hash do endereço (#/sala, #/jornada)
 public/dados/  contexto real (escolas, saúde, favelas), servido junto com o build
 scripts/     gerar-ras.mjs (contornos das RAs) e gerar-mancha.mjs (mancha urbana)
 ```
@@ -151,6 +191,8 @@ scripts/     gerar-ras.mjs (contornos das RAs) e gerar-mancha.mjs (mancha urbana
 | Nomes e siglas dos 10 órgãos e os canais com `fonte` (Documento Magno) | Pesos de vulnerabilidade e centralidade das RAs |
 | Participação dos canais da CEB IPes (magno, seção 8) | Participação dos demais canais e do canal proposto do City View |
 | Escolas públicas (INEP, Censo Escolar 2025), via geobr (Ipea) | O ritmo de chegada dos chamados "ao vivo" |
+| Textos do assistente do WhatsApp, a ordem da coleta, os estados da demanda e as palavras da triagem (dfac, `Datasynq-org/dfac-agentic-saas`, commit `0eec955`) | As conversas, os nomes, os protocolos e o cruzamento entre órgãos da jornada |
+| A situação de cada canal e conector (CV-REF-002, seção 4.1; magno 6.1) | |
 | Unidades públicas de saúde (CNES, 04/2026), via geobr (Ipea) | |
 | Favelas e comunidades urbanas (IBGE, Censo 2022), via geobr (Ipea) | |
 | Mancha urbana do DF de 2023 (GDF, IDE/DF): diz onde há cidade | Em que ponto da mancha cada chamado cai, e o peso de cada lugar |
@@ -198,6 +240,11 @@ simulação; a mancha é dado oficial.
   exploratória (`apps/sala-de-situacao/public/dados/`, commit `8104ebb`),
   baixados pelo geobr em 10/11/2026. Citação: Pereira, R. H. M.; Barbosa, R. J.
   et al. geobr. Ipea.
+- A I2 reproduz, sem copiar código, o roteiro do assistente do dfac
+  (`api/ouvidoria_flow.py`, `api/ouvidoria_service.py`, `api/citizen_tracking.py`
+  e `api/demand_triage.py`, repositório `Datasynq-org/dfac-agentic-saas`, só
+  leitura, commit `0eec955`). Os textos do assistente são literais, para a demo
+  mostrar o que existe; a triagem é um subconjunto das palavras de lá.
 - A I1 se inspira na "Visão da cidade" (modo comando em 3D) e no grafo do Calebe,
   ambos da demo exploratória; o grafo entra na I3. Os modos de visão noturno e
   térmico, que vieram de lá, saíram em 12/11/2026.

@@ -222,3 +222,50 @@
 @media (prefers-reduced-motion: reduce) {
   .barra-do-tour { animation: none; transform: scaleX(1); }
 }
+
+/* ---------- I2 · Jornada de um chamado ----------
+   Tela larga: o celular à esquerda, as cinco camadas no meio, o mapa e o
+   detalhe do passo à direita. Tela estreita: uma coluna, na mesma ordem. */
+.jornada {
+  position: relative;
+  display: grid;
+  gap: 1rem;
+  height: 100%;
+  overflow-y: auto;
+  padding: 8rem 1rem 1rem;
+}
+.jornada-celular { height: 34rem; }
+.jornada-centro,
+.jornada-direita {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+@media (min-width: 1024px) {
+  .jornada {
+    grid-template-columns: 21rem minmax(0, 1fr) 24rem;
+    grid-template-rows: minmax(0, 1fr);
+    overflow: hidden;
+    padding: 4.75rem 1.25rem 1.25rem;
+  }
+  .jornada-celular { height: auto; min-height: 0; }
+}
+@media (min-width: 1536px) {
+  .jornada { grid-template-columns: 23rem minmax(0, 1fr) 27rem; }
+}
+
+.ponto-digitando { animation: digitando 1s ease-in-out infinite; }
+@keyframes digitando {
+  0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-2px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ponto-digitando { animation: none; }
+}
+
+/* No mapa pequeno da jornada, os créditos ficam atrás do "i" (padrão compacto do
+   MapLibre): aparecem ao passar o mouse ou focar. A atribuição continua lá. */
+#raiz .mapa-pequeno .maplibregl-ctrl-attrib.maplibregl-compact .maplibregl-ctrl-attrib-inner { display: none; }
+#raiz .mapa-pequeno .maplibregl-ctrl-attrib.maplibregl-compact:hover .maplibregl-ctrl-attrib-inner,
+#raiz .mapa-pequeno .maplibregl-ctrl-attrib.maplibregl-compact:focus-within .maplibregl-ctrl-attrib-inner { display: block; }
