@@ -29,6 +29,9 @@ fica guardada no navegador; `?tema=claro` abre já no claro). O claro vale para
 os painéis, os gráficos e os mapas de dados (regiões, cidadão, grafo). O mapa
 de satélite da sala continua escuro nos dois temas, porque o calor e os
 contornos foram ajustados para ele. Captura: `capturas/todas-as-telas-tema-claro.png`.
+No claro, a inteligência colore os chamados e as evidências pela área do órgão,
+com as mesmas sete cores da apresentação em rolagem (`inteligencia/cores.ts`);
+no escuro ela segue neutra. Captura: `capturas/i3-insight-tema-claro.png`.
 
 A cidade simulada é a mesma em todas as telas (`dados/cidade.ts`); só a sala
 anda "ao vivo".

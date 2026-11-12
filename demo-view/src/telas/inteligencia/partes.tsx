@@ -10,7 +10,9 @@ import { type Incidente, NOME_DO_TIPO, type Resultado } from '../../inteligencia
 import { type Severidade, siglaDoOrgao } from '../../inteligencia/casos';
 import { type Decisao, faltaParaEnviar, JANELA_DE_ENVIO, type MotivoDeDescarte, MOTIVOS_DE_DESCARTE, ROTULO_DA_SITUACAO } from '../../inteligencia/decisoes';
 import { reduzMovimento } from '../../mapa/vista';
+import { corDoOrgao, familiasDe } from '../../inteligencia/cores';
 import { Painel } from '../../ui/Painel';
+import { useTema } from '../../ui/tema';
 
 const n = (v: number) => Math.round(v).toLocaleString('pt-BR');
 const ROTULO_SEVERIDADE: Record<Severidade, string> = { crítico: 'Crítico', sério: 'Sério', atenção: 'Atenção' };
@@ -30,6 +32,27 @@ function Gravidade({ s }: { s: Severidade }) {
 function Estado({ d }: { d: Decisao }) {
   const classe = d.situacao === 'sugerido' ? 'border-dashed border-linha-forte text-texto-2' : d.situacao === 'descartado' ? 'border-linha text-texto-2 line-through' : 'border-acento-claro/60 text-acento-claro';
   return <span className={`condensado shrink-0 rounded border px-1.5 py-0.5 text-micro ${classe}`}>{ROTULO_DA_SITUACAO[d.situacao]}</span>;
+}
+
+/** A marca de cor da área do órgão, como na apresentação. Só no tema claro; no escuro a tela é neutra. */
+export function CorDoOrgao({ orgao, className = '' }: { orgao: string; className?: string }) {
+  if (useTema() !== 'claro') return null;
+  return <span className={`inline-block size-2 shrink-0 rounded-full ${className}`} style={{ background: corDoOrgao(orgao) }} aria-hidden="true" />;
+}
+
+/** A legenda das áreas presentes (tema claro). */
+export function LegendaDasAreas({ orgaos, className = '' }: { orgaos: string[]; className?: string }) {
+  if (useTema() !== 'claro') return null;
+  return (
+    <ul className={`flex flex-wrap gap-x-3 gap-y-1 text-micro text-texto-2 ${className}`} aria-label="Cores por área">
+      {familiasDe(orgaos).map((f) => (
+        <li key={f.id} className="flex items-center gap-1.5">
+          <span className="size-2 rounded-full" style={{ background: f.cor }} aria-hidden="true" />
+          {f.nome}
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 const Rotulo = ({ children }: { children: ReactNode }) => <p className="condensado mb-1.5 text-micro text-texto-2">{children}</p>;
@@ -84,11 +107,12 @@ export function Fila({ resultado, aberto, decisaoDe, aoAbrir }: {
 // ---------------------------------------------------------------- insight explicado
 
 function Barra({ valor, rotulo }: { valor: number; rotulo: string }) {
+  const claro = useTema() === 'claro';
   return (
     <div className="grid grid-cols-[5.5rem_1fr_2.25rem] items-center gap-2 text-rotulo text-texto-2">
       <span>{rotulo}</span>
       <span className="h-1 rounded-full bg-realce">
-        <span className="block h-1 rounded-full bg-texto-2" style={{ width: `${Math.round(valor * 100)}%` }} />
+        <span className={`block h-1 rounded-full ${claro ? 'bg-acento' : 'bg-texto-2'}`} style={{ width: `${Math.round(valor * 100)}%` }} />
       </span>
       <span className="text-right tabular-nums">{Math.round(valor * 100)}%</span>
     </div>
@@ -155,6 +179,7 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
             {deChamado.map((e) => (
               <li key={`${e.orgaoId}${e.descricao}`} className="flex items-baseline justify-between gap-3 border-t border-linha py-1.5 text-nota first:border-t-0">
                 <span className="min-w-0">
+                  <CorDoOrgao orgao={e.orgaoId} className="mr-1.5" />
                   <span className="text-tinta">{siglaDoOrgao(e.orgaoId)}</span> <span className="text-texto-2">· {e.canal}</span>
                   <span className="block text-rotulo text-texto-2">{e.descricao}</span>
                 </span>
@@ -171,6 +196,7 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
                 {deOperacao.map((e) => (
                   <li key={`${e.orgaoId}${e.descricao}`} className="flex items-baseline justify-between gap-3 border-t border-linha py-1.5 text-nota first:border-t-0">
                     <span className="min-w-0">
+                      <CorDoOrgao orgao={e.orgaoId} className="mr-1.5" />
                       <span className="text-tinta">{siglaDoOrgao(e.orgaoId)}</span> <span className="text-texto-2">· {e.canal}</span>
                       <span className="block text-rotulo text-texto-2">{e.descricao}</span>
                     </span>
@@ -317,19 +343,21 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
 export function PorOrgao({ inc }: { inc: Incidente }) {
   const filas = inc.evidencias.filter((e) => e.fonte !== 'contexto');
   const maior = Math.max(...filas.filter((e) => e.fonte === 'chamado').map((e) => e.quantidade));
+  const claro = useTema() === 'claro';
   const altura = Math.max(150, filas.length * 54);
   const y = (k: number) => ((k + 0.5) / filas.length) * altura;
   return (
-    <Painel className="w-[min(46rem,calc(100vw-2rem))] p-5">
+    <Painel className="w-[min(36rem,calc(100vw-2rem))] bg-painel! p-5">
       <p className="condensado text-micro text-texto-2">Por órgão · {inc.codigo}</p>
       <p className="mt-1 text-corpo text-tinta">
         {filas.length} sina{filas.length === 1 ? 'l' : 'is'} separado{filas.length === 1 ? '' : 's'}, um incidente
       </p>
-      <div className="mt-4 grid grid-cols-[minmax(0,1fr)_7rem_11rem] items-stretch">
+      <div className="mt-4 grid grid-cols-[minmax(0,1fr)_5rem_9rem] items-stretch">
         <ul className="flex flex-col justify-around" style={{ height: altura }}>
           {filas.map((e) => (
             <li key={`${e.orgaoId}${e.descricao}`} className="pr-3 text-right">
               <p className="text-nota text-tinta">
+                <CorDoOrgao orgao={e.orgaoId} className="mr-1.5" />
                 {siglaDoOrgao(e.orgaoId)} <span className="text-texto-2">· {e.canal}</span>
               </p>
               <p className="truncate text-rotulo text-texto-2">
@@ -341,7 +369,7 @@ export function PorOrgao({ inc }: { inc: Incidente }) {
         </ul>
         <svg viewBox={`0 0 100 ${altura}`} preserveAspectRatio="none" className="h-full w-full" aria-hidden="true">
           {filas.map((e, k) => (
-            <path key={k} d={`M0 ${y(k)} C 55 ${y(k)}, 45 ${altura / 2}, 100 ${altura / 2}`} fill="none" stroke={new Set(filas.map((f) => f.orgaoId)).size > 1 ? '#4cc3d6' : '#a4abb3'} strokeOpacity="0.75" strokeWidth={e.fonte === 'operação' ? 1.2 : 1 + 5 * Math.sqrt(e.quantidade / maior)} strokeDasharray={e.fonte === 'operação' ? '4 3' : undefined} vectorEffect="non-scaling-stroke" />
+            <path key={k} d={`M0 ${y(k)} C 55 ${y(k)}, 45 ${altura / 2}, 100 ${altura / 2}`} fill="none" stroke={claro ? corDoOrgao(e.orgaoId) : new Set(filas.map((f) => f.orgaoId)).size > 1 ? '#4cc3d6' : '#a4abb3'} strokeOpacity="0.75" strokeWidth={e.fonte === 'operação' ? 1.2 : 1 + 5 * Math.sqrt(e.quantidade / maior)} strokeDasharray={e.fonte === 'operação' ? '4 3' : undefined} vectorEffect="non-scaling-stroke" />
           ))}
         </svg>
         <div className="flex flex-col justify-center border-l border-linha-forte pl-4">

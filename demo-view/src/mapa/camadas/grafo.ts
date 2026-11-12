@@ -11,6 +11,7 @@ import type { Layer } from '@deck.gl/core';
 import { ColumnLayer, PathLayer, ScatterplotLayer, TextLayer } from '@deck.gl/layers';
 import { type Chamado, type Incidente, type Ligacao, metros, type Resultado } from '../../inteligencia/agrupamento';
 import { type Severidade, siglaDoOrgao } from '../../inteligencia/casos';
+import { corDoOrgao } from '../../inteligencia/cores';
 import { ehClaro } from '../../ui/tema';
 import { CORES, type RGB, rgb } from '../../ui/tokens';
 import { NA_PILHA, SEMPRE_POR_CIMA } from './pilha';
@@ -59,6 +60,8 @@ export const alturaDaColuna = (chamados: number) => 500 + Math.sqrt(chamados) * 
 
 export interface PontoDoGrafo {
   i: number;
+  /** A cor da área do órgão (tema claro), em RGB. */
+  cor: RGB;
   ponto: [number, number];
   descricao: string;
   orgao: string;
@@ -94,7 +97,7 @@ export interface BaseDoGrafo {
 const MAXIMO_POR_PONTO = 3;
 
 export function prepararGrafo(chamados: readonly Chamado[], r: Resultado): BaseDoGrafo {
-  const pontos = chamados.map((c, i) => ({ i, ponto: c.ponto, descricao: c.descricao, orgao: siglaDoOrgao(c.orgaoId), peso: c.peso }));
+  const pontos = chamados.map((c, i) => ({ i, cor: rgb(corDoOrgao(c.orgaoId)), ponto: c.ponto, descricao: c.descricao, orgao: siglaDoOrgao(c.orgaoId), peso: c.peso }));
   const usadas = new Int32Array(chamados.length);
   const arcos: ArcoDoGrafo[] = [];
   for (const l of [...r.ligacoes].sort((x, y) => y.forca - x.forca)) {
@@ -150,7 +153,8 @@ export function camadasDoGrafo(e: EstadoDoGrafo): Layer[] {
     if (etapa === 1) return noIncidente(p.i) ? 235 : 70;
     return noIncidente(p.i) ? 0 : 70;
   };
-  const corDoPonto = (p: PontoDoGrafo): RGBA => [...(haAberto && grupoDe(p.i) === aberto ? ACENTO : NEUTRO), alfaDoPonto(p)];
+  // No claro, como na apresentação: cada chamado na cor da área do órgão. No escuro, neutro, com o acento só no aberto.
+  const corDoPonto = (p: PontoDoGrafo): RGBA => [...(claro ? p.cor : haAberto && grupoDe(p.i) === aberto ? ACENTO : NEUTRO), alfaDoPonto(p)];
   // Na etapa 3, os chamados de um incidente se recolhem no centro dele (o aberto fica espalhado, para ser lido).
   const posicao = (p: PontoDoGrafo): [number, number] => (etapa === 2 && noIncidente(p.i) && grupoDe(p.i) !== aberto ? resultado.incidentes[grupoDe(p.i)]!.centro : p.ponto);
 
@@ -225,7 +229,7 @@ export function camadasDoGrafo(e: EstadoDoGrafo): Layer[] {
       getFillColor: (p) => {
         const [r, g, b, a] = corDoPonto(p);
         // No incidente aberto os pontos ficam juntos: brilho menor, para não virar uma mancha.
-        return [r, g, b, Math.round(a * (haAberto ? 0.07 : 0.2))];
+        return [r, g, b, Math.round(a * (haAberto ? (claro ? 0.16 : 0.07) : claro ? 0.26 : 0.2))];
       },
       transitions: { getPosition: 900 },
       updateTriggers: { getPosition: chave, getFillColor: chave },
@@ -237,7 +241,8 @@ export function camadasDoGrafo(e: EstadoDoGrafo): Layer[] {
       data: base.pontos,
       getPosition: posicao,
       getRadius: (p) => 45 + Math.sqrt(p.peso) * 22,
-      radiusMinPixels: 2.6,
+      // No claro a cor é o dado: o ponto é um pouco maior, para a cor ser lida de longe.
+      radiusMinPixels: claro ? 3.4 : 2.6,
       radiusMaxPixels: 9,
       getFillColor: corDoPonto,
       pickable: true,

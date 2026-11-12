@@ -11,6 +11,8 @@ import { type Severidade, siglaDoOrgao } from '../../inteligencia/casos';
 import { type Decisao, ROTULO_DA_SITUACAO } from '../../inteligencia/decisoes';
 import { type FiltroDeInsights, filtrarInsights, opcoesDeFiltro, type Resumo, SEM_FILTRO } from '../../inteligencia/resumo';
 import { Painel } from '../../ui/Painel';
+import { useTema } from '../../ui/tema';
+import { CorDoOrgao, LegendaDasAreas } from './partes';
 
 const n = (v: number) => Math.round(v).toLocaleString('pt-BR');
 const ROTULO: Record<Severidade, string> = { crítico: 'Crítico', sério: 'Sério', atenção: 'Atenção' };
@@ -40,6 +42,7 @@ function Cartao({ inc, decisao, ativo, aoAbrir }: { inc: Incidente; decisao: Dec
   const relatos = inc.evidencias.filter((e) => e.fonte === 'chamado');
   const operacao = inc.evidencias.filter((e) => e.fonte === 'operação');
   const descartado = decisao.situacao === 'descartado';
+  const claro = useTema() === 'claro';
   return (
     <li>
       <button type="button" onClick={aoAbrir} aria-current={ativo ? 'true' : undefined} className={`painel-vidro flex h-full w-full flex-col p-4 text-left transition-colors ${ativo ? 'border-acento-claro!' : 'hover:border-linha-forte!'} ${descartado ? 'opacity-55' : ''}`}>
@@ -59,7 +62,7 @@ function Cartao({ inc, decisao, ativo, aoAbrir }: { inc: Incidente; decisao: Dec
           {relatos.map((e) => (
             <span key={`${e.orgaoId}${e.descricao}`} className="flex items-baseline justify-between gap-3 text-rotulo">
               <span className="flex min-w-0 items-baseline gap-2">
-                <i className="h-px w-3 shrink-0 translate-y-[-3px] bg-texto-2" aria-hidden="true" />
+                {claro ? <CorDoOrgao orgao={e.orgaoId} /> : <i className="h-px w-3 shrink-0 translate-y-[-3px] bg-texto-2" aria-hidden="true" />}
                 <span className="shrink-0 text-texto">{siglaDoOrgao(e.orgaoId)}</span>
                 <span className="truncate text-texto-2">{e.descricao}</span>
               </span>
@@ -148,6 +151,7 @@ export function PainelDeInsights({ resultado, resumo, decisaoDe, aberto, aoAbrir
           {visiveis.length} de {resultado.incidentes.length}
         </span>
       </div>
+      <LegendaDasAreas orgaos={opcoes.orgaos} />
 
       <ul className="grade-de-insights">
         {visiveis.map(({ inc, k }) => (

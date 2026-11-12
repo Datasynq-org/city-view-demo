@@ -18,7 +18,7 @@ import { Painel } from '../../ui/Painel';
 import { useTema } from '../../ui/tema';
 import { resumir } from '../../inteligencia/resumo';
 import { PainelDeInsights } from './Painel';
-import { Fila, Insight, PorOrgao } from './partes';
+import { Fila, Insight, LegendaDasAreas, PorOrgao } from './partes';
 
 const CLICAVEIS = ['grafo-colunas', 'grafo-nos', 'grafo-chamados'] as const;
 const DF: Destino = { tipo: 'df' };
@@ -50,6 +50,7 @@ export function TelaInteligencia() {
 
   const descartados = useMemo(() => new Set(resultado.incidentes.flatMap((i, k) => (decisaoDe(decisoes, i.codigo).situacao === 'descartado' ? [k] : []))), [resultado, decisoes]);
 
+  const todosOsOrgaos = useMemo(() => [...new Set(chamados.map((c) => c.orgaoId))], [chamados]);
   const resumo = useMemo(() => resumir(resultado, decisoes), [resultado, decisoes]);
 
   // Mudar a sensibilidade refaz os grupos: as decisões e a seleção eram dos grupos antigos.
@@ -215,6 +216,11 @@ export function TelaInteligencia() {
         {etapa + 1} de 3 · {ETAPAS[etapa]!.dica}
       </p>
 
+      {vista === 'grafo' && (
+        <div className={`absolute bottom-10 z-10 hidden max-w-md rounded bg-base/85 px-3 py-1.5 empty:hidden lg:block ${filaAberta ? 'left-[24.5rem]' : 'left-8'}`}>
+          <LegendaDasAreas orgaos={todosOsOrgaos} />
+        </div>
+      )}
       <div className={`intel-coluna intel-esquerda ${filaAberta ? '' : 'intel-recolhida'} ${vista === 'grafo' ? '' : 'hidden!'}`}>
         <Fila resultado={resultado} aberto={aberto} decisaoDe={(c) => decisaoDe(decisoes, c)} aoAbrir={abrir} />
       </div>

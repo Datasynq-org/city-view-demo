@@ -364,4 +364,11 @@ os modos noturno e térmico. **A decidir:** a apresentação interativa (seção
   clara. O de satélite (sala e mini mapa da jornada) fica escuro nos dois temas:
   o calor e os contornos foram ajustados para a imagem escurecida.
 - Testes: 277.
+- *Acréscimo de 12/11/2026, cores por área no claro.* No tema claro, a
+  inteligência colore os indicadores como a apresentação em rolagem: cada
+  chamado no mapa, cada linha de evidência e cada fila do "por órgão" leva a cor
+  da área do órgão (as sete de `--area-0` a `--area-6` do design system, em
+  `inteligencia/cores.ts`), com legenda. É a mistura de cores num mesmo lugar
+  que mostra o cruzamento. No escuro a tela segue neutra, como decidido na I3.
+  Branch `demo/tema-claro-cores`. Testes: 281.
 
