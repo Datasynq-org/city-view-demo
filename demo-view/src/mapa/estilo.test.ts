@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { REGIOES } from '../dominio/ras';
-import { CAMADA_RAS, FONTE_RAS, montarEstilo, URL_OPENFREEMAP } from './estilo';
+import { CAMADA_PREDIOS, CAMADA_RAS, FONTE_RAS, montarEstilo, URL_OPENFREEMAP } from './estilo';
 
 const estilo = montarEstilo({ regioes: REGIOES, urlFonteRotulo: '/fontes/rotulo.woff2' });
 const camadas = estilo.layers;
@@ -20,8 +20,8 @@ describe('estilo do mapa', () => {
     expect(externas).toEqual([URL_OPENFREEMAP]);
   });
 
-  it('desenha as RAs por cima do desenho da cidade', () => {
-    const daRede = camadas.flatMap((c, i) => ('source' in c && c.source === 'openfreemap' ? [i] : []));
+  it('desenha as RAs por cima do desenho plano da cidade', () => {
+    const daRede = camadas.flatMap((c, i) => ('source' in c && c.source === 'openfreemap' && c.id !== CAMADA_PREDIOS ? [i] : []));
     const dasRas = camadas.flatMap((c, i) => ('source' in c && String(c.source).startsWith('ras') ? [i] : []));
     expect(daRede.length).toBeGreaterThan(0);
     expect(dasRas).toHaveLength(3);
@@ -41,5 +41,14 @@ describe('estilo do mapa', () => {
     const rotulos = camadas.find((c) => c.id === 'ras-rotulos') as { layout: { 'text-font': string[] } };
     const declaradas = Object.keys(estilo['font-faces'] ?? {});
     expect(declaradas).toEqual(rotulos.layout['text-font']);
+  });
+
+  it('os prédios sobem em 3D só de perto, abaixo dos nomes das RAs', () => {
+    const i = camadas.findIndex((c) => c.id === CAMADA_PREDIOS);
+    const predios = camadas[i] as { type: string; source: string; minzoom: number };
+    expect(predios).toMatchObject({ type: 'fill-extrusion', source: 'openfreemap', 'source-layer': 'building' });
+    expect(predios.minzoom).toBeGreaterThanOrEqual(13);
+    expect(i).toBeLessThan(camadas.findIndex((c) => c.id === 'ras-rotulos'));
+    expect(i).toBeGreaterThan(camadas.findIndex((c) => c.id === 'ras-contorno'));
   });
 });

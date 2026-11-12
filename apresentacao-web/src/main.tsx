@@ -5,7 +5,7 @@ import '@fontsource-variable/geist-mono';
 import 'lenis/dist/lenis.css';
 import './estilos.css';
 import { App } from './App';
-import { aplicarTema, temaInicial } from './tema/tema';
+import { aplicarTema, temaInicial } from '@ds';
 
 aplicarTema(temaInicial());
 

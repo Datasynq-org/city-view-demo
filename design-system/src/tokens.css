@@ -1,0 +1,82 @@
+/* City View · Design system "Sala de Operações" · tokens
+   Dois temas com os mesmos papéis. Toda cor (inclusive canvas, WebGL e SVG) vem daqui.
+   Escuro: a cidade à noite, numa sala de operações. Claro: papel frio, com tons mais
+   profundos para os sinais continuarem legíveis. Documentação: docs/CV-DS-001. */
+
+:root,
+[data-tema="escuro"] {
+  /* superfícies */
+  --fundo: #05080d;
+  --painel: rgba(10, 16, 28, 0.55);
+  --painel-borda: rgba(255, 255, 255, 0.12);
+  --caixa: rgba(255, 255, 255, 0.04);
+  --caixa-borda: rgba(255, 255, 255, 0.16);
+  --destaque: rgba(125, 211, 252, 0.12);
+  --sombra: 0 24px 70px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  --brilho-1: rgba(14, 116, 144, 0.16);
+  --brilho-2: rgba(91, 33, 182, 0.12);
+  /* tinta */
+  --tinta: #eaf0ff;
+  --tinta-2: #94a3bd;
+  --acento: #7dd3fc;
+  --sobre-acento: #05080d;
+  /* sinais */
+  --ok: #34d399;
+  --atencao: #fbbf24;
+  --alerta: #f87171;
+  /* mapa e dados (canvas, WebGL, SVG) */
+  --mapa-traco: rgba(125, 211, 252, 0.42);
+  --conexao: rgba(226, 232, 240, 0.22);
+  --anel: rgba(255, 255, 255, 0.85);
+  --calor-modo: lighter;
+  /* áreas (ordem fixa: ouvidoria, segurança, iluminação, vias, água, limpeza, energia) */
+  --area-0: #94a3b8; --area-1: #f87171; --area-2: #fbbf24; --area-3: #a78bfa;
+  --area-4: #38bdf8; --area-5: #34d399; --area-6: #fb923c;
+  /* situação: resolvido, em resolução, aberto */
+  --status-0: #34d399; --status-1: #fbbf24; --status-2: #f87171;
+  color-scheme: dark;
+}
+
+[data-tema="claro"] {
+  --fundo: #f3f5f8;
+  --painel: rgba(255, 255, 255, 0.62);
+  --painel-borda: rgba(15, 23, 42, 0.1);
+  --caixa: rgba(255, 255, 255, 0.75);
+  --caixa-borda: rgba(15, 23, 42, 0.16);
+  --destaque: rgba(3, 105, 161, 0.08);
+  --sombra: 0 18px 50px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --brilho-1: rgba(56, 189, 248, 0.14);
+  --brilho-2: rgba(167, 139, 250, 0.12);
+  --tinta: #0b1220;
+  --tinta-2: #4b5a70;
+  --acento: #0369a1;
+  --sobre-acento: #ffffff;
+  /* sinais como texto: contraste AA (≥ 4,5:1) sobre fundo e painel */
+  --ok: #047857;
+  --atencao: #b45309;
+  --alerta: #b91c1c;
+  --mapa-traco: rgba(3, 105, 161, 0.38);
+  --conexao: rgba(15, 23, 42, 0.18);
+  --anel: rgba(11, 18, 32, 0.8);
+  --calor-modo: source-over;
+  --area-0: #64748b; --area-1: #dc2626; --area-2: #d97706; --area-3: #7c3aed;
+  --area-4: #0284c7; --area-5: #059669; --area-6: #ea580c;
+  --status-0: #059669; --status-1: #d97706; --status-2: #dc2626;
+  color-scheme: light;
+}
+
+/* valores que não mudam com o tema */
+:root {
+  --fonte-titulo: "Geist Variable", system-ui, sans-serif;
+  --fonte-corpo: "Geist Variable", system-ui, sans-serif;
+  --fonte-mono: "Geist Mono Variable", ui-monospace, monospace;
+  --raio-painel: 18px;
+  --raio-botao: 10px;
+  --raio-selo: 6px;
+  --vidro: blur(18px) saturate(140%);
+  --dur-rapida: 0.2s;
+  --dur: 0.4s;
+  /* cor fixa do selo de simulado/ilustrativo: igual nos dois temas, para ser reconhecido sempre */
+  --selo-fundo: #fbbf24;
+  --selo-tinta: #1c1405;
+}

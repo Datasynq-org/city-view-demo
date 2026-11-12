@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollTrigger, rolarPara } from '../rolagem/rolagem';
-import { aplicarTema, temaAtual, type Tema } from '../tema/tema';
+import { TrocaTema } from '@ds';
 
 type Parada = { y: number; nome: string; pausa: number };
 const DESLOCAMENTO = 2.2; // segundos rolando entre uma parada e outra
@@ -25,12 +25,6 @@ export function Tour() {
   const [atual, setAtual] = useState(-1);
   const [total, setTotal] = useState(0);
   const [nome, setNome] = useState('');
-  const [tema, setTema] = useState<Tema>(temaAtual());
-  const trocarTema = () => {
-    const novo: Tema = tema === 'claro' ? 'escuro' : 'claro';
-    aplicarTema(novo, true);
-    setTema(novo);
-  };
   const paradas = useRef<Parada[]>([]);
   const indice = useRef(-1);
   const relogio = useRef<number | undefined>(undefined);
@@ -98,9 +92,7 @@ export function Tour() {
 
   return (
     <nav className="tour painel" aria-label="Tour da apresentação">
-      <button onClick={trocarTema} title="Alternar tema (T)" aria-label={`Mudar para o tema ${tema === 'claro' ? 'escuro' : 'claro'}`}>
-        ◐ {tema === 'claro' ? 'Escuro' : 'Claro'}
-      </button>
+      <TrocaTema className="" />
       <button onClick={anterior} title="Voltar (←)">‹</button>
       <button className="principal" onClick={() => (tocando ? parar() : tocar())} title="Apresentar (espaço)">
         {tocando ? '❚❚ Pausar' : '▶ Apresentar'}

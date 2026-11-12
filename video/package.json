@@ -1,0 +1,27 @@
+{
+  "name": "city-view-video",
+  "private": true,
+  "description": "Filme \"A cidade conectada\" do City View (Remotion)",
+  "scripts": {
+    "clipes": "bash scripts/clipes.sh",
+    "som": "python3 scripts/som.py",
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts Filme out/CityView_filme_16x9_r1.mp4 --codec=h264 --crf=18",
+    "conferencia": "node scripts/conferencia.mjs",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@fontsource/barlow": "5.3.0",
+    "@fontsource/barlow-condensed": "5.3.0",
+    "@fontsource/ibm-plex-mono": "5.3.0",
+    "@remotion/cli": "4.0.543",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "remotion": "4.0.543"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "typescript": "7.0.2"
+  }
+}
