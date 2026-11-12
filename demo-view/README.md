@@ -11,12 +11,24 @@ fora dela. Pode ser movida inteira para outro repositório.
 ## Onde está
 
 **I0 · Fundação** (pronta): o mapa do DF com as 37 regiões administrativas sobre
-o fundo navy, o selo, um painel de vidro de exemplo e o gerador de incidentes no
-modelo único, com testes.
+o fundo navy, o selo e o gerador de incidentes no modelo único, com testes.
 
-Ainda não há mapa de calor, indicadores, gráficos nem grafos. Eles entram a
-partir da I1 (Sala de guerra), junto com deck.gl, Motion e a biblioteca de
-gráficos.
+**I1 · Sala de guerra** (feita, aguardando revisão): "onde a cidade precisa de
+mim agora?" (slide 14). Captura em `capturas/i1-sala.png` e, no modo 3D,
+`capturas/i1-sala-3d.png`.
+
+- Mapa com os chamados agrupados, em **calor** ou em **hexágonos 3D** (a câmera
+  inclina no 3D; passar o mouse num hexágono mostra quantos chamados há ali).
+- Filtros de **período** (hoje, 7 dias, 30 dias), **área** e modo do mapa. Mapa
+  e números mudam juntos.
+- **A cidade agora:** abertos agora, recebidos no período, tempo até resolver
+  (mediana) e % resolvido no prazo do tipo.
+- **Velocidade da gestão** por área: % no prazo e mediana até resolver. Clicar
+  numa área filtra a tela.
+- **Chamados por dia** nos últimos 30 dias (a barra de hoje é parcial) e
+  **chegando agora**, os 8 chamados mais recentes.
+
+Os gráficos são SVG feito à mão, sem biblioteca; a escolha é revista na I4.
 
 ## Rodar
 
@@ -25,7 +37,7 @@ Precisa de Node 22.12 ou mais novo.
 ```bash
 npm install
 npm run dev        # http://localhost:5200
-npm test           # testes do domínio, do gerador e do estilo do mapa
+npm test           # testes do domínio, do gerador, do mapa e dos indicadores
 npm run build      # build estático em dist/
 npm run preview    # serve o build em http://localhost:4200
 ```
@@ -52,7 +64,8 @@ O mapa exige WebGL2. Onde não há, a tela mostra um aviso no lugar do mapa.
 src/
   dominio/   modelo único de incidente, ciclo de vida, órgãos, canais e RAs (funções puras)
   dados/     gerador determinístico dos dados simulados
-  mapa/      MapLibre, estilo do mapa e a queda sem rede
+  indicadores/ contas da sala de guerra: filtros, velocidade, séries (funções puras)
+  mapa/      MapLibre, estilo do mapa, camadas deck.gl e a queda sem rede
   ui/        painel de vidro, selo e cores
   telas/     uma pasta por iteração
 scripts/     gerar-ras.mjs: regenera os contornos das RAs
@@ -98,6 +111,6 @@ Pendente: confirmar os termos de uso dos dados da IDE/DF antes de produção.
   portado da demo exploratória, repositório `Datasynq-org/City-view`,
   `apps/sala-de-situacao`, commit `12c4502`, e adaptado ao modelo novo de
   incidente. As telas e o visual são novos.
-- MapLibre GL JS: BSD-3-Clause. Barlow e Barlow Condensed: OFL-1.1.
+- MapLibre GL JS: BSD-3-Clause. deck.gl: MIT. Motion: MIT. Barlow e Barlow Condensed: OFL-1.1.
 - Mapa de fundo: OpenFreeMap, com dados © OpenMapTiles e © colaboradores do
   OpenStreetMap. A atribuição aparece no canto do mapa e deve continuar lá.

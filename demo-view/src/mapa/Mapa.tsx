@@ -4,8 +4,11 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import urlWorker from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import urlFonteRotulo from '@fontsource/barlow-condensed/files/barlow-condensed-latin-600-normal.woff2?url';
 import { useEffect, useRef, useState } from 'react';
+import type { Layer } from '@deck.gl/core';
+import { MapLibreOverlay } from '@deck.gl/maplibre';
 import { LIMITES_DF, REGIOES } from '../dominio/ras';
 import { Painel } from '../ui/Painel';
+import { dicaDoMapa } from './camadas';
 import { CAMADA_RAS, FONTE_RAS, montarEstilo } from './estilo';
 
 if (!maplibregl.getWorkerUrl()) maplibregl.setWorkerUrl(urlWorker);
@@ -22,13 +25,21 @@ interface Sobre {
 interface Props {
   /** Espaço que os painéis ocupam em volta do mapa, para o DF caber no que sobra. */
   margens: (largura: number) => maplibregl.PaddingOptions;
+  /** Camadas deck.gl por cima do mapa (I1: calor e hexágonos). */
+  camadas?: Layer[];
+  /** Câmera inclinada, para ver os hexágonos em 3D. */
+  inclinado?: boolean;
 }
 
 /** O mapa do DF em tela cheia, com as 37 RAs. */
-export function Mapa({ margens }: Props) {
+export function Mapa({ margens, camadas = [], inclinado = false }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const [semMapa, setSemMapa] = useState(false);
   const [sobre, setSobre] = useState<Sobre | null>(null);
+  const mapaRef = useRef<maplibregl.Map | null>(null);
+  const overlay = useRef<MapLibreOverlay | null>(null);
+  const camadasRef = useRef(camadas);
+  camadasRef.current = camadas;
 
   useEffect(() => {
     const el = container.current;
@@ -97,8 +108,30 @@ export function Mapa({ margens }: Props) {
     });
     mapa.on('mouseleave', CAMADA_RAS, soltar);
 
-    return () => mapa.remove();
+    // deck.gl intercalado: as camadas entram na pilha do MapLibre e dividem o mesmo WebGL2.
+    mapaRef.current = mapa;
+    mapa.on('load', () => {
+      const deck = new MapLibreOverlay({ interleaved: true, layers: camadasRef.current, getTooltip: dicaDoMapa });
+      mapa.addControl(deck);
+      overlay.current = deck;
+    });
+
+    return () => {
+      overlay.current = null;
+      mapaRef.current = null;
+      mapa.remove();
+    };
   }, [margens]);
+
+  // Novas camadas (filtro ou modo mudou): só troca as camadas, sem recriar o mapa.
+  useEffect(() => {
+    overlay.current?.setProps({ layers: camadas });
+  }, [camadas]);
+
+  // Modo 3D: inclina a câmera; no plano, volta a olhar de cima.
+  useEffect(() => {
+    mapaRef.current?.easeTo({ pitch: inclinado ? 48 : 0, duration: 900 });
+  }, [inclinado]);
 
   return (
     <div className="absolute inset-0 bg-navy">

@@ -1,0 +1,138 @@
+/**
+ * Indicadores da sala de guerra (I1, CV-DEM-001 seção 6): o que a governadora vê
+ * no telão. Só funções puras sobre a base SIMULADA (`dados/gerador.ts`).
+ *
+ * "Ver a velocidade da sua gestão" (ATA 147–148): tempo até resolver e % no prazo.
+ * "Todos os chamados agrupados e classificados num mapa de calor" (ATA 220–222):
+ * filtros por período e por área, que alimentam o mapa e os números juntos.
+ */
+import { type BaseSimulada, indiceDaContagem, inicioDoDia } from '../dados/gerador';
+import { estaAberto, type Incidente, type Instante } from '../dominio/incidente';
+import { type AreaId, AREAS, TIPO_POR_ID, TIPOS } from '../dominio/orgaos';
+import { REGIOES } from '../dominio/ras';
+
+const HORA_MS = 3_600_000;
+const DIA_MS = 24 * HORA_MS;
+
+export type Periodo = 'hoje' | '7d' | '30d';
+
+export const PERIODOS: { id: Periodo; nome: string; dias: number }[] = [
+  { id: 'hoje', nome: 'Hoje', dias: 1 },
+  { id: '7d', nome: '7 dias', dias: 7 },
+  { id: '30d', nome: '30 dias', dias: 30 },
+];
+
+export interface Filtro {
+  periodo: Periodo;
+  /** `null` = todas as áreas. */
+  area: AreaId | null;
+}
+
+/** 00:00 de Brasília do primeiro dia do período (hoje conta como um dia). */
+export function inicioDoPeriodo(agora: Instante, periodo: Periodo): Instante {
+  const dias = PERIODOS.find((p) => p.id === periodo)!.dias;
+  return inicioDoDia(agora) - (dias - 1) * DIA_MS;
+}
+
+/** Incidentes abertos no período e, se houver, na área. A base vem em ordem de criação. */
+export function filtrar(incidentes: readonly Incidente[], agora: Instante, filtro: Filtro): Incidente[] {
+  const inicio = inicioDoPeriodo(agora, filtro.periodo);
+  return incidentes.filter((i) => i.criadoEm >= inicio && i.criadoEm <= agora && (filtro.area === null || i.area === filtro.area));
+}
+
+/** Ainda dependem de alguém agir, em toda a janela detalhada (não só no período). */
+export function abertosAgora(incidentes: readonly Incidente[], area: AreaId | null = null): number {
+  let n = 0;
+  for (const i of incidentes) if (estaAberto(i.situacao) && (area === null || i.area === area)) n++;
+  return n;
+}
+
+const horasAteResolver = (i: Incidente) => (i.resolvidoEm === undefined ? undefined : (i.resolvidoEm - i.criadoEm) / HORA_MS);
+
+function mediana(valores: number[]): number | null {
+  if (!valores.length) return null;
+  const v = [...valores].sort((a, b) => a - b);
+  const m = v.length >> 1;
+  return v.length % 2 ? v[m]! : (v[m - 1]! + v[m]!) / 2;
+}
+
+/** Mediana, em horas, entre abrir e resolver. `null` quando nada foi resolvido. */
+export function tempoAteResolver(incidentes: readonly Incidente[]): number | null {
+  const horas: number[] = [];
+  for (const i of incidentes) {
+    const h = horasAteResolver(i);
+    if (h !== undefined) horas.push(h);
+  }
+  return mediana(horas);
+}
+
+/** Parte dos resolvidos que ficou dentro do prazo do tipo (0 a 1). `null` quando nada foi resolvido. */
+export function percentualNoPrazo(incidentes: readonly Incidente[]): number | null {
+  let resolvidos = 0;
+  let noPrazo = 0;
+  for (const i of incidentes) {
+    const h = horasAteResolver(i);
+    if (h === undefined) continue;
+    resolvidos++;
+    const prazo = TIPO_POR_ID[i.tipoId]?.prazoHoras;
+    if (prazo !== undefined && h <= prazo) noPrazo++;
+  }
+  return resolvidos ? noPrazo / resolvidos : null;
+}
+
+export interface VelocidadeDaArea {
+  area: AreaId;
+  chamados: number;
+  tempoAteResolver: number | null;
+  noPrazo: number | null;
+}
+
+/** A velocidade da gestão em cada área, na ordem de `AREAS`. */
+export function velocidadePorArea(incidentes: readonly Incidente[]): VelocidadeDaArea[] {
+  const grupos = new Map<AreaId, Incidente[]>(AREAS.map((a) => [a.id, []]));
+  for (const i of incidentes) grupos.get(i.area)!.push(i);
+  return AREAS.map((a) => {
+    const lista = grupos.get(a.id)!;
+    return { area: a.id, chamados: lista.length, tempoAteResolver: tempoAteResolver(lista), noPrazo: percentualNoPrazo(lista) };
+  });
+}
+
+/** Chamados por dia nos últimos `dias` dias (do mais antigo a hoje), somando todas as RAs. */
+export function serieDiaria(base: BaseSimulada, area: AreaId | null = null, dias = 30): number[] {
+  const n = Math.min(dias, base.dias);
+  const serie = new Array<number>(n).fill(0);
+  TIPOS.forEach((tipo, t) => {
+    if (area !== null && tipo.area !== area) return;
+    for (let r = 0; r < REGIOES.length; r++) {
+      for (let k = 0; k < n; k++) serie[k] = serie[k]! + (base.contagens[indiceDaContagem(base, t, r, base.dias - n + k)] ?? 0);
+    }
+  });
+  return serie;
+}
+
+/** Os `n` incidentes mais recentes, do mais novo ao mais antigo. */
+export function chegandoAgora(incidentes: readonly Incidente[], n: number): Incidente[] {
+  return [...incidentes].sort((a, b) => b.criadoEm - a.criadoEm).slice(0, n);
+}
+
+// ---------------------------------------------------------------- formatos
+
+export const numero = (n: number) => Math.round(n).toLocaleString('pt-BR');
+
+/** "18 h" até dois dias; depois, "3,4 dias". */
+export function duracao(horas: number | null): string {
+  if (horas === null) return '–';
+  if (horas < 48) return `${Math.round(horas)} h`;
+  return `${(horas / 24).toFixed(1).replace('.', ',')} dias`;
+}
+
+export const percentual = (p: number | null) => (p === null ? '–' : `${Math.round(p * 100)}%`);
+
+/** "agora", "há 12 min", "há 3 h", "há 2 dias". */
+export function haQuanto(agora: Instante, t: Instante): string {
+  const min = Math.max(0, Math.floor((agora - t) / 60_000));
+  if (min < 1) return 'agora';
+  if (min < 60) return `há ${min} min`;
+  const h = Math.floor(min / 60);
+  return h < 48 ? `há ${h} h` : `há ${Math.floor(h / 24)} dias`;
+}
