@@ -26,6 +26,8 @@ export interface Filtro {
   periodo: Periodo;
   /** `null` = todas as áreas. */
   area: AreaId | null;
+  /** RA escolhida no mapa (`null` ou ausente = o DF inteiro). */
+  ra?: string | null;
 }
 
 /** 00:00 de Brasília do primeiro dia do período (hoje conta como um dia). */
@@ -34,16 +36,19 @@ export function inicioDoPeriodo(agora: Instante, periodo: Periodo): Instante {
   return inicioDoDia(agora) - (dias - 1) * DIA_MS;
 }
 
-/** Incidentes abertos no período e, se houver, na área. A base vem em ordem de criação. */
+/** Incidentes abertos no período e, se houver, na área e na RA. A base vem em ordem de criação. */
 export function filtrar(incidentes: readonly Incidente[], agora: Instante, filtro: Filtro): Incidente[] {
   const inicio = inicioDoPeriodo(agora, filtro.periodo);
-  return incidentes.filter((i) => i.criadoEm >= inicio && i.criadoEm <= agora && (filtro.area === null || i.area === filtro.area));
+  const ra = filtro.ra ?? null;
+  return incidentes.filter(
+    (i) => i.criadoEm >= inicio && i.criadoEm <= agora && (filtro.area === null || i.area === filtro.area) && (ra === null || i.local.raId === ra),
+  );
 }
 
 /** Ainda dependem de alguém agir, em toda a janela detalhada (não só no período). */
-export function abertosAgora(incidentes: readonly Incidente[], area: AreaId | null = null): number {
+export function abertosAgora(incidentes: readonly Incidente[], area: AreaId | null = null, ra: string | null = null): number {
   let n = 0;
-  for (const i of incidentes) if (estaAberto(i.situacao) && (area === null || i.area === area)) n++;
+  for (const i of incidentes) if (estaAberto(i.situacao) && (area === null || i.area === area) && (ra === null || i.local.raId === ra)) n++;
   return n;
 }
 
@@ -97,17 +102,44 @@ export function velocidadePorArea(incidentes: readonly Incidente[]): VelocidadeD
   });
 }
 
-/** Chamados por dia nos últimos `dias` dias (do mais antigo a hoje), somando todas as RAs. */
-export function serieDiaria(base: BaseSimulada, area: AreaId | null = null, dias = 30): number[] {
+/** Chamados por dia nos últimos `dias` dias (do mais antigo a hoje), somando todas as RAs ou só a pedida. */
+export function serieDiaria(base: BaseSimulada, area: AreaId | null = null, dias = 30, ra: string | null = null): number[] {
   const n = Math.min(dias, base.dias);
   const serie = new Array<number>(n).fill(0);
+  const so = ra === null ? -1 : REGIOES.findIndex((r) => r.id === ra);
   TIPOS.forEach((tipo, t) => {
     if (area !== null && tipo.area !== area) return;
     for (let r = 0; r < REGIOES.length; r++) {
+      if (so >= 0 && r !== so) continue;
       for (let k = 0; k < n; k++) serie[k] = serie[k]! + (base.contagens[indiceDaContagem(base, t, r, base.dias - n + k)] ?? 0);
     }
   });
   return serie;
+}
+
+/** Chamados de cada RA e a taxa por 10 mil habitantes (a população é real; ver `dominio/ras.ts`). */
+export interface ChamadosDaRa {
+  ra: string;
+  chamados: number;
+  por10mil: number;
+}
+
+export function chamadosPorRa(incidentes: readonly Incidente[]): Map<string, ChamadosDaRa> {
+  const n = new Map<string, number>();
+  for (const i of incidentes) n.set(i.local.raId, (n.get(i.local.raId) ?? 0) + 1);
+  return new Map(
+    REGIOES.map((r) => {
+      const chamados = n.get(r.id) ?? 0;
+      return [r.id, { ra: r.id, chamados, por10mil: r.populacao > 0 ? (chamados / r.populacao) * 10_000 : 0 }];
+    }),
+  );
+}
+
+/** Os `n` tipos mais frequentes, do mais ao menos. */
+export function tiposMaisFrequentes(incidentes: readonly Incidente[], n = 3): { tipoId: string; chamados: number }[] {
+  const conta = new Map<string, number>();
+  for (const i of incidentes) conta.set(i.tipoId, (conta.get(i.tipoId) ?? 0) + 1);
+  return [...conta].map(([tipoId, chamados]) => ({ tipoId, chamados })).sort((a, b) => b.chamados - a.chamados || a.tipoId.localeCompare(b.tipoId)).slice(0, n);
 }
 
 /** Os `n` incidentes mais recentes, do mais novo ao mais antigo. */

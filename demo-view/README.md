@@ -14,21 +14,41 @@ fora dela. Pode ser movida inteira para outro repositório.
 o fundo navy, o selo e o gerador de incidentes no modelo único, com testes.
 
 **I1 · Sala de guerra** (feita, aguardando revisão): "onde a cidade precisa de
-mim agora?" (slide 14). Captura em `capturas/i1-sala.png` e, no modo 3D,
-`capturas/i1-sala-3d.png`.
+mim agora?" (slide 14). Uma sala de comando: o DF em 3D, inclinado, que gira
+devagar e conta a história sozinho no tour. Capturas em `capturas/`:
+`i1-sala.png` (hexágonos com os painéis), `i1-sala-3d.png` (tour),
+`i1-sala-regioes.png` (abertura) e `i1-sala-contexto.png` (dados reais de perto).
 
-- Mapa com os chamados agrupados, em **calor** ou em **hexágonos 3D** (a câmera
-  inclina no 3D; passar o mouse num hexágono mostra quantos chamados há ali).
-- Filtros de **período** (hoje, 7 dias, 30 dias), **área** e modo do mapa. Mapa
+- **Mapa:** os chamados agrupados em **Regiões 3D** (cada RA sobe e esquenta
+  com o volume), **Hexágonos 3D** ou **Calor**. De perto, os prédios sobem em
+  3D. Passar o mouse diz o que é cada coisa; clicar numa RA abre o cartão dela
+  (população, chamados por 10 mil habitantes, o que mais chega) e filtra a tela.
+- **Ao vivo:** a cada 3,5 a 7 segundos chega um chamado novo, com um anel no
+  mapa e a entrada em "chegando agora" (o relógio da demo, `indicadores/relogio.ts`).
+- **Filtros** de período (hoje, 7 dias, 30 dias), área, RA e modo do mapa. Mapa
   e números mudam juntos.
-- **A cidade agora:** abertos agora, recebidos no período, tempo até resolver
-  (mediana) e % resolvido no prazo do tipo.
-- **Velocidade da gestão** por área: % no prazo e mediana até resolver. Clicar
-  numa área filtra a tela.
-- **Chamados por dia** nos últimos 30 dias (a barra de hoje é parcial) e
-  **chegando agora**, os 8 chamados mais recentes.
+- **A cidade agora:** abertos, recebidos, tempo até resolver (mediana) e % no
+  prazo. **Velocidade da gestão** por área. **Chamados por dia** em 30 dias.
+- **Camadas reais**, desligadas ao abrir, com o selo da fonte: unidades públicas
+  de saúde (CNES 04/2026), escolas públicas (INEP 2025) e favelas e comunidades
+  urbanas (IBGE 2022).
+- **Tour** (5 paradas, cada uma com uma frase literal da conversa de 10/11):
+  o DF inteiro → onde está pegando → a velocidade da gestão → o que chega
+  agora → o contexto da cidade. Abre já rodando com `?tour=1` no endereço.
+- **Modos de visão** padrão, noturno e térmico, com linhas de varredura (só no mapa).
 
-Os gráficos são SVG feito à mão, sem biblioteca; a escolha é revista na I4.
+| Tecla | Faz |
+| --- | --- |
+| 1, 2, 3 | Visão padrão, noturna, térmica |
+| T | Liga e desliga o tour |
+| O | Liga e desliga a órbita da câmera |
+| C | Abre o painel de camadas |
+| H | Modo telão: esconde os painéis (também com `?telao=1`) |
+| Esc | Volta ao DF inteiro |
+
+Arrastar, rolar ou clicar no mapa para o tour e a órbita. Com "reduzir
+movimento" ligado no sistema, nada gira nem pulsa. Os gráficos são SVG feito à
+mão, sem biblioteca; a escolha é revista na I4.
 
 ## Rodar
 
@@ -37,7 +57,7 @@ Precisa de Node 22.12 ou mais novo.
 ```bash
 npm install
 npm run dev        # http://localhost:5200
-npm test           # testes do domínio, do gerador, do mapa e dos indicadores
+npm test           # testes do domínio, do gerador, do mapa, dos indicadores e do tour
 npm run build      # build estático em dist/
 npm run preview    # serve o build em http://localhost:4200
 ```
@@ -47,7 +67,7 @@ qualquer servidor de arquivos. Não abre direto do disco (`file://`).
 
 ## Sem internet
 
-Só o desenho da cidade (água, verde e vias) vem da rede, do OpenFreeMap. Sem
+Só o desenho da cidade (água, verde, vias e prédios) vem da rede, do OpenFreeMap. Sem
 internet, o mapa abre com o fundo navy liso e as RAs, e o resto continua igual.
 Fontes, contornos e dados vão no build.
 
@@ -65,9 +85,10 @@ src/
   dominio/   modelo único de incidente, ciclo de vida, órgãos, canais e RAs (funções puras)
   dados/     gerador determinístico dos dados simulados
   indicadores/ contas da sala de guerra: filtros, velocidade, séries (funções puras)
-  mapa/      MapLibre, estilo do mapa, camadas deck.gl e a queda sem rede
+  mapa/      MapLibre, estilo do mapa, camadas deck.gl (camadas/) e a queda sem rede
   ui/        painel de vidro, selo e cores
-  telas/     uma pasta por iteração
+  telas/     uma pasta por iteração (sala/: painéis, HUD e tour da I1)
+public/dados/  contexto real (escolas, saúde, favelas), servido junto com o build
 scripts/     gerar-ras.mjs: regenera os contornos das RAs
 ```
 
@@ -90,6 +111,9 @@ scripts/     gerar-ras.mjs: regenera os contornos das RAs
 | População por RA (Censo 2022), fora 4 RAs sem Censo, marcadas como estimadas | Volumes, prazos e tempos de cada tipo de incidente |
 | Nomes e siglas dos 10 órgãos e os canais com `fonte` (Documento Magno) | Pesos de vulnerabilidade e centralidade das RAs |
 | Participação dos canais da CEB IPes (magno, seção 8) | Participação dos demais canais e do canal proposto do City View |
+| Escolas públicas (INEP, Censo Escolar 2025), via geobr (Ipea) | O ritmo de chegada dos chamados "ao vivo" |
+| Unidades públicas de saúde (CNES, 04/2026), via geobr (Ipea) | |
+| Favelas e comunidades urbanas (IBGE, Censo 2022), via geobr (Ipea) | |
 
 Os pontos no mapa são fictícios. Nenhum incidente tem nome, rosto ou endereço.
 
@@ -111,6 +135,13 @@ Pendente: confirmar os termos de uso dos dados da IDE/DF antes de produção.
   portado da demo exploratória, repositório `Datasynq-org/City-view`,
   `apps/sala-de-situacao`, commit `12c4502`, e adaptado ao modelo novo de
   incidente. As telas e o visual são novos.
+- Os dados reais de `public/dados/` (escolas, saúde, favelas) vêm da mesma demo
+  exploratória (`apps/sala-de-situacao/public/dados/`, commit `8104ebb`),
+  baixados pelo geobr em 10/11/2026. Citação: Pereira, R. H. M.; Barbosa, R. J.
+  et al. geobr. Ipea.
+- A I1 se inspira na "Visão da cidade" (modo comando em 3D) e no grafo do Calebe,
+  ambos da demo exploratória. Vieram de lá, reescritos, os filtros SVG dos modos
+  noturno e térmico; o grafo entra na I3.
 - MapLibre GL JS: BSD-3-Clause. deck.gl: MIT. Motion: MIT. Barlow e Barlow Condensed: OFL-1.1.
 - Mapa de fundo: OpenFreeMap, com dados © OpenMapTiles e © colaboradores do
   OpenStreetMap. A atribuição aparece no canto do mapa e deve continuar lá.

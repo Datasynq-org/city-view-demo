@@ -16,8 +16,8 @@ export const CORES = {
   rotulo: '#B7C6D4',
 } as const;
 
-type RGB = [number, number, number];
-const rgb = (hex: string): RGB => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)) as RGB;
+export type RGB = [number, number, number];
+export const rgb = (hex: string): RGB => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)) as RGB;
 
 /**
  * Escala de concentração (pouco → muito) do mapa de calor e dos hexágonos:

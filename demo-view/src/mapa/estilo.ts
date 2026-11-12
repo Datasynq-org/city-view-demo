@@ -2,6 +2,9 @@
  * Estilo do mapa, montado no código: fundo navy, o desenho da cidade (água,
  * verde e vias do OpenFreeMap) em tons de navy e, por cima, as RAs.
  *
+ * De perto (zoom 13 em diante), os prédios sobem em 3D, com a altura do
+ * OpenStreetMap: dá a escala da cidade quando a câmera inclina.
+ *
  * Só o desenho da cidade depende da rede. O fundo, os contornos e os nomes das
  * RAs são locais: sem internet, o mapa abre igual, só sem água e vias.
  */
@@ -23,7 +26,11 @@ const TONS = {
   viaMenor: CORES.navy2,
   viaPrincipal: CORES.linha,
   rodovia: '#2A4A68',
+  predioBaixo: '#173750',
+  predioAlto: '#2B5F80',
 };
+
+export const CAMADA_PREDIOS = 'predios';
 
 export const CAMADA_RAS = 'ras-preenchimento';
 export const FONTE_RAS = 'ras';
@@ -54,6 +61,7 @@ export function montarEstilo({ regioes, urlFonteRotulo }: OpcoesEstilo): StyleSp
     })),
   };
   const sobre = ['boolean', ['feature-state', 'sobre'], false];
+  const selecionada = ['boolean', ['feature-state', 'selecionada'], false];
 
   return {
     version: 8,
@@ -124,9 +132,23 @@ export function montarEstilo({ regioes, urlFonteRotulo }: OpcoesEstilo): StyleSp
         source: FONTE_RAS,
         layout: { 'line-join': 'round' },
         paint: {
-          'line-color': CORES.tealClaro,
-          'line-opacity': ['case', sobre, 1, 0.55],
-          'line-width': ['case', sobre, 2.2, 1],
+          'line-color': ['case', selecionada, '#FFFFFF', CORES.tealClaro],
+          'line-opacity': ['case', ['any', sobre, selecionada], 1, 0.55],
+          'line-width': ['case', selecionada, 2.8, sobre, 2.2, 1],
+        },
+      },
+      {
+        // Depois das RAs, para o tom das regiões não pintar os prédios por cima.
+        id: CAMADA_PREDIOS,
+        type: 'fill-extrusion',
+        source: 'openfreemap',
+        'source-layer': 'building',
+        minzoom: 13,
+        paint: {
+          'fill-extrusion-color': ['interpolate', ['linear'], ['coalesce', ['get', 'render_height'], 6], 0, TONS.predioBaixo, 60, TONS.predioAlto],
+          'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 13, 0, 14, ['coalesce', ['get', 'render_height'], 6]],
+          'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0],
+          'fill-extrusion-opacity': 0.88,
         },
       },
       {

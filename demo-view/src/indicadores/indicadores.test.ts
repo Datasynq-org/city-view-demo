@@ -5,6 +5,7 @@ import { AREAS, TIPO_POR_ID, TIPOS } from '../dominio/orgaos';
 import { REGIOES } from '../dominio/ras';
 import {
   abertosAgora,
+  chamadosPorRa,
   chegandoAgora,
   duracao,
   filtrar,
@@ -14,6 +15,7 @@ import {
   percentualNoPrazo,
   serieDiaria,
   tempoAteResolver,
+  tiposMaisFrequentes,
   velocidadePorArea,
 } from './indicadores';
 
@@ -64,6 +66,39 @@ describe('períodos e filtro', () => {
       return s + lista.length;
     }, 0);
     expect(soma).toBe(total);
+  });
+});
+
+describe('recorte por RA', () => {
+  const RA = REGIOES[0]!;
+
+  it('o filtro de RA só deixa a RA pedida, e as RAs somam o total', () => {
+    const lista = filtrar(base.incidentes, AGORA, { periodo: '7d', area: null, ra: RA.id });
+    expect(lista.length).toBeGreaterThan(0);
+    expect(lista.every((i) => i.local.raId === RA.id)).toBe(true);
+    const porRa = chamadosPorRa(base.incidentes);
+    expect(porRa.size).toBe(REGIOES.length);
+    expect([...porRa.values()].reduce((s, v) => s + v.chamados, 0)).toBe(base.incidentes.length);
+    expect(porRa.get(RA.id)!.chamados).toBe(lista.length);
+  });
+
+  it('a taxa por 10 mil habitantes usa a população da RA', () => {
+    const v = chamadosPorRa(base.incidentes).get(RA.id)!;
+    expect(v.por10mil).toBeCloseTo((v.chamados / RA.populacao) * 10_000);
+  });
+
+  it('a série de uma RA é parte da série total', () => {
+    const total = serieDiaria(base, null, 7);
+    const daRa = serieDiaria(base, null, 7, RA.id);
+    expect(daRa.every((v, k) => v <= total[k]!)).toBe(true);
+    expect(daRa.some((v) => v > 0)).toBe(true);
+  });
+
+  it('os tipos mais frequentes vêm do mais ao menos', () => {
+    const t = tiposMaisFrequentes(base.incidentes, 3);
+    expect(t).toHaveLength(3);
+    expect(t[0]!.chamados).toBeGreaterThanOrEqual(t[1]!.chamados);
+    expect(t[1]!.chamados).toBeGreaterThanOrEqual(t[2]!.chamados);
   });
 });
 

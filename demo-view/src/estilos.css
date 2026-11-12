@@ -97,3 +97,48 @@
   .sala-direita { display: flex; right: 1.25rem; top: 4.25rem; bottom: 1.25rem; width: 21rem; }
   .sala-legenda { display: block; position: absolute; left: 50%; bottom: 1.25rem; transform: translateX(-50%); }
 }
+
+/* ---------- I1 · Sala de comando: telão, tour e modos de sensor ----------
+   Telão (tecla H) e tour: os painéis saem e o mapa fica com a tela; no tour, a
+   legenda do tour toma o lugar da escala. Noturno e
+   térmico: filtro só no mapa (os painéis não mudam), com linhas de varredura. */
+.sala-coluna,
+.sala-legenda {
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.telao .sala-coluna,
+.telao .sala-legenda,
+.em-tour .sala-coluna,
+.em-tour .sala-legenda {
+  opacity: 0;
+  pointer-events: none;
+}
+.telao .sala-esquerda,
+.em-tour .sala-esquerda { transform: translateX(-1.5rem); }
+.telao .sala-direita,
+.em-tour .sala-direita { transform: translateX(1.5rem); }
+
+.mapa-noturno .maplibregl-canvas { filter: url(#sensor-noturno); }
+.mapa-termico .maplibregl-canvas { filter: url(#sensor-termico); }
+.varredura {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(to bottom, rgb(0 0 0 / 0.22) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, transparent 50%, rgb(0 0 0 / 0.6) 100%);
+}
+
+.barra-do-tour {
+  transform-origin: left;
+  animation-name: encher;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@keyframes encher {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .barra-do-tour { animation: none; transform: scaleX(1); }
+}

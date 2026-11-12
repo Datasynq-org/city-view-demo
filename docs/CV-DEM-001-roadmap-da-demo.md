@@ -171,8 +171,8 @@ documento continua sendo o plano.
 | It. | Situação | Data | O que entrou |
 | --- | --- | --- | --- |
 | I0 · fundação | **Feita** (Lucca), integrada ao `main` | 12/11/2026 | `demo-view/`: modelo único de incidente com ciclo de vida e validação; 10 órgãos e 24 tipos com fonte no magno; 37 RAs; gerador portado (contagens de 180 dias e incidentes dos últimos 30), com testes (50); mapa MapLibre com as RAs; selo e painel de exemplo. As transições entre situações e os percentuais simulados (ver a "Situação em 12/11/2026" na seção 6) seguem como proposta inicial da equipe, aceitos provisoriamente em 12/11/2026 para a construção continuar; voltam à revisão quando houver referência dos órgãos. Captura: `demo-view/capturas/i0-fundacao.png` |
-| I1 · sala de guerra | **Feita**, aguardando revisão (branch `demo/i1-sala-de-guerra`) | 12/11/2026 | Mapa com os chamados agrupados em calor ou em hexágonos 3D (deck.gl, câmera inclinada no 3D); filtros de período (hoje, 7 e 30 dias), área e modo, que mudam mapa e números juntos; abertos agora, recebidos, tempo até resolver (mediana) e % no prazo do tipo; velocidade da gestão por área (clicar filtra); chamados por dia em 30 dias; "chegando agora" com os 8 mais recentes. Contas em `src/indicadores/`, com testes (62 no total). Capturas: `demo-view/capturas/i1-sala.png` e `i1-sala-3d.png` |
-| I2 a I6 | A fazer | — | Seção 6 |
+| I1 · sala de guerra | **Feita**, aguardando revisão (branch `demo/i1-sala-de-guerra`) | 12/11/2026 | Refeita no mesmo dia como sala de comando em 3D (ver o acréscimo abaixo): o DF inclinado, que gira devagar; chamados em Regiões 3D, Hexágonos 3D ou Calor; prédios em 3D de perto; um chamado novo chegando a cada poucos segundos, com anel no mapa; RA clicável, com cartão; filtros de período, área e RA, que mudam mapa e números juntos; abertos, recebidos, tempo até resolver e % no prazo; velocidade da gestão por área; chamados por dia; camadas reais ligáveis (saúde CNES 2026, escolas INEP 2025, favelas IBGE 2022); tour de 5 paradas com frases literais da ATA (`?tour=1`); modos padrão, noturno e térmico; modo telão. Testes: 87. Capturas: `demo-view/capturas/i1-sala*.png` |
+| I2 a I6 | A fazer | — | Seção 6. Na I3, a base é o grafo do Calebe (ver o acréscimo abaixo) |
 
 A casca visual feita em `demo/` no mesmo dia (barra, navegação, painel da sala, catálogo) fica como vitrine do design system e como referência de interface para a I1, sem código copiado.
 
@@ -181,3 +181,21 @@ A casca visual feita em `demo/` no mesmo dia (barra, navegação, painel da sala
 - **Versões:** deck.gl 9.4.1 (`@deck.gl/core`, `layers`, `aggregation-layers` e `maplibre`, no modo intercalado) e Motion 14.12.0, fixadas no `demo-view/package.json`.
 - **Cor da concentração:** a escala do mapa vai do teal ao âmbar e termina num vermelho de alerta (`#E5484D`), acrescentado aos tokens da direção C.
 - **Altura dos hexágonos:** proporcional ao volume filtrado, para que um filtro com poucos chamados não vire meia dúzia de torres.
+
+*Acréscimo de 12/11/2026, a I1 refeita.* Na revisão, a equipe achou o mapa da
+primeira versão muito abaixo do que a demo exploratória já tinha: a "Visão da
+cidade" (modo comando em 3D) e o grafo do Calebe ("Do chamado ao incidente",
+`apps/sala-de-situacao/src/components/grafo-deck.tsx`). Decisão: refazer a I1
+nesse nível, completa mas sem poluir, e levar o grafo para a I3.
+- **Voltaram:** câmera inclinada com órbita lenta, extrusão por RA, HUD com
+  camadas e selo "Real · fonte", tour com legenda, modos noturno e térmico,
+  pulso no que chega e as camadas reais (geobr). Telas e código reescritos no
+  visual da direção C; vieram de lá os dados reais e, reescritos, os filtros SVG
+  dos modos de visão.
+- **Sem poluir:** ao abrir, só os chamados e os nomes das RAs; as camadas reais
+  começam desligadas; no tour e no telão, os painéis saem.
+- **Relógio da demo:** a cidade é gerada 4 horas à frente e o que falta chega
+  aos poucos, como "recebido agora". É simulação, como o resto.
+- **I3:** o grafo do Calebe é a base (chamados com brilho, arcos que cruzam
+  órgãos com sinais correndo, colapso no incidente sugerido, confirmação humana),
+  refinado no mesmo visual.

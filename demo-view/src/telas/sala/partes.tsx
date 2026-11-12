@@ -4,7 +4,7 @@ import { type Incidente, ROTULO_SITUACAO } from '../../dominio/incidente';
 import { type AreaId, AREAS, TIPO_POR_ID } from '../../dominio/orgaos';
 import { REGIAO_POR_ID } from '../../dominio/ras';
 import { duracao, haQuanto, numero, percentual, type Periodo, PERIODOS, type VelocidadeDaArea } from '../../indicadores/indicadores';
-import type { ModoMapa } from '../../mapa/camadas';
+import { type ModoMapa, MODOS } from '../../mapa/camadas';
 import { Painel } from '../../ui/Painel';
 import { ESCALA_CONCENTRACAO } from '../../ui/tokens';
 
@@ -24,17 +24,19 @@ function Grupo<T extends string>({ rotulo, opcoes, valor, aoMudar }: { rotulo: s
   );
 }
 
-export const MODOS: { id: ModoMapa; nome: string }[] = [
-  { id: 'calor', nome: 'Calor' },
-  { id: 'hexagonos', nome: 'Hexágonos 3D' },
-];
-
-export function Filtros({ periodo, area, modo, aoMudarPeriodo, aoMudarArea, aoMudarModo }: {
-  periodo: Periodo; area: AreaId | null; modo: ModoMapa;
-  aoMudarPeriodo: (p: Periodo) => void; aoMudarArea: (a: AreaId | null) => void; aoMudarModo: (m: ModoMapa) => void;
+export function Filtros({ periodo, area, ra, modo, aoMudarPeriodo, aoMudarArea, aoLimparRa, aoMudarModo }: {
+  periodo: Periodo; area: AreaId | null; ra: string | null; modo: ModoMapa;
+  aoMudarPeriodo: (p: Periodo) => void; aoMudarArea: (a: AreaId | null) => void; aoLimparRa: () => void; aoMudarModo: (m: ModoMapa) => void;
 }) {
   return (
     <Painel className="space-y-3 p-4">
+      {ra && (
+        <button type="button" onClick={aoLimparRa} title="Voltar ao DF inteiro (Esc)"
+          className="flex w-full items-center justify-between rounded-lg border border-white/30 bg-white/5 px-3 py-1.5 text-left text-sm text-white hover:bg-white/10">
+          <span><span className="condensado mr-2 text-[10px] text-teal-claro">Região</span>{REGIAO_POR_ID[ra]?.nome ?? ra}</span>
+          <span aria-hidden="true" className="text-rotulo">✕</span>
+        </button>
+      )}
       <Grupo rotulo="Período" opcoes={PERIODOS} valor={periodo} aoMudar={aoMudarPeriodo} />
       <div className="flex flex-wrap gap-1.5" role="group" aria-label="Área">
         {[{ id: null, curto: 'Todas' } as { id: AreaId | null; curto: string }, ...AREAS].map((a) => (
@@ -177,9 +179,9 @@ export function Legenda({ modo }: { modo: ModoMapa }) {
   return (
     <Painel className="px-3 py-2">
       <div className="flex items-center gap-2 text-[11px] text-rotulo">
-        <span>{modo === 'calor' ? 'Menos' : 'Poucos'}</span>
+        <span>{modo === 'regioes' ? 'Menos' : 'Poucos'}</span>
         <span className="h-2 w-28 rounded-full" style={{ background: `linear-gradient(90deg, ${cores.join(',')})` }} aria-hidden="true" />
-        <span>{modo === 'calor' ? 'Mais chamados' : 'Muitos chamados'}</span>
+        <span>{modo === 'hexagonos' ? 'Muitos chamados' : 'Mais chamados'}</span>
       </div>
     </Painel>
   );
