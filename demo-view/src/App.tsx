@@ -3,6 +3,7 @@ import { type Tela, TELAS, useTela } from './navegacao';
 import { TelaGestao } from './telas/gestao/TelaGestao';
 import { TelaInteligencia } from './telas/inteligencia/TelaInteligencia';
 import { TelaJornada } from './telas/jornada/TelaJornada';
+import { TelaRegioes } from './telas/regioes/TelaRegioes';
 import { TelaSala } from './telas/sala/TelaSala';
 import { BarraLateral } from './ui/BarraLateral';
 import { Painel } from './ui/Painel';
@@ -28,6 +29,8 @@ function conteudo(tela: Tela) {
       return <TelaSala />;
     case 'gestao':
       return <TelaGestao />;
+    case 'regioes':
+      return <TelaRegioes />;
     case 'jornada':
       return <TelaJornada />;
     case 'inteligencia':
