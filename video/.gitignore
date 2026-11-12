@@ -1,0 +1,5 @@
+node_modules/
+out/
+# derivados: scripts/clipes.sh e scripts/som.py refazem
+public/clips/
+public/audio/mix.wav

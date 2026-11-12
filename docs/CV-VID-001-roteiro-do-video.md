@@ -227,6 +227,26 @@ mais curta; isso é decisão do deck, não deste roteiro.
 | 3 | Onde fica o projeto do vídeo? | Na pasta `video/` |
 | 4 | O caso do buraco | Trocar por um caso mais impactante, simulado, que faça sentido no DF: virou o apagão (ato 4) |
 
+## 9.2 Produção da primeira montagem (12/11/2026)
+
+A primeira montagem está em `video/entregas/CityView_filme_16x9_r1.mp4`
+(1min15s com o cartão de fontes, 1080p). Ela segue este roteiro, com quatro
+diferenças impostas pelo saldo de 10 créditos da conta do Higgsfield:
+
+| Roteiro | Montagem | Por quê |
+| --- | --- | --- |
+| 4 planos gerados (SF02, SF10, SF14, SF19), com quadros de referência | **1 clipe aéreo de 3 s**, texto direto para vídeo, usado descendo em P02 e invertido em P19 | Custo: 4,5 créditos |
+| SF10, o bairro no escuro visto do alto | Feito no vetor: a malha de luzes do bairro se apaga e reacende no mapa | Sem crédito para o clipe |
+| SF14, o cruzamento com o semáforo apagado | Fica só a entrega aos três sistemas, em vetor | Sem crédito para o clipe |
+| Trilha no Sonilo, 3 variantes; efeitos no Seed Audio | Trilha única no ElevenLabs Music v2 (4,8 créditos), editada em compasso; efeitos sintetizados em `video/scripts/som.py` | O Sonilo não está liberado para uso avulso nesta conta |
+
+Mudanças de tempo: a trilha volta inteira em 0:52,9, quando o bairro reacende
+(e não em 0:54), porque é onde o compasso da música cai; a parada seca é em
+1:08,4, quando o nome aparece; o cartão final entra em 1:11.
+
+Gasto: 9,3 créditos. Não houve refação. O som foi conferido por medição
+(−16 LUFS, cortes nos tempos previstos), não por escuta.
+
 ## 10. Histórico de versões
 
 | Versão | Data | O que mudou |
