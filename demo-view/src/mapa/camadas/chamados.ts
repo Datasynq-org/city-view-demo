@@ -1,15 +1,16 @@
 /**
  * Os chamados SIMULADOS no mapa, em três leituras (I1):
  *
- * - **Regiões 3D**: cada RA sobe e esquenta conforme o volume de chamados (a taxa
- *   por 10 mil habitantes fica na dica e no cartão da RA). Clicar escolhe a RA
- *   (o clique passa pelo `Mapa.tsx`);
+ * - **Calor** (a principal): a mancha de calor, "onde as coisas estão pegando,
+ *   onde as coisas estão mais tranquilas" (ATA 221–222). É desenhada pelo
+ *   próprio MapLibre (`mapa/calor.ts`), e não por uma camada daqui;
  * - **Hexágonos 3D**: os chamados agrupados em hexágonos de ~650 m;
- * - **Calor**: a mancha de calor, "onde as coisas estão pegando, onde as coisas
- *   estão mais tranquilas" (ATA 221–222).
+ * - **Regiões 3D**: cada RA sobe e clareia conforme o volume de chamados (a taxa
+ *   por 10 mil habitantes fica na dica e no cartão da RA). Clicar escolhe a RA
+ *   (o clique passa pelo `Mapa.tsx`).
  */
 import type { Layer } from '@deck.gl/core';
-import { HeatmapLayer, HexagonLayer } from '@deck.gl/aggregation-layers';
+import { HexagonLayer } from '@deck.gl/aggregation-layers';
 import { PolygonLayer } from '@deck.gl/layers';
 import type { Incidente } from '../../dominio/incidente';
 import { REGIOES } from '../../dominio/ras';
@@ -19,11 +20,14 @@ import { NA_PILHA } from './pilha';
 
 export type ModoMapa = 'regioes' | 'hexagonos' | 'calor';
 
+/** Na ordem em que aparecem: o calor é a leitura principal e a que abre. */
 export const MODOS: { id: ModoMapa; nome: string }[] = [
-  { id: 'regioes', nome: 'Regiões 3D' },
-  { id: 'hexagonos', nome: 'Hexágonos 3D' },
   { id: 'calor', nome: 'Calor' },
+  { id: 'hexagonos', nome: 'Hexágonos 3D' },
+  { id: 'regioes', nome: 'Regiões 3D' },
 ];
+
+export const MODO_INICIAL: ModoMapa = 'calor';
 
 /** Altura máxima de uma RA, em metros: alta o bastante para ler com a câmera inclinada. */
 const ALTURA_MAXIMA_RA = 4200;
@@ -54,7 +58,7 @@ const PARTES_RA = REGIOES.flatMap((r) =>
 
 export interface EstadoChamados {
   modo: ModoMapa;
-  /** Período, área e RA: alimentam hexágonos e calor. */
+  /** Período, área e RA: alimentam os hexágonos (e o calor, no `Mapa.tsx`). */
   filtrados: Incidente[];
   /** Período e área, RA por RA: alimentam as Regiões 3D (a RA escolhida se destaca entre as outras). */
   porRa: Map<string, ChamadosDaRa>;
@@ -64,20 +68,8 @@ export interface EstadoChamados {
 }
 
 export function camadasDeChamados(e: EstadoChamados): Layer[] {
-  if (e.modo === 'calor') {
-    return [
-      new HeatmapLayer<Incidente>({
-        id: 'calor',
-        data: e.filtrados,
-        getPosition: (i) => [i.local.lon, i.local.lat],
-        radiusPixels: 38,
-        intensity: 1.1,
-        threshold: 0.04,
-        colorRange: ESCALA_CONCENTRACAO,
-        ...NA_PILHA,
-      }),
-    ];
-  }
+  // O calor não é uma camada do deck.gl: ver `mapa/calor.ts`.
+  if (e.modo === 'calor') return [];
 
   if (e.modo === 'hexagonos') {
     return [
@@ -88,8 +80,10 @@ export function camadasDeChamados(e: EstadoChamados): Layer[] {
         radius: 650,
         coverage: 0.86,
         extruded: true,
-        // Proporcional ao volume filtrado: com poucos chamados, poucas colunas não viram torres.
-        elevationRange: [0, Math.min(14000, Math.max(1500, e.filtrados.length * 0.9))],
+        // Proporcional ao volume filtrado, até 3,6 km (menos de três vezes a largura do
+        // hexágono): com os chamados espalhados pela mancha urbana, mais que isso vira
+        // uma floresta de torres que esconde o mapa.
+        elevationRange: [0, Math.min(3600, Math.max(900, e.filtrados.length * 0.22))],
         upperPercentile: 99,
         colorRange: ESCALA_CONCENTRACAO,
         opacity: e.discreto ? 0.55 : 0.95,
@@ -113,7 +107,7 @@ export function camadasDeChamados(e: EstadoChamados): Layer[] {
   const escala = (d: PoligonoRa) => (e.discreto ? 0.3 : sel !== null && d.id !== sel ? 0.08 : 1);
   // Calmo por padrão, vivo quando importa: as RAs com pouco ficam quase transparentes,
   // as carregadas acendem.
-  const alfa = (d: PoligonoRa) => (e.discreto ? 70 : sel === null ? Math.round(55 + 185 * Math.pow(d.t, 0.7)) : d.id === sel ? 230 : 40);
+  const alfa = (d: PoligonoRa) => (e.discreto ? 70 : sel === null ? Math.round(48 + 192 * Math.pow(d.t, 0.9)) : d.id === sel ? 165 : 45);
   return [
     new PolygonLayer<PoligonoRa>({
       id: 'regioes',
@@ -121,8 +115,8 @@ export function camadasDeChamados(e: EstadoChamados): Layer[] {
       getPolygon: (d) => d.contorno,
       extruded: true,
       getElevation: (d) => 100 + Math.pow(d.t, 0.9) * ALTURA_MAXIMA_RA * escala(d),
-      // Só as RAs de fato carregadas chegam ao âmbar e ao vermelho.
-      getFillColor: (d) => [...corNaEscala(Math.pow(d.t, 0.8)), alfa(d)],
+      // Só as RAs de fato carregadas chegam ao âmbar e ao amarelo claro.
+      getFillColor: (d) => [...corNaEscala(Math.pow(d.t, 1.1)), alfa(d)],
       material: { ambient: 0.55, diffuse: 0.55, shininess: 32 },
       pickable: true,
       autoHighlight: true,

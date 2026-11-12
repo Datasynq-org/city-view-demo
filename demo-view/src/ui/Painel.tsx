@@ -6,7 +6,7 @@ interface Props {
   children: ReactNode;
 }
 
-/** Painel de vidro: fica sobre o mapa e deixa a cidade aparecer por trás. */
+/** Painel sobre o mapa: quase opaco, com borda fina (ver `.painel-vidro` em estilos.css). */
 export function Painel({ className = '', style, children }: Props) {
   return (
     <section className={`painel-vidro ${className}`} style={style}>

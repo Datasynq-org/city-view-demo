@@ -1,11 +1,12 @@
 # Design system "Sala de Operações"
 
 Tokens, base CSS e componentes React do City View, compartilhados por
-`apresentacao-web/` (a apresentação em rolagem) e `demo/` (a demo). Não é um pacote npm:
-cada app importa pelo atalho `@ds`.
+`apresentacao-web/` (a apresentação em rolagem) e `design-system-vitrine/` (a
+vitrine). Não é um pacote npm: cada app importa pelo atalho `@ds`. A demo do City
+View (`demo-view/`) não usa este design system.
 
 - **Documentação:** [docs/CV-DS-001-design-system.md](../docs/CV-DS-001-design-system.md)
-- **Catálogo vivo:** `cd demo && npm run dev`, depois abra `http://localhost:5191/?catalogo`
+- **Catálogo vivo:** `cd design-system-vitrine && npm run dev`, depois abra `http://localhost:5191/?catalogo`
 
 ```
 src/

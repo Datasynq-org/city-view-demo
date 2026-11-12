@@ -1,25 +1,26 @@
 /**
- * Camadas deck.gl da sala de guerra (I1): os chamados SIMULADOS (regiões,
- * hexágonos ou calor), o contexto REAL que a pessoa liga e o que acabou de
- * chegar. Funções puras: recebem o estado e devolvem as camadas.
+ * Camadas deck.gl da sala de guerra (I1): os chamados SIMULADOS em hexágonos ou
+ * regiões (o calor é do MapLibre, ver `mapa/calor.ts`), o contexto REAL que a
+ * pessoa liga e o que acabou de chegar. Funções puras: recebem o estado e
+ * devolvem as camadas.
  */
 import type { PickingInfo } from '@deck.gl/core';
 import { CORES } from '../../ui/tokens';
 import type { PoligonoRa } from './chamados';
 
-export { camadasDeChamados, corNaEscala, type EstadoChamados, type ModoMapa, MODOS } from './chamados';
+export { camadasDeChamados, corNaEscala, type EstadoChamados, MODO_INICIAL, type ModoMapa, MODOS } from './chamados';
 export { camadasDeContexto, COR_CONTEXTO } from './contexto';
-export { anelAtivo, camadasDePulsos, type Chegada, DURACAO_ANEL } from './pulsos';
+export { anelAtivo, camadasDePulsos, type Chegada, DURACAO_ANEL, MARCADAS } from './pulsos';
 
 const ESTILO_DICA = {
-  background: 'rgba(18, 41, 63, 0.94)',
+  background: 'rgba(20, 23, 26, 0.96)',
   color: CORES.texto,
-  border: '1px solid rgba(255,255,255,0.12)',
-  borderRadius: '10px',
-  padding: '6px 10px',
+  border: `1px solid ${CORES.linha}`,
+  borderRadius: '4px',
+  padding: '7px 11px',
   fontFamily: 'Bahnschrift, Barlow, system-ui, sans-serif',
-  fontSize: '13px',
-  lineHeight: '1.35',
+  fontSize: '14px',
+  lineHeight: '1.4',
 };
 
 const fmt = (n: number, casas = 0) => n.toLocaleString('pt-BR', { maximumFractionDigits: casas, minimumFractionDigits: casas });
@@ -42,6 +43,10 @@ export function textoDaDica(id: string | undefined, object: unknown): string | n
     const rotulo = id === 'saude' ? p[3] : `Escola ${p[3]}`;
     return `<strong>${escapar(p[2])}</strong><br><span style="opacity:.75">${escapar(rotulo)} · dado real</span>`;
   }
+  if (id === 'chegadas') {
+    const rotulo = (object as { rotulo?: string }).rotulo;
+    return `<strong>Chamado que acabou de chegar</strong>${rotulo ? `<br>${escapar(rotulo)}` : ''}<br><span style="opacity:.75">simulado</span>`;
+  }
   if (id === 'favelas') {
     const nome = (object as { properties?: { nome?: string } }).properties?.nome ?? '';
     return `<strong>${escapar(nome)}</strong><br><span style="opacity:.75">Favela ou comunidade urbana · IBGE 2022</span>`;
@@ -49,7 +54,7 @@ export function textoDaDica(id: string | undefined, object: unknown): string | n
   return null;
 }
 
-/** Dica ao passar o mouse, no visual dos painéis de vidro. */
+/** Dica ao passar o mouse, no visual dos painéis. */
 export function dicaDoMapa({ object, layer }: PickingInfo): { html: string; style: Record<string, string> } | null {
   const html = textoDaDica(layer?.id, object);
   return html ? { html, style: ESTILO_DICA } : null;

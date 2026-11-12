@@ -12,7 +12,7 @@ import { NA_PILHA, SEMPRE_POR_CIMA } from './pilha';
 /** Cores neutras: a cor forte fica com os chamados. */
 export const COR_CONTEXTO: Record<CamadaContexto, string> = {
   saude: '#FFFFFF',
-  escolas: '#9DB4CB',
+  escolas: '#AEB6BE',
   favelas: '#E8E1D0',
 };
 
@@ -64,7 +64,7 @@ export function camadasDeContexto(contexto: Contexto | null, ligadas: ReadonlySe
         radiusMinPixels: 3,
         getFillColor: [...rgb(COR_CONTEXTO.saude), 240],
         stroked: true,
-        getLineColor: [...rgb(CORES.navy), 255],
+        getLineColor: [...rgb(CORES.base), 255],
         lineWidthMinPixels: 1.5,
         pickable: true,
         ...SEMPRE_POR_CIMA,

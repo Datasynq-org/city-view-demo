@@ -22,10 +22,10 @@ import { ChegandoAgora, Filtros, Legenda, Minigrafico, Numeros, Velocidade } fro
 
 /**
  * I1 · Sala de guerra (CV-DEM-001, seção 6): "Onde a cidade precisa de mim agora?".
- * Slide 14 do CV-APR-001. O mapa mostra os chamados agrupados; os painéis, a
- * velocidade da gestão e o que está chegando. Tudo sobre dados SIMULADOS.
+ * Slide 14 do CV-APR-001. O mapa mostra onde os chamados se concentram; os
+ * painéis, a velocidade da gestão e o que está chegando. Tudo sobre dados SIMULADOS.
  */
-export function SalaDeGuerra({ base, incidentes, agora, doPeriodo, filtrados, porRa, chamadosDf, filtro, modo, aoMudarFiltro, aoMudarModo, aoLimparRa }: {
+export function SalaDeGuerra({ base, incidentes, agora, doPeriodo, filtrados, porRa, chamadosDf, filtro, modo, aoMudarFiltro, aoLimparRa }: {
   base: BaseSimulada;
   /** O que já chegou (a base menos a fila do relógio da demo). */
   incidentes: readonly Incidente[];
@@ -40,7 +40,6 @@ export function SalaDeGuerra({ base, incidentes, agora, doPeriodo, filtrados, po
   filtro: Filtro;
   modo: ModoMapa;
   aoMudarFiltro: (f: Filtro) => void;
-  aoMudarModo: (m: ModoMapa) => void;
   aoLimparRa: () => void;
 }) {
   const ra = filtro.ra ?? null;
@@ -66,7 +65,7 @@ export function SalaDeGuerra({ base, incidentes, agora, doPeriodo, filtrados, po
   return (
     <>
       <div className="sala-coluna sala-esquerda">
-        <Filtros periodo={filtro.periodo} area={filtro.area} ra={ra} modo={modo} aoMudarPeriodo={mudarPeriodo} aoMudarArea={mudarArea} aoLimparRa={aoLimparRa} aoMudarModo={aoMudarModo} />
+        <Filtros periodo={filtro.periodo} area={filtro.area} ra={ra} aoMudarPeriodo={mudarPeriodo} aoMudarArea={mudarArea} aoLimparRa={aoLimparRa} />
         <Numeros {...numeros} nomePeriodo={nomePeriodo} />
         <Velocidade linhas={porArea} area={filtro.area} aoMudarArea={mudarArea} />
       </div>
