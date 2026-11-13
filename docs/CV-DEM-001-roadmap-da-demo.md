@@ -593,3 +593,9 @@ finalizados e abertos só aparecem onde há dado real. O cartão fica num lugar
 fixo da tela, acima da região, e não preso ao ponto do mapa: arrastar o mapa
 não o leva junto.
 
+*Acréscimo de 13/11/2026 · o cartão da região vai para a lateral.* A primeira
+versão punha o cartão no meio da tela, acima da região; o Sammuel pediu na
+lateral. Ficou à direita, no lugar onde abre o insight (os dois nunca aparecem
+juntos), e a região passou a ser enquadrada no espaço que sobra, maior. Onde o
+parágrafo anterior diz "pairando sobre ela" e "no alto do mapa", vale este.
+

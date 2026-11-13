@@ -407,16 +407,15 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
 // ---------------------------------------------------------------- a região escolhida
 
 /**
- * O cartão que paira sobre a região escolhida no seletor: os chamados que caem
- * nela e o que a inteligência fez deles. O flutuar é leve e para com "reduzir
- * movimento".
+ * O cartão da região escolhida no seletor, na lateral direita: os chamados que
+ * caem nela e o que a inteligência fez deles.
  */
 export function CartaoDaRegiao({ r, aoFechar }: { r: ResumoDaRegiao; aoFechar: () => void }) {
   const maior = Math.max(1, ...r.porOrgao.map((o) => o.chamados));
   const parte = (v: number, de: number) => (de > 0 ? `${Math.round((v / de) * 100)}%` : '–');
   return (
-    <motion.div animate={reduzMovimento() ? undefined : { y: [0, -4, 0] }} transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}>
-      <Painel className="pointer-events-auto w-[23rem] p-4 shadow-[0_18px_40px_-18px_rgba(0,0,0,0.6)]">
+    <div>
+      <Painel className="pointer-events-auto w-[21.5rem] p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="condensado text-micro text-texto-2">Região escolhida</p>
@@ -495,7 +494,7 @@ export function CartaoDaRegiao({ r, aoFechar }: { r: ResumoDaRegiao; aoFechar: (
           </a>
         </p>
       </Painel>
-    </motion.div>
+    </div>
   );
 }
 

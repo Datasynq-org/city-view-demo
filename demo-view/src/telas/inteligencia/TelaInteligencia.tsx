@@ -178,11 +178,11 @@ export function TelaInteligencia() {
   const animadas = useCallback((t: number) => camadasVivas(estado, ondas, t), [estado, ondas]);
 
   const paineis = useRef({ fila: filaAberta, insight: aberto >= 0, cartao: false });
-  // Com a região escolhida e nenhum insight aberto, o cartão dela paira no alto: a região é enquadrada abaixo dele.
+  // Com a região escolhida e nenhum insight aberto, o cartão dela fica na lateral direita: a região é enquadrada no espaço que sobra.
   paineis.current = { fila: filaAberta, insight: aberto >= 0, cartao: Boolean(ra) && aberto < 0 };
   const margens = useCallback((largura: number) => {
     if (largura < 1024) return { top: 120, bottom: 24, left: 16, right: 16 };
-    return { top: paineis.current.cartao ? 370 : 84, bottom: paineis.current.cartao ? 100 : 48, left: paineis.current.fila ? 372 : 32, right: paineis.current.insight ? 452 : 32 };
+    return { top: 84, bottom: 48, left: paineis.current.fila ? 372 : 32, right: paineis.current.insight ? 452 : paineis.current.cartao ? 384 : 32 };
   }, []);
 
   const [alvo, setAlvo] = useState<{ destino: Destino; chave: number; lento?: boolean }>();
@@ -370,15 +370,15 @@ export function TelaInteligencia() {
         )}
       </AnimatePresence>
 
-      {/* A região escolhida: destacada no mapa, com o cartão pairando sobre ela. Sai quando um insight abre. */}
+      {/* A região escolhida: destacada no mapa, com o cartão na lateral direita, no lugar do insight. Sai quando um insight abre. */}
       <AnimatePresence>
         {vista === 'grafo' && daRa && !inc && (
           <motion.div
             key={daRa.ra}
-            className={`pointer-events-none absolute top-[4.75rem] z-10 hidden -translate-x-1/2 lg:block ${filaAberta ? 'left-[calc(50%+6rem)]' : 'left-[calc(50%-4.5rem)]'}`}
-            initial={reduzMovimento() ? false : { opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={reduzMovimento() ? undefined : { opacity: 0, y: -6, transition: { duration: 0.15 } }}
+            className="pointer-events-none absolute top-[4.5rem] right-4 z-10 hidden lg:block"
+            initial={reduzMovimento() ? false : { opacity: 0, x: 32 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={reduzMovimento() ? undefined : { opacity: 0, x: 32, transition: { duration: 0.15 } }}
             transition={{ duration: 0.3, delay: 0.25 }}
           >
             <CartaoDaRegiao r={daRa} aoFechar={() => mudarRa(null)} />

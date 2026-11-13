@@ -419,7 +419,7 @@ de cada uma ("Águas Claras (29)"); `?ra=aguas-claras` abre já escolhida.
 - O selo da Inteligência ficou "Águas Claras real · DF simulado", para caber
   ao lado da barra.
 - **A região escolhida fica destacada no mapa** (contorno e preenchimento) e um
-  **cartão paira sobre ela** com os números: chamados com o ponto dentro do
+  **cartão na lateral direita** (no lugar onde abre o insight) traz os números: chamados com o ponto dentro do
   limite da região, por 10 mil habitantes, incidentes por gravidade, a parte
   agrupada, os órgãos com mais chamados e, onde há dado real, os relatos
   finalizados e abertos (`inteligencia/regiao.ts`). O cartão sai quando um
