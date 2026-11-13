@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { agrupar, calcularLigacoes, gerarChamados } from '../../inteligencia/agrupamento';
-import { alturaDaColuna, arco, camadasDoGrafo, camadasVivas, DURACAO_DA_ONDA, type Etapa, pontoNoArco, prepararGrafo, zoomDoIncidente } from './grafo';
+import { alturaDaColuna, arco, camadasDoGrafo, camadasVivas, chegadosAte, chegadosPorIncidente, DURACAO_DA_ONDA, type Etapa, jaExistia, pontoNoArco, prepararGrafo, zoomDoIncidente } from './grafo';
 
 const chamados = gerarChamados();
 const resultado = agrupar(chamados, calcularLigacoes(chamados));
@@ -51,5 +51,39 @@ describe('grafo da inteligência', () => {
     expect(alturaDaColuna(743)).toBeGreaterThan(alturaDaColuna(54));
     expect(zoomDoIncidente({ raio: 140 })).toBeGreaterThan(zoomDoIncidente({ raio: 1500 }));
     expect(zoomDoIncidente({ raio: 5 })).toBeLessThanOrEqual(15.5);
+  });
+});
+
+describe('voltar no tempo no grafo', () => {
+  it('sem corte, tudo existe; com corte, só o que chegou antes', () => {
+    expect(jaExistia(3, null)).toBe(true);
+    expect(jaExistia(3, 2)).toBe(true);
+    expect(jaExistia(1, 2)).toBe(false);
+    expect(chegadosAte(base, null)).toBeCloseTo(resultado.total);
+    expect(chegadosAte(base, 1e9)).toBe(0);
+    expect(chegadosAte(base, 24)).toBeLessThan(chegadosAte(base, 6));
+  });
+
+  it('o arco só existe quando os dois chamados que ele liga já chegaram', () => {
+    for (const a of base.arcos.slice(0, 200)) expect(a.desde).toBeGreaterThanOrEqual(0);
+    const maisNovo = Math.min(...base.pontos.map((p) => p.horas));
+    expect(base.arcos.every((a) => a.desde >= maisNovo)).toBe(true);
+  });
+
+  it('o incidente se forma: cresce com os chamados que chegam e some antes do segundo', () => {
+    const agora = chegadosPorIncidente(base, resultado, null);
+    resultado.incidentes.forEach((inc, k) => expect(agora[k]!.chamados).toBeCloseTo(inc.chamados));
+    const inc = resultado.incidentes[0]!;
+    const horas = inc.membros.map((m) => chamados[m]!.horas).sort((x, y) => y - x);
+    // Logo depois do primeiro chamado, só há um ponto: ainda não é incidente.
+    const cedo = chegadosPorIncidente(base, resultado, (horas[0]! + horas[1]!) / 2)[0]!;
+    expect(cedo.pontos).toBe(1);
+    const meio = chegadosPorIncidente(base, resultado, horas[Math.floor(horas.length / 2)]!)[0]!;
+    expect(meio.chamados).toBeGreaterThan(cedo.chamados);
+    expect(meio.chamados).toBeLessThan(inc.chamados);
+    // No mapa: sem coluna enquanto não se formou.
+    const colunasEm = (corte: number) => (camadasDoGrafo({ ...estado(2), corte }).find((c) => c.id === 'grafo-colunas')!.props.data as unknown[]).length;
+    expect(colunasEm(1e9)).toBe(0);
+    expect(colunasEm(0)).toBe(resultado.incidentes.length);
   });
 });

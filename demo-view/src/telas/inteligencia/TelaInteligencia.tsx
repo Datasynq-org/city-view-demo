@@ -12,7 +12,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { agrupar, calcularLigacoes, gerarChamados, limiarDaSensibilidade, SENSIBILIDADE_PADRAO } from '../../inteligencia/agrupamento';
 import { decisaoDe, type Decisoes, type MotivoDeDescarte } from '../../inteligencia/decisoes';
 import { cancelar, confirmar, descartar, desfazer, reiniciar, useInteligencia } from '../../inteligencia/estado';
-import { camadasDoGrafo, camadasVivas, COR_DA_SEVERIDADE, type Etapa, ETAPAS, type Onda, prepararGrafo, zoomDoIncidente } from '../../mapa/camadas/grafo';
+import { camadasDoGrafo, camadasVivas, chegadosAte, chegadosPorIncidente, COR_DA_SEVERIDADE, type Etapa, ETAPAS, type Onda, prepararGrafo, zoomDoIncidente } from '../../mapa/camadas/grafo';
+import { BarraDoTempo, HORAS_DA_BARRA } from './BarraDoTempo';
 import { Mapa } from '../../mapa/Mapa';
 import { type Destino, reduzMovimento } from '../../mapa/vista';
 import { parametrosDoHash } from '../../navegacao';
@@ -85,7 +86,53 @@ export function TelaInteligencia() {
   // ------------------------------------------------ mapa
   const tema = useTema();
   // O tema entra na conta: as cores das camadas mudam com ele.
-  const estado = useMemo(() => ({ base, resultado, etapa, aberto, descartados }), [base, resultado, etapa, aberto, descartados, tema]);
+  // Voltar no tempo: `momento` vai de 0 (o começo da janela) a 1 (agora); `null` é agora, com tudo.
+  const [momento, setMomento] = useState<number | null>(null);
+  const [tocando, setTocando] = useState(false);
+  // Com um insight aberto, a janela é a dele; sem, as últimas horas da cidade.
+  const janelaDoTempo = useMemo((): [number, number] => {
+    if (!inc) return [0, HORAS_DA_BARRA];
+    const horas = inc.membros.map((m) => chamados[m]!.horas);
+    const [min, max] = [Math.min(...horas), Math.max(...horas)];
+    const folga = Math.max(0.5, (max - min) * 0.08);
+    return [Math.max(0, min - folga), max + folga];
+  }, [inc, chamados]);
+  const corte = momento === null ? null : janelaDoTempo[1] - momento * (janelaDoTempo[1] - janelaDoTempo[0]);
+  // Trocar de insight troca a janela: a barra volta para "agora".
+  useEffect(() => {
+    setMomento(null);
+    setTocando(false);
+  }, [aberto]);
+  // Tocar: a janela inteira em 12 segundos, e para no fim.
+  useEffect(() => {
+    if (!tocando) return;
+    let quadro = 0;
+    let antes = performance.now();
+    const passo = (t: number) => {
+      const dt = t - antes;
+      antes = t;
+      setMomento((m) => {
+        const novo = (m ?? 0) + dt / 12_000;
+        if (novo < 1) return novo;
+        setTocando(false);
+        return null;
+      });
+      quadro = requestAnimationFrame(passo);
+    };
+    quadro = requestAnimationFrame(passo);
+    return () => cancelAnimationFrame(quadro);
+  }, [tocando]);
+  const alternarTempo = useCallback(() => {
+    if (reduzMovimento()) return;
+    setTocando((v) => {
+      if (!v) setMomento((m) => (m === null ? 0 : m));
+      return !v;
+    });
+  }, []);
+  // Com um insight aberto, a conta é a dele; sem, a da cidade.
+  const chegaramAteAqui = useMemo(() => (aberto >= 0 ? (chegadosPorIncidente(base, resultado, corte)[aberto]?.chamados ?? 0) : chegadosAte(base, corte)), [base, resultado, corte, aberto]);
+
+  const estado = useMemo(() => ({ base, resultado, etapa, aberto, descartados, corte }), [base, resultado, etapa, aberto, descartados, corte, tema]);
   const camadas = useMemo(() => camadasDoGrafo(estado), [estado]);
   const animadas = useCallback((t: number) => camadasVivas(estado, ondas, t), [estado, ondas]);
 
@@ -142,14 +189,17 @@ export function TelaInteligencia() {
   const aoDesfazer = () => inc && desfazer(inc.codigo, Date.now());
 
   // ------------------------------------------------ teclas
-  const atalhos = useRef({ aberto, total: resultado.incidentes.length, aoConfirmar, fechar });
-  atalhos.current = { aberto, total: resultado.incidentes.length, aoConfirmar, fechar };
+  const atalhos = useRef({ aberto, total: resultado.incidentes.length, aoConfirmar, fechar, alternarTempo, vista });
+  atalhos.current = { aberto, total: resultado.incidentes.length, aoConfirmar, fechar, alternarTempo, vista };
   useEffect(() => {
     const tecla = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement || e.metaKey || e.ctrlKey || e.altKey) return;
       const a = atalhos.current;
       if (e.key === '1' || e.key === '2' || e.key === '3') setEtapa((Number(e.key) - 1) as Etapa);
-      else if (e.key.toLowerCase() === 'p') setVista('painel');
+      else if (e.key === ' ' && a.vista === 'grafo' && !(e.target instanceof HTMLButtonElement)) {
+        e.preventDefault();
+        a.alternarTempo();
+      } else if (e.key.toLowerCase() === 'p') setVista('painel');
       else if (e.key.toLowerCase() === 'g') setVista('grafo');
       else if (e.key === 'ArrowDown') {
         e.preventDefault();
@@ -214,9 +264,23 @@ export function TelaInteligencia() {
         </div>
       </div>
 
-      <p className={`pointer-events-none absolute bottom-3 left-1/2 z-10 hidden -translate-x-1/2 rounded bg-base/80 px-3 py-1 text-rotulo text-texto-2 ${vista === 'grafo' ? 'lg:block' : ''}`}>
-        {etapa + 1} de 3 · {ETAPAS[etapa]!.dica}
-      </p>
+      <div className={`absolute bottom-3 left-1/2 z-10 hidden w-[min(34rem,calc(100vw-56rem))] min-w-80 -translate-x-1/2 ${vista === 'grafo' ? 'lg:block' : ''}`}>
+        <BarraDoTempo
+          momento={momento}
+          tocando={tocando}
+          janela={janelaDoTempo}
+          corte={corte}
+          chegaram={chegaramAteAqui}
+          total={inc ? inc.chamados : resultado.total}
+          doInsight={inc ? inc.codigo : null}
+          aoMudar={(m) => {
+            setTocando(false);
+            setMomento(m >= 0.999 ? null : m);
+          }}
+          aoAlternar={alternarTempo}
+          dica={`${etapa + 1} de 3 · ${ETAPAS[etapa]!.dica}`}
+        />
+      </div>
 
       {vista === 'grafo' && (
         <div className={`absolute bottom-10 z-10 hidden max-w-md rounded bg-base/85 px-3 py-1.5 empty:hidden lg:block ${filaAberta ? 'left-[24.5rem]' : 'left-8'}`}>

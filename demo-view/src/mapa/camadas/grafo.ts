@@ -66,6 +66,8 @@ export interface PontoDoGrafo {
   descricao: string;
   orgao: string;
   peso: number;
+  /** Há quantas horas chegou. */
+  horas: number;
 }
 
 export interface ArcoDoGrafo {
@@ -75,6 +77,8 @@ export interface ArcoDoGrafo {
   grupo: number;
   /** Defasagem do sinal que corre por ele (0 a 1). */
   fase: number;
+  /** Há quantas horas o arco passou a existir: quando chegou o mais novo dos chamados que ele liga. */
+  desde: number;
 }
 
 export interface Onda {
@@ -97,7 +101,7 @@ export interface BaseDoGrafo {
 const MAXIMO_POR_PONTO = 3;
 
 export function prepararGrafo(chamados: readonly Chamado[], r: Resultado): BaseDoGrafo {
-  const pontos = chamados.map((c, i) => ({ i, cor: rgb(corDoOrgao(c.orgaoId)), ponto: c.ponto, descricao: c.descricao, orgao: siglaDoOrgao(c.orgaoId), peso: c.peso }));
+  const pontos = chamados.map((c, i) => ({ i, cor: rgb(corDoOrgao(c.orgaoId)), ponto: c.ponto, descricao: c.descricao, orgao: siglaDoOrgao(c.orgaoId), peso: c.peso, horas: c.horas }));
   const usadas = new Int32Array(chamados.length);
   const arcos: ArcoDoGrafo[] = [];
   for (const l of [...r.ligacoes].sort((x, y) => y.forca - x.forca)) {
@@ -109,7 +113,7 @@ export function prepararGrafo(chamados: readonly Chamado[], r: Resultado): BaseD
   const raios = r.incidentes.flatMap((inc, k) =>
     inc.membros.map((m, n) => {
       const a = chamados[m]!.ponto;
-      return { caminho: arco(a, inc.centro, Math.min(2200, Math.max(60, metros(a, inc.centro) * 0.6))), cruza: true, grupo: k, fase: (n * 0.37) % 1 };
+      return { caminho: arco(a, inc.centro, Math.min(2200, Math.max(60, metros(a, inc.centro) * 0.6))), cruza: true, grupo: k, fase: (n * 0.37) % 1, desde: chamados[m]!.horas };
     }),
   );
   return { pontos, arcos, raios };
@@ -121,7 +125,7 @@ function arcoDaLigacao(ch: readonly Chamado[], l: Ligacao, grupo: number): ArcoD
   const d = metros(a, b);
   // Os que cruzam órgãos sobem mais: são os que os silos não veem.
   const altura = l.cruza ? Math.min(2600, Math.max(140, d * 0.5)) : Math.min(1100, Math.max(50, d * 0.25));
-  return { caminho: arco(a, b, altura), cruza: l.cruza, grupo, fase: ((l.a * 31 + l.b * 17) % 100) / 100 };
+  return { caminho: arco(a, b, altura), cruza: l.cruza, grupo, fase: ((l.a * 31 + l.b * 17) % 100) / 100, desde: Math.min(ch[l.a]!.horas, ch[l.b]!.horas) };
 }
 
 export interface EstadoDoGrafo {
@@ -132,21 +136,55 @@ export interface EstadoDoGrafo {
   aberto: number;
   /** Incidentes descartados por uma pessoa: os chamados voltam a ser avulsos. */
   descartados: ReadonlySet<number>;
+  /**
+   * Voltar no tempo (CV-DEM-002, V8): só aparece o que já tinha chegado há
+   * `corte` horas. `null` ou ausente: agora, com tudo.
+   */
+  corte?: number | null;
 }
+
+/** O chamado (ou o arco) já existia há `corte` horas? */
+export const jaExistia = (haHoras: number, corte: number | null | undefined) => corte === null || corte === undefined || haHoras >= corte;
+
+/**
+ * Quantos chamados de cada incidente já tinham chegado há `corte` horas, e
+ * quantos pontos: o incidente só "existe" quando há pelo menos dois para ligar.
+ */
+export function chegadosPorIncidente(base: BaseDoGrafo, r: Resultado, corte: number | null | undefined): { chamados: number; pontos: number }[] {
+  return r.incidentes.map((inc) => {
+    let chamados = 0;
+    let pontos = 0;
+    for (const m of inc.membros) {
+      const p = base.pontos[m]!;
+      if (!jaExistia(p.horas, corte)) continue;
+      chamados += p.peso;
+      pontos++;
+    }
+    return { chamados, pontos };
+  });
+}
+
+/** O total de chamados (soma dos pesos) que já tinham chegado há `corte` horas. */
+export const chegadosAte = (base: BaseDoGrafo, corte: number | null | undefined) => base.pontos.reduce((s, p) => s + (jaExistia(p.horas, corte) ? p.peso : 0), 0);
 
 /** As camadas que só mudam quando o estado muda. */
 export function camadasDoGrafo(e: EstadoDoGrafo): Layer[] {
   const { base, resultado, etapa, aberto, descartados } = e;
+  const corte = e.corte ?? null;
+  // No tempo voltado, cada incidente tem só os chamados que já tinham chegado; com menos de dois, ainda não existe.
+  const chegados = chegadosPorIncidente(base, resultado, corte);
+  const formado = (k: number) => chegados[k]!.pontos >= 2;
   const grupoDe = (i: number) => resultado.grupo[i] ?? -1;
-  const noIncidente = (i: number) => grupoDe(i) >= 0 && !descartados.has(grupoDe(i));
+  const noIncidente = (i: number) => grupoDe(i) >= 0 && !descartados.has(grupoDe(i)) && formado(grupoDe(i));
   const haAberto = aberto >= 0;
   const claro = ehClaro();
   const NEUTRO = neutro();
   // No papel, o acento precisa ser mais escuro para aparecer.
   const ACENTO: RGB = claro ? [1, 107, 128] : ACENTO_ESCURO;
-  const chave = [etapa, aberto, descartados, claro];
+  const chave = [etapa, aberto, descartados, claro, corte];
 
   const alfaDoPonto = (p: PontoDoGrafo): number => {
+    if (!jaExistia(p.horas, corte)) return 0;
     const g = grupoDe(p.i);
     if (haAberto) return g === aberto ? 255 : 26;
     if (etapa === 0) return 215;
@@ -161,7 +199,7 @@ export function camadasDoGrafo(e: EstadoDoGrafo): Layer[] {
   const camadas: Layer[] = [];
 
   if (etapa >= 1) {
-    const visiveis = etapa === 1 ? base.arcos.filter((a) => !descartados.has(a.grupo)) : [];
+    const visiveis = etapa === 1 ? base.arcos.filter((a) => !descartados.has(a.grupo) && jaExistia(a.desde, corte)) : [];
     camadas.push(
       new PathLayer<ArcoDoGrafo>({
         id: 'grafo-ligacoes',
@@ -183,7 +221,7 @@ export function camadasDoGrafo(e: EstadoDoGrafo): Layer[] {
 
   // De longe, os arcos de um grupo cabem em poucos pixels: um anel marca onde há chamados ligados.
   if (etapa === 1) {
-    const nos = resultado.incidentes.map((inc, k) => ({ ...inc, k })).filter((c) => !descartados.has(c.k));
+    const nos = resultado.incidentes.map((inc, k) => ({ ...inc, k })).filter((c) => !descartados.has(c.k) && formado(c.k));
     camadas.push(
       new ScatterplotLayer<(typeof nos)[number]>({
         id: 'grafo-nos',
@@ -207,7 +245,7 @@ export function camadasDoGrafo(e: EstadoDoGrafo): Layer[] {
     camadas.push(
       new PathLayer<ArcoDoGrafo>({
         id: 'grafo-raios',
-        data: base.raios.filter((a) => a.grupo === aberto),
+        data: base.raios.filter((a) => a.grupo === aberto && jaExistia(a.desde, corte)),
         getPath: (a) => a.caminho,
         getColor: [...ACENTO, 150],
         getWidth: 1.2,
@@ -254,7 +292,8 @@ export function camadasDoGrafo(e: EstadoDoGrafo): Layer[] {
   );
 
   if (etapa === 2) {
-    const colunas = resultado.incidentes.map((inc, k) => ({ ...inc, k })).filter((c) => !descartados.has(c.k));
+    // A coluna cresce com os chamados que já tinham chegado.
+    const colunas = resultado.incidentes.map((inc, k) => ({ ...inc, k, chamados: chegados[k]!.chamados })).filter((c) => !descartados.has(c.k) && formado(c.k));
     // A coluna do incidente aberto sai de cena: no lugar ficam os chamados dele e os raios.
     const alfa = (k: number) => (haAberto ? (k === aberto ? 0 : 50) : 235);
     camadas.push(
@@ -270,7 +309,7 @@ export function camadasDoGrafo(e: EstadoDoGrafo): Layer[] {
         material: { ambient: 0.75, diffuse: 0.45, shininess: 18 },
         pickable: true,
         transitions: { getElevation: 700, getFillColor: 300 },
-        updateTriggers: { getFillColor: chave },
+        updateTriggers: { getFillColor: chave, getElevation: chave },
         ...NA_PILHA,
       }),
       new TextLayer<(typeof colunas)[number]>({
@@ -289,7 +328,7 @@ export function camadasDoGrafo(e: EstadoDoGrafo): Layer[] {
         getTextAnchor: 'middle',
         getAlignmentBaseline: 'bottom',
         getPixelOffset: (c) => [0, c.k === aberto ? -22 : 0],
-        updateTriggers: { getPosition: chave, getPixelOffset: chave },
+        updateTriggers: { getPosition: chave, getPixelOffset: chave, getText: chave },
         ...SEMPRE_POR_CIMA,
         ...NA_PILHA,
       }),
@@ -306,7 +345,7 @@ export function camadasDoGrafo(e: EstadoDoGrafo): Layer[] {
 export function camadasVivas(e: EstadoDoGrafo, ondas: readonly Onda[], t: number): { camadas: Layer[]; ativo: boolean } {
   if (!Number.isFinite(t)) return { camadas: [], ativo: false };
   const camadas: Layer[] = [];
-  const percorridos = e.aberto < 0 || e.etapa === 0 ? [] : e.etapa === 2 ? e.base.raios.filter((a) => a.grupo === e.aberto) : e.base.arcos.filter((a) => a.grupo === e.aberto && a.cruza);
+  const percorridos = e.aberto < 0 || e.etapa === 0 ? [] : (e.etapa === 2 ? e.base.raios.filter((a) => a.grupo === e.aberto) : e.base.arcos.filter((a) => a.grupo === e.aberto && a.cruza)).filter((a) => jaExistia(a.desde, e.corte));
   if (percorridos.length) {
     camadas.push(
       new ScatterplotLayer<ArcoDoGrafo>({
