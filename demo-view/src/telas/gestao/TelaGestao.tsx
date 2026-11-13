@@ -14,6 +14,7 @@ import { contraAMeta, META_NO_PRAZO, NOTA_DA_META } from '../../indicadores/meta
 import { tempoNoQuantil } from '../../indicadores/indicadores';
 import { naturezaDoOrgao, ROTULO_DA_NATUREZA } from '../../dominio/orgaos';
 import { Variacao } from '../../ui/Variacao';
+import { escolhaAtual } from '../../ui/perfil';
 import { type ReactNode, useMemo, useState } from 'react';
 import { cidade } from '../../dados/cidade';
 import { inicioDoDia } from '../../dados/gerador';
@@ -70,7 +71,8 @@ export function TelaGestao() {
   const [janela, setJanela] = useState<Janela>('7');
   const [area, setArea] = useState<AreaId | null>(null);
   const [ordem, setOrdem] = useState<{ coluna: Coluna; desc: boolean }>({ coluna: 'foraDoPrazo', desc: true });
-  const [orgao, setOrgao] = useState<string | null>(() => parametrosDoHash().get('orgao'));
+  // O gestor de órgão entra já na fila dele.
+  const [orgao, setOrgao] = useState<string | null>(() => parametrosDoHash().get('orgao') ?? escolhaAtual().orgao);
   const dias = Number(janela);
 
   const comparacao = useMemo(() => comparar(chegados, agora, dias, { area }), [chegados, agora, dias, area]);

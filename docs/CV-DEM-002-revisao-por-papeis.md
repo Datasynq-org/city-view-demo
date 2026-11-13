@@ -471,3 +471,40 @@ prontas), A4 (resumo do dia), V2 e V3 (metas e variação), F3 (registro).
 **Não fazer:** reconhecimento de pessoas, placas ou rostos; busca por pessoa;
 percepção por rede social sem resposta à 9.3; mais efeitos no mapa. A demo já
 tem movimento suficiente, e cada item acima rende mais que um efeito novo.
+
+---
+
+## 7. O que foi feito
+
+*Acréscimo de 13/11/2026.* O Sammuel pediu o bloco de fluxo e o de
+visualização, com a comunicação com os órgãos **de mão dupla**: o City View
+envia um pedido a cada órgão, pelo plano da IA, e o órgão responde. O detalhe
+está no CV-DEM-001, seção 9.4.
+
+| Achado | Situação | Onde |
+| --- | --- | --- |
+| F1 dono, prazo, situação e fecho | Feito | Inteligência › insight: "O plano da IA" e "Ida e volta com os órgãos" |
+| F2 incidentes na sala | Feito | Sala › "Pede atenção agora"; chegadas agrupadas |
+| F3 registro de decisões | Feito | Inteligência › Painel › Registro |
+| F4 entrar por perfil | Feito | Raiz da demo: "Entrar como" |
+| F5 resposta do órgão | Feito | Insight (devolver, redirecionar, dispensar) e Gestão › visão do gestor |
+| A5 mensagem ao cidadão | Feito | Insight, ao assumir e ao resolver |
+| V1 frase da gestão | Feito | Gestão |
+| V2 metas | Feito, com meta **de exemplo** | Gestão e sala |
+| V3 variação na sala | Feito em parte: tempo e prazo; volume não (dia parcial) | Sala › "A cidade agora" |
+| V4 mediana em palavras, com a cauda | Feito | Sala e Gestão |
+| V5 ordem e natureza dos órgãos | Feito | Gestão › Órgãos |
+| V6 escala fixa no mapa público | Feito | Cidadão |
+| V7 fora do normal | Feito | Sala › Camadas › Fora do normal |
+| V8 voltar no tempo | Feito, sem as marcas da linha do tempo do caso | Inteligência › Grafo |
+
+Continuam abertos: A1 a A4, A6, D1 a D6, R1 a R3.
+
+**Duas coisas que o trabalho mostrou e a revisão não tinha visto:**
+- O registro de decisões (F3) já dá o número que o D1 pedia para pôr no lugar
+  da "confiança": quantas sugestões foram confirmadas e quantas descartadas.
+  Falta só trocar o rótulo no insight.
+- Na base simulada, a última semana está 11% acima das anteriores em todo o DF.
+  A sala não diz isso em lugar nenhum. É exatamente o "o que mudou?" da
+  governadora, e cabe numa linha no alto.
+

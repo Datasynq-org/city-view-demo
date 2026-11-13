@@ -221,6 +221,58 @@ faixa lateral, e os outros recuam; o insight entra pela direita, com as partes
 em cascata, os números contando e as barras de confiança enchendo. Curto e
 termina; com "reduzir movimento" ligado no sistema, tudo aparece pronto.
 
+*Acréscimo de 13/11/2026 · o ciclo do incidente, a régua dos números, o tempo e
+os perfis.* Feito a partir da revisão por papéis
+([CV-DEM-002](../docs/CV-DEM-002-revisao-por-papeis.md)), em quatro branches em
+cadeia (`demo/fluxo-incidente`, `demo/visualizacao`, `demo/linha-do-tempo`,
+`demo/perfis`), aguardando revisão.
+
+- **Ida e volta com os órgãos (Inteligência).** O insight não acaba mais no
+  "confirmar". Antes de confirmar, mostra **o plano da IA**: um pedido para cada
+  órgão, com o papel (responsável, apoio, avisado), o motivo, o prazo e por onde
+  vai (o sistema do próprio órgão, com a situação do conector como está no
+  catálogo: quase tudo "proposta"). Depois de confirmar, cada órgão tem duas
+  pistas: o pedido que **vai** e a resposta que **volta** (recebeu, com protocolo
+  fictício; assumiu; devolveu; resolveu). Quem devolve ("não é comigo") manda o
+  pedido de volta a quem revisa, que **redireciona** ou **dispensa**. Quando
+  todos resolvem, a tela mostra **a mensagem única que os cidadãos recebem**.
+  As respostas seguem um roteiro simulado, em tempo acelerado; dá para desligar
+  e responder à mão ("responder como o órgão"). No caso do sossego, o roteiro
+  mostra uma devolução. Capturas: `capturas/fluxo-*.png`.
+- **Painel:** abas **Em andamento** (incidentes confirmados, com dono, prazo e
+  situação) e **Registro** (quem decidiu o quê, quando e por quê, e quantas
+  sugestões foram confirmadas ou descartadas).
+- **Gestão, visão do gestor:** "Incidentes do meu órgão", com os pedidos que o
+  City View mandou e os botões de resposta. É o lado do órgão da mesma conversa.
+- **Estado comum** (`inteligencia/estado.ts`): as decisões e o andamento valem
+  para todas as telas e continuam andando ao trocar de tela. Valem só na visita.
+- **Sala:** **Pede atenção agora** traz os três incidentes mais graves e a
+  situação de cada um; clicar voa até o lugar. Chamados seguidos do mesmo tipo
+  entram numa linha só. "Metade resolvida em" e "No prazo" ganham a variação
+  contra o período anterior e a distância até a meta. Novo modo do mapa, **Fora
+  do normal**: cada região contra a própria média das três semanas anteriores,
+  descontada a mudança do DF inteiro e o vaivém do acaso. Capturas:
+  `capturas/vis-sala-*.png`.
+- **Gestão:** a frase do alto diz o prazo e o tempo, sem escolher um; a **meta
+  de exemplo** (80% no prazo, marcada como exemplo: a real vem da gestão)
+  aparece no número e como linha tracejada; "9 em cada 10 em até" ao lado da
+  mediana; os órgãos abrem ordenados pela **parte fora do prazo**, com a natureza
+  de cada um (concessionária, segurança). Captura: `capturas/vis-gestao.png`.
+- **Cidadão:** o mapa da parte resolvida usa **escala fixa** (50% a 100%) e
+  escreve o valor nas regiões maiores. Captura: `capturas/vis-cidadao-escala-fixa.png`.
+- **Voltar no tempo (grafo):** uma barra de horas sob o mapa; arrastar ou tocar
+  (tecla Espaço) mostra os chamados chegando, as ligações surgindo e a coluna do
+  incidente crescendo. Com um insight aberto, a janela e a contagem são as dele.
+  Captura: `capturas/tempo-incidente-se-formando.png`.
+- **Entrar por perfil:** na raiz, "Entrar como": **governadora** (sala, gestão,
+  cidadão), **gestor de órgão** (escolhe o órgão; gestão, inteligência, jornada)
+  e **operador da sala** (tudo). Sem senha: é demonstração. Um endereço de tela
+  (`#/previsoes`) abre direto em qualquer perfil; `?perfil=gestor&orgao=caesb`
+  entra já escolhido; o botão acima do tema troca de perfil. Captura:
+  `capturas/perfis-entrada.png`.
+
+Testes: 315.
+
 **Previsões** (feita, aguardando revisão; proposta): as próximas duas semanas
 com a margem, o que está fora do normal agora, o que deve subir e cair, onde
 reforçar as equipes e o acerto do método, medido ao prever as duas últimas

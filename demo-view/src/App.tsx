@@ -8,7 +8,9 @@ import { TelaJornada } from './telas/jornada/TelaJornada';
 import { TelaPrevisoes } from './telas/previsoes/TelaPrevisoes';
 import { TelaRegioes } from './telas/regioes/TelaRegioes';
 import { TelaSala } from './telas/sala/TelaSala';
+import { TelaEntrada } from './telas/entrada/TelaEntrada';
 import { BarraLateral } from './ui/BarraLateral';
+import { usePerfil } from './ui/perfil';
 import { Selo } from './ui/Selo';
 
 function conteudo(tela: Tela) {
@@ -41,6 +43,9 @@ export function App() {
   // Em tela larga a barra abre com os nomes; nas demais, só os ícones.
   const [aberta, setAberta] = useState(() => window.innerWidth >= 1536);
   const atual = TELAS.find((t) => t.id === tela)!;
+  // Quem chega pela raiz, sem ter escolhido, vê a entrada. Um endereço de tela abre direto, em qualquer perfil.
+  const { perfil } = usePerfil();
+  const semEndereco = !/^#\/?\w/.test(window.location.hash) && !new URLSearchParams(window.location.search).has('tela');
 
   useEffect(() => {
     const tecla = (e: KeyboardEvent) => {
@@ -49,6 +54,8 @@ export function App() {
     window.addEventListener('keydown', tecla);
     return () => window.removeEventListener('keydown', tecla);
   }, []);
+
+  if (perfil === null && semEndereco) return <TelaEntrada />;
 
   return (
     <div className="flex h-full">

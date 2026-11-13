@@ -15,6 +15,7 @@ import type { Estado } from '../../inteligencia/estado';
 import { type FiltroDeInsights, filtrarInsights, opcoesDeFiltro, type Resumo, SEM_FILTRO } from '../../inteligencia/resumo';
 import { reduzMovimento } from '../../mapa/vista';
 import { Painel } from '../../ui/Painel';
+import { escolhaAtual } from '../../ui/perfil';
 import { useTema } from '../../ui/tema';
 import { EmAndamento, Registro } from './Encaminhamento';
 import { CorDoOrgao, Faixa, LegendaDasAreas } from './partes';
@@ -120,7 +121,8 @@ export function PainelDeInsights({ resultado, resumo, estado, decisaoDe, aberto,
   /** O insight está aberto ao lado: a grade cede espaço. */
   comInsight: boolean;
 }) {
-  const [filtro, setFiltro] = useState<FiltroDeInsights>(SEM_FILTRO);
+  // O gestor de órgão começa vendo os insights em que o órgão dele entra.
+  const [filtro, setFiltro] = useState<FiltroDeInsights>(() => ({ ...SEM_FILTRO, orgao: escolhaAtual().orgao }));
   const [aba, setAba] = useState<Aba>('insights');
   const emAndamento = Object.keys(estado.andamentos).length;
   const abrirPeloCodigo = (codigo: string) => {

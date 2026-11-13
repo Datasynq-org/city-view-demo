@@ -372,3 +372,53 @@ os modos noturno e térmico. **A decidir:** a apresentação interativa (seção
   que mostra o cruzamento. No escuro a tela segue neutra, como decidido na I3.
   Branch `demo/tema-claro-cores`. Testes: 281.
 
+### 9.4 Depois da revisão por papéis: fluxo e visualização
+
+*Acréscimo de 13/11/2026.* A revisão ([CV-DEM-002](CV-DEM-002-revisao-por-papeis.md))
+listou 28 achados. O Sammuel escolheu fazer o bloco de **fluxo** (F1 a F5) e o
+de **visualização** (V1 a V8), com um ponto dele: a comunicação com os órgãos é
+**de mão dupla**. O City View está integrado a cada órgão também para enviar;
+então a IA racionaliza, monta um plano e direciona um pedido a cada um, e o
+órgão responde.
+
+| Branch | O que entrou | Achados |
+| --- | --- | --- |
+| `demo/fluxo-incidente` | Plano de envio por órgão, ida e volta, devolução com redirecionamento, fecho com a mensagem ao cidadão, abas Em andamento e Registro, pedidos na visão do gestor, estado comum | F1, F3, F5, A5 |
+| `demo/visualizacao` | "Pede atenção agora" e chegadas agrupadas na sala; variação e meta nos números; modo "Fora do normal"; frase da gestão; "9 em cada 10"; ordem e natureza dos órgãos; escala fixa no mapa público | F2, V1 a V7 |
+| `demo/linha-do-tempo` | Barra de horas no grafo: o incidente se formando | V8 |
+| `demo/perfis` | Entrada por perfil: governadora, gestor de órgão, operador da sala | F4 |
+
+**Decisões:**
+- **O envio é proposta.** A demo mostra o pedido saindo "pelo sistema do órgão"
+  e lê a situação do conector no catálogo (`dominio/conectores.ts`): só a CEB
+  IPes aparece como pronta; o resto, proposta. O protocolo é fictício e dito
+  como tal. Se o City View **abre** o incidente no sistema do órgão ou só avisa
+  é pergunta para o Daniel (CV-DEM-002, seção 4).
+- **Quem responde pelo órgão é um roteiro**, em tempo acelerado, com a opção de
+  responder à mão. Num caso (sossego), um órgão devolve o pedido, para a volta
+  aparecer.
+- **O plano é escrito à mão**, como a recomendação, e coerente com ela (um
+  responsável por caso; todo órgão que recebeu chamado está no plano). A IA da
+  demo não gera o plano: ela agrupa; o plano vem do caso.
+- **As metas são de exemplo** (80% no prazo), marcadas na tela. As reais dependem
+  do governo.
+- **"Fora do normal" desconta o DF inteiro.** Na base simulada a última semana
+  subiu 11% em todo o DF; sem o desconto, o modo acendia quase todas as regiões.
+  A alta também precisa passar de dois desvios do acaso.
+- **O perfil não é controle de acesso.** Escolhe as telas da barra; qualquer
+  endereço continua abrindo.
+
+**O que ficou diferente do planejado:**
+- Na sala, só "Metade resolvida em" e "No prazo" ganharam variação. "Recebidos"
+  e "Abertos agora" não: o dia de hoje é parcial e a comparação de volume sairia
+  injusta.
+- Na barra do tempo, as marcas da linha do tempo de cada caso não foram
+  posicionadas: os textos ("23h10", "há 4 semanas") não são horas que a barra
+  consiga situar. A lista continua no insight.
+
+**Continuam por fazer** (CV-DEM-002): A1 a A4, A6, D1 a D6, R1 a R3. Os riscos
+R1 (ponto exato de chamados de segurança; "a mesma casa") e R3 ("quatro órgãos")
+seguem abertos e valem antes de mostrar a alguém de fora.
+
+Testes: 315.
+

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { type Tela, TELAS } from '../navegacao';
+import { mudarPerfil, PERFIL_POR_ID, telasDoPerfil, usePerfil } from './perfil';
 import { mudarTema, useTema } from './tema';
 
 /** Ícones próprios, de traço fino (24×24). Sem biblioteca. */
@@ -32,6 +33,14 @@ const ICONE: Record<Tela, ReactNode> = {
  */
 export function BarraLateral({ tela, aoIr, aberta, aoAlternar }: { tela: Tela; aoIr: (t: Tela) => void; aberta: boolean; aoAlternar: () => void }) {
   const tema = useTema();
+  const { perfil, orgao } = usePerfil();
+  // A barra mostra as telas do perfil, na ordem dele; a tela aberta por endereço aparece mesmo fora dela.
+  const doPerfil = telasDoPerfil(perfil);
+  const telas = [...doPerfil.map((id) => TELAS.find((t) => t.id === id)!), ...TELAS.filter((t) => t.id === tela && !doPerfil.includes(t.id))];
+  const trocar = () => {
+    window.location.hash = '';
+    mudarPerfil(null);
+  };
   return (
     <aside className={`barra-lateral ${aberta ? 'barra-aberta' : ''}`}>
       <div className="flex h-[3.75rem] shrink-0 items-center border-b border-linha px-3">
@@ -40,7 +49,7 @@ export function BarraLateral({ tela, aoIr, aberta, aoAlternar }: { tela: Tela; a
         </p>
       </div>
       <nav aria-label="Telas da demo" className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto p-1.5">
-        {TELAS.map((t) => {
+        {telas.map((t) => {
           const ativa = t.id === tela;
           return (
             <a
@@ -62,6 +71,12 @@ export function BarraLateral({ tela, aoIr, aberta, aoAlternar }: { tela: Tela; a
           );
         })}
       </nav>
+      <button type="button" onClick={trocar} title={perfil ? `Perfil: ${PERFIL_POR_ID[perfil].nome}${orgao ? ` (${orgao})` : ''}. Trocar` : 'Escolher um perfil'} className="mx-1.5 mb-0.5 flex h-9 shrink-0 items-center gap-3 rounded-md px-2.5 text-rotulo text-texto-2 hover:bg-poco hover:text-tinta">
+        <svg viewBox="0 0 24 24" className="size-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 8l-4 4 4 4M6 12h10" />
+        </svg>
+        <span className={`truncate ${aberta ? '' : 'sr-only'}`}>{perfil ? PERFIL_POR_ID[perfil].nome : 'Escolher perfil'}</span>
+      </button>
       <button type="button" onClick={() => mudarTema(tema === 'claro' ? 'escuro' : 'claro')} aria-pressed={tema === 'claro'} title={tema === 'claro' ? 'Mudar para o tema escuro' : 'Mudar para o tema claro'} className="mx-1.5 flex h-9 shrink-0 items-center gap-3 rounded-md px-2.5 text-rotulo text-texto-2 hover:bg-poco hover:text-tinta">
         <svg viewBox="0 0 24 24" className="size-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           {tema === 'claro' ? <path d="M20 14.5A8 8 0 0 1 9.500 4a8 8 0 1 0 10.500 10.500z" /> : <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.600 5.600l1.400 1.400M17 17l1.400 1.400M5.600 18.400 7 17M17 7l1.400-1.400M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" />}
