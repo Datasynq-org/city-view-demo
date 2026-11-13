@@ -54,6 +54,15 @@ export function abertosAgora(incidentes: readonly Incidente[], area: AreaId | nu
 
 const horasAteResolver = (i: Incidente) => (i.resolvidoEm === undefined ? undefined : (i.resolvidoEm - i.criadoEm) / HORA_MS);
 
+/** O valor abaixo do qual fica a fração `q` (0 a 1) dos números, com interpolação. Ordena `v` no lugar. */
+export function quantil(v: Float64Array, q: number): number | null {
+  if (!v.length) return null;
+  v.sort();
+  const p = Math.min(1, Math.max(0, q)) * (v.length - 1);
+  const k = Math.floor(p);
+  return v[k]! + ((v[Math.min(v.length - 1, k + 1)]! - v[k]!) * (p - k));
+}
+
 /** Mediana. Ordena `v` no lugar: é um vetor numérico, que o motor ordena várias vezes mais rápido que uma lista. */
 function mediana(v: Float64Array): number | null {
   if (!v.length) return null;
@@ -72,6 +81,20 @@ export function tempoAteResolver(incidentes: readonly Incidente[]): number | nul
     if (h !== undefined) horas[n++] = h;
   }
   return mediana(horas.subarray(0, n));
+}
+
+/**
+ * Em quantas horas a fração `q` dos resolvidos foi resolvida: com 0,9, "9 em
+ * cada 10 em até X". A mediana sozinha esconde quem esperou muito.
+ */
+export function tempoNoQuantil(incidentes: readonly Incidente[], q: number): number | null {
+  const horas = new Float64Array(incidentes.length);
+  let n = 0;
+  for (const i of incidentes) {
+    const h = horasAteResolver(i);
+    if (h !== undefined) horas[n++] = h;
+  }
+  return quantil(horas.subarray(0, n), q);
 }
 
 /** Parte dos resolvidos que ficou dentro do prazo do tipo (0 a 1). `null` quando nada foi resolvido. */
@@ -167,6 +190,38 @@ export function chegandoAgora(incidentes: readonly Incidente[], n: number): Inci
     if (recentes.length > n) recentes.pop();
   }
   return recentes;
+}
+
+/** Chamados seguidos do mesmo tipo, vistos como um grupo na lista do que chega. */
+export interface Chegadas {
+  /** O mais antigo do grupo: a chave não muda quando chega mais um. */
+  id: string;
+  tipoId: string;
+  area: AreaId;
+  chamados: number;
+  /** As regiões de onde vieram, sem repetir, da mais recente para trás. */
+  ras: string[];
+  maisRecente: Incidente;
+  maisAntigo: Incidente;
+}
+
+/**
+ * Junta os chamados **seguidos** do mesmo tipo (a lista vem do mais novo ao mais
+ * antigo). Não diz que são o mesmo fato: isso é a inteligência que sugere. Só
+ * evita que a lista repita a mesma linha seis vezes.
+ */
+export function agruparChegadas(recentes: readonly Incidente[]): Chegadas[] {
+  const grupos: Chegadas[] = [];
+  for (const i of recentes) {
+    const ultimo = grupos.at(-1);
+    if (ultimo && ultimo.tipoId === i.tipoId) {
+      ultimo.chamados++;
+      ultimo.maisAntigo = i;
+      ultimo.id = i.id;
+      if (!ultimo.ras.includes(i.local.raId)) ultimo.ras.push(i.local.raId);
+    } else grupos.push({ id: i.id, tipoId: i.tipoId, area: i.area, chamados: 1, ras: [i.local.raId], maisRecente: i, maisAntigo: i });
+  }
+  return grupos;
 }
 
 // ---------------------------------------------------------------- formatos

@@ -248,6 +248,17 @@ export const ORGAOS: Orgao[] = [
 
 export const ORGAO_POR_ID = Object.fromEntries(ORGAOS.map((o) => [o.id, o])) as Record<string, Orgao>;
 
+/**
+ * De que natureza é cada um (CV-DEM-002, V5): numa mesma tabela, órgão do
+ * governo, concessionária e segurança não se comparam sem dizer quem é quem.
+ * A Neoenergia Brasília é concessionária privada desde o leilão de dez./2020
+ * (magno 5.2); os demais são do governo.
+ */
+export type Natureza = 'governo' | 'concessionária' | 'segurança';
+const NATUREZA: Record<string, Natureza> = { neoenergia: 'concessionária', pmdf: 'segurança' };
+export const naturezaDoOrgao = (id: string): Natureza => NATUREZA[id] ?? 'governo';
+export const ROTULO_DA_NATUREZA: Record<Natureza, string> = { governo: 'Governo', concessionária: 'Concessionária', segurança: 'Segurança' };
+
 /** Lista achatada dos tipos, com o órgão dono. A ordem é o índice usado pela simulação. */
 export const TIPOS = ORGAOS.flatMap((orgao) => orgao.tipos.map((tipo) => ({ ...tipo, orgaoId: orgao.id, area: orgao.area })));
 export type TipoComOrgao = (typeof TIPOS)[number];

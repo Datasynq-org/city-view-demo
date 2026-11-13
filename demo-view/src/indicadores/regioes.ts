@@ -35,6 +35,60 @@ export function perfis(incidentes: readonly Incidente[]): { regioes: PerfilDaRa[
   return { regioes: REGIOES.map((r) => perfilDe(r.id, r.populacao, grupos.get(r.id)!)), df: perfilDe('df', POPULACAO_TOTAL, incidentes) };
 }
 
+const SEMANA = 7 * 86_400_000;
+/** Semanas anteriores que fazem o "normal" de cada região. */
+export const SEMANAS_DE_BASE = 3;
+/** Abaixo disto a região tem chamados de menos para a razão dizer alguma coisa. */
+export const MINIMO_PARA_COMPARAR = 12;
+
+export interface ForaDoNormal {
+  /** Chamados nos últimos 7 dias e a média semanal das semanas anteriores. */
+  atual: number;
+  esperado: number;
+  /**
+   * atual ÷ esperado, descontado o que mudou no DF inteiro: 1,3 = 30% acima do
+   * normal da própria região. `null` quando a região tem chamados de menos.
+   */
+  razao: number | null;
+  /** Saiu do normal de verdade: a alta é maior que o vaivém esperado para o tamanho da região. */
+  fora: boolean;
+}
+
+/** A alta precisa passar disto (8%) e de dois desvios do acaso para contar. */
+export const ALTA_MINIMA = 1.08;
+
+/**
+ * Cada região contra ela mesma (CV-DEM-002, V7): os últimos 7 dias contra a
+ * média das semanas anteriores. Mostra onde **mudou**, não onde mora mais gente.
+ *
+ * Duas correções, para não acender o mapa inteiro: o que subiu no DF todo é
+ * descontado (uma semana de chuva sobe todas as regiões), e a alta só conta
+ * quando passa do vaivém do acaso (região pequena oscila muito sozinha).
+ */
+export function foraDoNormal(incidentes: readonly Incidente[], agora: number, area: string | null = null): Map<string, ForaDoNormal> {
+  const atual = new Map<string, number>();
+  const antes = new Map<string, number>();
+  const inicio = agora - SEMANA;
+  const base = inicio - SEMANAS_DE_BASE * SEMANA;
+  for (const i of incidentes) {
+    if (i.criadoEm > agora || i.criadoEm < base || (area !== null && i.area !== area)) continue;
+    const m = i.criadoEm >= inicio ? atual : antes;
+    m.set(i.local.raId, (m.get(i.local.raId) ?? 0) + 1);
+  }
+  const soma = (m: Map<string, number>) => [...m.values()].reduce((s, v) => s + v, 0);
+  const esperadoDf = soma(antes) / SEMANAS_DE_BASE;
+  // Quanto o DF inteiro mudou: é o que se espera de cada região, sem novidade nenhuma.
+  const doDf = esperadoDf > 0 ? soma(atual) / esperadoDf : 1;
+  return new Map(
+    REGIOES.map((r) => {
+      const a = atual.get(r.id) ?? 0;
+      const e = ((antes.get(r.id) ?? 0) / SEMANAS_DE_BASE) * doDf;
+      const razao = e >= MINIMO_PARA_COMPARAR ? a / e : null;
+      return [r.id, { atual: a, esperado: e, razao, fora: razao !== null && razao >= ALTA_MINIMA && a - e >= 2 * Math.sqrt(e) }];
+    }),
+  );
+}
+
 export type Medida = 'por10mil' | 'chamados' | 'tempo' | 'noPrazo';
 
 export const MEDIDAS: { id: Medida; nome: string; nota: string }[] = [

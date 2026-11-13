@@ -79,6 +79,22 @@ export function comparar(incidentes: readonly Incidente[], agora: Instante, dias
   return { atual, anterior, tempo, noPrazo, leitura };
 }
 
+const pts = (v: number) => `${Math.abs(v).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} ponto${Math.abs(v) < 2 ? '' : 's'}`;
+
+/**
+ * A comparação em uma frase que diz as duas medidas (CV-DEM-002, V1): o prazo
+ * cumprido e o tempo até resolver podem andar em sentidos diferentes, e a frase
+ * não escolhe um deles. Os limites são os mesmos de `comparar`.
+ */
+export function leituraEmFrase(c: Comparacao): string {
+  if (c.tempo === null || c.noPrazo === null) return 'Ainda não há período anterior para comparar.';
+  const prazo = c.noPrazo >= 1 ? `resolve mais dentro do prazo (${pts(c.noPrazo)} a mais)` : c.noPrazo <= -1 ? `resolve menos dentro do prazo (${pts(c.noPrazo)} a menos)` : 'cumpre o prazo como no período anterior';
+  const pct = `${Math.round(Math.abs(c.tempo) * 100)}%`;
+  const tempo = c.tempo <= -0.03 ? `leva ${pct} menos tempo para resolver` : c.tempo >= 0.03 ? `leva ${pct} mais tempo para resolver` : 'leva o mesmo tempo para resolver';
+  const mesmoSentido = (c.noPrazo >= 1 && c.tempo <= -0.03) || (c.noPrazo <= -1 && c.tempo >= 0.03) || (Math.abs(c.noPrazo) < 1 && Math.abs(c.tempo) < 0.03);
+  return `A gestão ${prazo}${mesmoSentido ? ' e ' : ', mas '}${tempo}.`;
+}
+
 export interface Dia {
   /** 00:00 de Brasília. */
   dia: Instante;

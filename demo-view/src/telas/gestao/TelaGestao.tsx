@@ -10,6 +10,10 @@ import { respostasPossiveis, ROTULO_DO_PASSO } from '../../inteligencia/encaminh
 import { useInteligencia } from '../../inteligencia/estado';
 import { prazoEmTexto, ROTULO_DO_PAPEL } from '../../inteligencia/plano';
 import { BotoesDoOrgao } from '../inteligencia/Encaminhamento';
+import { contraAMeta, META_NO_PRAZO, NOTA_DA_META } from '../../indicadores/metas';
+import { tempoNoQuantil } from '../../indicadores/indicadores';
+import { naturezaDoOrgao, ROTULO_DA_NATUREZA } from '../../dominio/orgaos';
+import { Variacao } from '../../ui/Variacao';
 import { type ReactNode, useMemo, useState } from 'react';
 import { cidade } from '../../dados/cidade';
 import { inicioDoDia } from '../../dados/gerador';
@@ -17,7 +21,7 @@ import { estaAberto } from '../../dominio/incidente';
 import { type AreaId, AREAS, ORGAO_POR_ID } from '../../dominio/orgaos';
 import { operacaoDoOrgao } from '../../dominio/operacao';
 import { REGIAO_POR_ID } from '../../dominio/ras';
-import { type Comparacao, comparar, entre, foraDoPrazo, type LinhaDoOrgao, porDia, porOrgao, porRegiao, porTipo, repetidos } from '../../indicadores/gestao';
+import { comparar, entre, foraDoPrazo, type LinhaDoOrgao, porDia, porOrgao, porRegiao, porTipo, repetidos , leituraEmFrase } from '../../indicadores/gestao';
 import { duracao, numero, percentual } from '../../indicadores/indicadores';
 import { CASOS } from '../../inteligencia/casos';
 import { parametrosDoHash } from '../../navegacao';
@@ -41,19 +45,6 @@ const Titulo = ({ children, nota }: { children: ReactNode; nota?: string }) => (
   </div>
 );
 
-/** Variação com texto e sinal: nunca só a cor. `bomSeCair` para tempo e filas. */
-function Variacao({ valor, unidade, bomSeCair = false }: { valor: number | null; unidade: string; bomSeCair?: boolean }) {
-  if (valor === null) return <span className="text-rotulo text-texto-2">sem período anterior</span>;
-  const estavel = Math.abs(valor) < 0.5;
-  const bom = bomSeCair ? valor < 0 : valor > 0;
-  const texto = `${valor > 0 ? '+' : '−'}${Math.abs(valor).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}${unidade}`;
-  return (
-    <span className={`text-rotulo tabular-nums ${estavel ? 'text-texto-2' : bom ? 'text-acento-claro' : 'text-aviso'}`}>
-      {estavel ? 'igual ao' : `${valor > 0 ? '▲' : '▼'} ${texto} sobre o`} período anterior
-    </span>
-  );
-}
-
 function Numero({ rotulo, valor, children }: { rotulo: string; valor: string; children?: ReactNode }) {
   return (
     <div className="rounded border border-linha bg-poco px-4 py-3">
@@ -64,20 +55,13 @@ function Numero({ rotulo, valor, children }: { rotulo: string; valor: string; ch
   );
 }
 
-const LEITURA: Record<Comparacao['leitura'], string> = {
-  'mais rápida': 'A gestão está mais rápida que no período anterior.',
-  'mais lenta': 'A gestão está mais lenta que no período anterior.',
-  estável: 'A gestão está no mesmo ritmo do período anterior.',
-  'sem comparação': 'Ainda não há período anterior para comparar.',
-};
-
 type Coluna = 'chamados' | 'abertos' | 'foraDoPrazo' | 'noPrazo' | 'tempo' | 'repetidos';
 const COLUNAS: { id: Coluna; nome: string; dica: string }[] = [
   { id: 'chamados', nome: 'Chamados', dica: 'Abertos no período' },
   { id: 'abertos', nome: 'Em aberto', dica: 'Ainda esperando alguém agir' },
-  { id: 'foraDoPrazo', nome: 'Fora do prazo', dica: 'Abertos há mais tempo que o prazo do tipo' },
+  { id: 'foraDoPrazo', nome: 'Fora do prazo', dica: 'Abertos há mais tempo que o prazo do tipo. Ordena pela parte dos chamados do órgão, não pelo total' },
   { id: 'noPrazo', nome: 'No prazo', dica: 'Dos resolvidos, quantos dentro do prazo' },
-  { id: 'tempo', nome: 'Tempo', dica: 'Mediana até resolver' },
+  { id: 'tempo', nome: 'Tempo', dica: 'Metade dos chamados é resolvida em até este tempo (mediana)' },
   { id: 'repetidos', nome: 'Repetidos', dica: 'Mesmo tipo, a menos de 150 m e de 24 h: o City View agruparia' },
 ];
 
@@ -85,7 +69,7 @@ export function TelaGestao() {
   const { inicio: agora, chegados } = useMemo(cidade, []);
   const [janela, setJanela] = useState<Janela>('7');
   const [area, setArea] = useState<AreaId | null>(null);
-  const [ordem, setOrdem] = useState<{ coluna: Coluna; desc: boolean }>({ coluna: 'chamados', desc: true });
+  const [ordem, setOrdem] = useState<{ coluna: Coluna; desc: boolean }>({ coluna: 'foraDoPrazo', desc: true });
   const [orgao, setOrgao] = useState<string | null>(() => parametrosDoHash().get('orgao'));
   const dias = Number(janela);
 
@@ -95,7 +79,10 @@ export function TelaGestao() {
   const doPeriodo = useMemo(() => entre(chegados, fim - dias * DIA, fim, { area }), [chegados, fim, dias, area]);
   const resumo = useMemo(() => ({ abertos: doPeriodo.filter((i) => estaAberto(i.situacao)).length, fora: foraDoPrazo(doPeriodo, agora), repetidos: repetidos(doPeriodo) }), [doPeriodo, agora]);
   const tabela = useMemo(() => porOrgao(chegados, agora, dias, { area }), [chegados, agora, dias, area]);
-  const ordenada = useMemo(() => [...tabela].sort((a, b) => ((b[ordem.coluna] ?? -1) - (a[ordem.coluna] ?? -1)) * (ordem.desc ? 1 : -1)), [tabela, ordem]);
+  // Fora do prazo ordena pela parte dos chamados do órgão: pelo total, quem atende mais gente pareceria sempre o pior.
+  const valorDe = (l: LinhaDoOrgao, c: Coluna) => (c === 'foraDoPrazo' ? parteFora(l) : (l[c] ?? -1));
+  const ordenada = useMemo(() => [...tabela].sort((a, b) => (valorDe(b, ordem.coluna) - valorDe(a, ordem.coluna)) * (ordem.desc ? 1 : -1)), [tabela, ordem]);
+  const p90 = useMemo(() => tempoNoQuantil(doPeriodo, 0.9), [doPeriodo]);
   const maisChamados = Math.max(1, ...tabela.map((l) => l.chamados));
   const escolhido = orgao ? tabela.find((l) => l.orgaoId === orgao) : undefined;
 
@@ -117,13 +104,17 @@ export function TelaGestao() {
       <div className="pagina-grade">
         <Painel className="p-5">
           <Titulo nota={`Chamados abertos nos últimos ${dias} dias, contra os ${dias} dias anteriores, medidos com a mesma idade${area ? '' : ' · todos os órgãos somados'}`}>Velocidade da gestão</Titulo>
-          <p className="mb-3 text-corpo text-tinta">{LEITURA[comparacao.leitura]}</p>
+          <p className="mb-3 text-corpo text-tinta">{leituraEmFrase(comparacao)}</p>
           <div className="grid gap-2 sm:grid-cols-2">
             <Numero rotulo="Resolvido no prazo" valor={percentual(comparacao.atual.noPrazo)}>
               <Variacao valor={comparacao.noPrazo} unidade=" pontos" />
+              <span className="block text-micro text-texto-2">
+                {contraAMeta(comparacao.atual.noPrazo)} · {NOTA_DA_META}
+              </span>
             </Numero>
-            <Numero rotulo="Tempo até resolver (mediana)" valor={duracao(comparacao.atual.tempo)}>
+            <Numero rotulo="Metade resolvida em até" valor={duracao(comparacao.atual.tempo)}>
               <Variacao valor={comparacao.tempo === null ? null : comparacao.tempo * 100} unidade="%" bomSeCair />
+              <span className="block text-micro text-texto-2">9 em cada 10 em até {duracao(p90)}</span>
             </Numero>
           </div>
           <div className="mt-2 grid grid-cols-3 gap-2">
@@ -143,7 +134,7 @@ export function TelaGestao() {
 
         <Painel className="p-5">
           <Titulo nota="Dos chamados abertos em cada dia, a parte resolvida dentro do prazo. Só entram os chamados cujo prazo já venceu; por isso a linha para antes de hoje.">Prazo cumprido, dia a dia</Titulo>
-          <Linha serie={serie.map((d) => (d.noPrazo === null ? null : d.noPrazo * 100))} formato={(v) => `${Math.round(v)}%`} descricao="Percentual do prazo cumprido por dia, nos últimos 28 dias" inicio={dataCurta(serie[0]!.dia)} fim={`hoje, ${dataCurta(serie.at(-1)!.dia)}`} />
+          <Linha serie={serie.map((d) => (d.noPrazo === null ? null : d.noPrazo * 100))} formato={(v) => `${Math.round(v)}%`} descricao="Percentual do prazo cumprido por dia, nos últimos 28 dias" meta={{ valor: META_NO_PRAZO * 100, rotulo: `${NOTA_DA_META}: ${Math.round(META_NO_PRAZO * 100)}% no prazo (a real vem da gestão)` }} inicio={dataCurta(serie[0]!.dia)} fim={`hoje, ${dataCurta(serie.at(-1)!.dia)}`} />
           <p className="mt-4 mb-1 text-rotulo text-texto-2">Chamados abertos por dia (hoje é parcial)</p>
           <Linha serie={serie.map((d) => d.chamados)} altura={26} desdeZero formato={(v) => numero(v)} descricao="Chamados abertos por dia, nos últimos 28 dias" />
         </Painel>
@@ -151,7 +142,7 @@ export function TelaGestao() {
 
       <div className={escolhido ? 'pagina-grade' : ''}>
         <Painel className="min-w-0 p-5">
-          <Titulo nota="Hoje cada um destes está num sistema separado. Clique num órgão para ver o que o gestor dele veria. Ordene pelas colunas.">Órgãos</Titulo>
+          <Titulo nota="Hoje cada um destes está num sistema separado. Clique num órgão para ver o que o gestor dele veria. A ordem inicial é pela parte dos chamados fora do prazo, não pelo volume: quem atende mais gente não é, por isso, o pior.">Órgãos</Titulo>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[42rem] border-collapse text-nota">
               <thead>
@@ -187,6 +178,9 @@ export function TelaGestao() {
   );
 }
 
+/** A parte dos chamados do órgão que está aberta além do prazo. */
+const parteFora = (l: LinhaDoOrgao) => (l.chamados ? l.foraDoPrazo / l.chamados : 0);
+
 function LinhaDaTabela({ l, maior, ativo, aoAbrir }: { l: LinhaDoOrgao; maior: number; ativo: boolean; aoAbrir: () => void }) {
   const o = ORGAO_POR_ID[l.orgaoId]!;
   return (
@@ -194,6 +188,7 @@ function LinhaDaTabela({ l, maior, ativo, aoAbrir }: { l: LinhaDoOrgao; maior: n
       <th scope="row" className="py-2 pr-3 text-left font-normal">
         <button type="button" aria-expanded={ativo} className="text-left">
           <span className="text-tinta">{o.sigla}</span>
+          {naturezaDoOrgao(o.id) !== 'governo' && <span className="condensado ml-2 rounded border border-linha-forte px-1 py-px text-micro text-texto-2">{ROTULO_DA_NATUREZA[naturezaDoOrgao(o.id)]}</span>}
           <span className="block max-w-56 truncate text-micro text-texto-2">{o.nome}</span>
         </button>
       </th>
@@ -202,7 +197,10 @@ function LinhaDaTabela({ l, maior, ativo, aoAbrir }: { l: LinhaDoOrgao; maior: n
         <Barra valor={l.chamados / maior} className="mt-1 ml-auto w-16" />
       </td>
       <td className="px-2 py-2 text-right tabular-nums">{numero(l.abertos)}</td>
-      <td className={`px-2 py-2 text-right tabular-nums ${l.foraDoPrazo > 0 ? 'text-aviso' : ''}`}>{numero(l.foraDoPrazo)}</td>
+      <td className="px-2 py-2 text-right tabular-nums">
+        <span className={l.foraDoPrazo > 0 ? 'text-aviso' : ''}>{numero(l.foraDoPrazo)}</span>
+        <span className="block text-micro text-texto-2">{percentual(parteFora(l))} dos chamados</span>
+      </td>
       <td className="px-2 py-2 text-right tabular-nums">
         <span className="text-tinta">{percentual(l.noPrazo)}</span>
         {l.variacao !== null && Math.abs(l.variacao) >= 0.5 && <span className={`block text-micro ${l.variacao > 0 ? 'text-acento-claro' : 'text-aviso'}`}>{l.variacao > 0 ? '▲' : '▼'} {Math.abs(l.variacao).toFixed(0)} pts</span>}

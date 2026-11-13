@@ -103,7 +103,7 @@ export function TelaCidadao() {
 
         <Painel className="min-w-0 p-5">
           <Titulo nota={`Últimos 30 dias · ${grau === 'resolvidos' ? 'quanto foi resolvido em cada região' : 'a parte resolvida do que é mostrado, em cada região'}. Clique numa região.`}>Mapa público: o que o cidadão vê</Titulo>
-          <MapaDasRas valores={valores} selecionada={ra} aoEscolher={(id) => setRa((a) => (a === id ? null : id))} formato={grau === 'resolvidos' ? numero : (v) => percentual(v)} rotulo={grau === 'resolvidos' ? 'Demandas resolvidas' : 'Parte resolvida'} tons={VERDES} />
+          <MapaDasRas valores={valores} selecionada={ra} aoEscolher={(id) => setRa((a) => (a === id ? null : id))} formato={grau === 'resolvidos' ? numero : (v) => percentual(v)} rotulo={grau === 'resolvidos' ? 'Demandas resolvidas' : 'Parte resolvida'} dominio={grau === 'resolvidos' ? undefined : [0.5, 1]} comValor={grau !== 'resolvidos'} tons={VERDES} />
         </Painel>
 
         <div className="flex min-w-0 flex-col gap-4">

@@ -18,14 +18,20 @@ import type { ChamadosDaRa } from '../../indicadores/indicadores';
 import { ESCALA_CONCENTRACAO } from '../../ui/tokens';
 import { NA_PILHA } from './pilha';
 
-export type ModoMapa = 'regioes' | 'hexagonos' | 'calor';
+export type ModoMapa = 'regioes' | 'hexagonos' | 'calor' | 'anormal';
 
 /** Na ordem em que aparecem: o calor é a leitura principal e a que abre. */
 export const MODOS: { id: ModoMapa; nome: string }[] = [
   { id: 'calor', nome: 'Calor' },
   { id: 'hexagonos', nome: 'Hexágonos 3D' },
   { id: 'regioes', nome: 'Regiões 3D' },
+  { id: 'anormal', nome: 'Fora do normal' },
 ];
+
+/** A razão em que a cor chega ao topo da escala (50% acima do normal). */
+export const TETO_DO_ANORMAL = 1.5;
+/** De 0 (no normal) a 1 (muito acima): quanto a região saiu do próprio normal. Quem saiu nunca fica em zero. */
+export const excessoDoNormal = (v: { razao: number | null; fora: boolean } | undefined) => (!v?.fora || v.razao === null ? 0 : Math.min(1, Math.max(0.2, (v.razao - 1) / (TETO_DO_ANORMAL - 1))));
 
 export const MODO_INICIAL: ModoMapa = 'calor';
 
@@ -65,6 +71,8 @@ export interface EstadoChamados {
   raSelecionada: string | null;
   /** Com camadas reais ligadas, as RAs ficam baixas e translúcidas, para os pontos aparecerem. */
   discreto: boolean;
+  /** No modo "fora do normal": cada região contra a própria média (`indicadores/regioes.ts`). */
+  anormal?: ReadonlyMap<string, { razao: number | null; fora: boolean }> | null;
 }
 
 export function camadasDeChamados(e: EstadoChamados): Layer[] {
@@ -98,9 +106,11 @@ export function camadasDeChamados(e: EstadoChamados): Layer[] {
   }
 
   const maximo = Math.max(1, ...[...e.porRa.values()].map((v) => v.chamados));
+  const foraDoNormal = e.modo === 'anormal';
   const dados: PoligonoRa[] = PARTES_RA.map((p) => {
     const v = e.porRa.get(p.id);
-    return { ...p, v, t: (v?.chamados ?? 0) / maximo };
+    // No "fora do normal", a altura e a cor medem o quanto a região saiu do próprio normal, não o volume.
+    return { ...p, v, t: foraDoNormal ? excessoDoNormal(e.anormal?.get(p.id)) : (v?.chamados ?? 0) / maximo };
   });
   const sel = e.raSelecionada;
   // Com uma RA escolhida, as outras baixam e apagam: de perto, não viram muralhas em volta dela.
@@ -108,6 +118,8 @@ export function camadasDeChamados(e: EstadoChamados): Layer[] {
   // Calmo por padrão, vivo quando importa: as RAs com pouco ficam quase transparentes,
   // as carregadas acendem.
   const alfa = (d: PoligonoRa) => (e.discreto ? 70 : sel === null ? Math.round(48 + 192 * Math.pow(d.t, 0.9)) : d.id === sel ? 165 : 45);
+  // Quem está no normal fica neutro: a cor é só de quem saiu dele.
+  const NEUTRO: [number, number, number] = [120, 128, 136];
   return [
     new PolygonLayer<PoligonoRa>({
       id: 'regioes',
@@ -116,13 +128,13 @@ export function camadasDeChamados(e: EstadoChamados): Layer[] {
       extruded: true,
       getElevation: (d) => 100 + Math.pow(d.t, 0.9) * ALTURA_MAXIMA_RA * escala(d),
       // Só as RAs de fato carregadas chegam ao âmbar e ao amarelo claro.
-      getFillColor: (d) => [...corNaEscala(Math.pow(d.t, 1.1)), alfa(d)],
+      getFillColor: (d) => (foraDoNormal && d.t === 0 ? [...NEUTRO, e.discreto ? 40 : 60] : [...corNaEscala(foraDoNormal ? 0.25 + 0.75 * d.t : Math.pow(d.t, 1.1)), foraDoNormal ? Math.round(150 + 90 * d.t) : alfa(d)]),
       material: { ambient: 0.55, diffuse: 0.55, shininess: 32 },
       pickable: true,
       autoHighlight: true,
       highlightColor: [255, 255, 255, 60],
       transitions: { getElevation: 700, getFillColor: 400 },
-      updateTriggers: { getElevation: [e.porRa, sel, e.discreto], getFillColor: [e.porRa, sel, e.discreto] },
+      updateTriggers: { getElevation: [e.porRa, sel, e.discreto, e.modo, e.anormal], getFillColor: [e.porRa, sel, e.discreto, e.modo, e.anormal] },
       ...NA_PILHA,
     }),
   ];

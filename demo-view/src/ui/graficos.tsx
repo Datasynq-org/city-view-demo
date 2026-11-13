@@ -47,6 +47,8 @@ export interface PropsDaLinha {
   faixa?: ([number, number] | null)[];
   /** Uma segunda série, mais discreta (o período anterior, a média). */
   referencia?: (number | null)[];
+  /** Um alvo, desenhado como linha horizontal, com o nome dito embaixo: a cor nunca vem sozinha. */
+  meta?: { valor: number; rotulo: string };
   altura?: number;
   desdeZero?: boolean;
   /** Para o texto alternativo e para as marcas do eixo. */
@@ -59,9 +61,9 @@ export interface PropsDaLinha {
 }
 
 /** Linha no tempo: cheia para o que aconteceu, tracejada para o previsto, faixa para a margem. */
-export function Linha({ serie, previsto, faixa, referencia, altura = 44, desdeZero = false, formato = (v) => String(Math.round(v)), descricao, inicio, fim, className = '' }: PropsDaLinha) {
+export function Linha({ serie, previsto, faixa, referencia, meta, altura = 44, desdeZero = false, formato = (v) => String(Math.round(v)), descricao, inicio, fim, className = '' }: PropsDaLinha) {
   const n = serie.length;
-  const todos = [...serie, ...(previsto ?? []), ...(referencia ?? []), ...(faixa ?? []).flatMap((f) => f ?? [])];
+  const todos = [...serie, ...(previsto ?? []), ...(referencia ?? []), ...(faixa ?? []).flatMap((f) => f ?? []), ...(meta ? [meta.valor] : [])];
   const e = escalaDe(todos, desdeZero);
   const x = (k: number) => (n <= 1 ? L / 2 : (k / (n - 1)) * L);
   const y = (v: number) => altura - ((v - e.min) / (e.max - e.min || 1)) * altura;
@@ -79,6 +81,7 @@ export function Linha({ serie, previsto, faixa, referencia, altura = 44, desdeZe
           <line x1="0" x2={L} y1={altura} y2={altura} stroke="var(--color-linha)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
           <line x1="0" x2={L} y1="0" y2="0" stroke="var(--color-linha)" strokeWidth="1" strokeDasharray="2 3" vectorEffect="non-scaling-stroke" />
           {area && <path d={area} fill="var(--color-acento)" opacity="0.16" />}
+          {meta && <line x1="0" x2={L} y1={y(meta.valor)} y2={y(meta.valor)} stroke="var(--color-acento-claro)" strokeWidth="1.2" strokeDasharray="5 4" vectorEffect="non-scaling-stroke" />}
           {referencia && <path d={caminho(referencia, n, e, altura)} fill="none" stroke="var(--color-texto-2)" strokeOpacity="0.6" strokeWidth="1" strokeDasharray="1 3" vectorEffect="non-scaling-stroke" />}
           <path d={caminho(serie, n, e, altura)} fill="none" stroke="var(--color-tinta)" strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
           {previsto && <path d={caminho(previsto, n, e, altura)} fill="none" stroke="var(--color-acento-claro)" strokeWidth="1.6" strokeDasharray="4 3" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />}
@@ -89,6 +92,12 @@ export function Linha({ serie, previsto, faixa, referencia, altura = 44, desdeZe
           <span>{inicio}</span>
           <span>{fim}</span>
         </figcaption>
+      )}
+      {meta && (
+        <p className="mt-1 flex items-center gap-2 pl-8 text-micro text-texto-2">
+          <i className="w-5 border-t border-dashed border-acento-claro" aria-hidden="true" />
+          {meta.rotulo}
+        </p>
       )}
     </figure>
   );

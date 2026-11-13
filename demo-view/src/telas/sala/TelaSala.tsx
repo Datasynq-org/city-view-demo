@@ -10,6 +10,7 @@ import { anelAtivo, camadasDeChamados, camadasDeContexto, camadasDePulsos, type 
 import { Mapa } from '../../mapa/Mapa';
 import { type Destino, reduzMovimento } from '../../mapa/vista';
 import { BarraDeComando, LegendaDoTour, PainelDeCamadas } from './hud';
+import { foraDoNormal } from '../../indicadores/regioes';
 import { SalaDeGuerra } from './SalaDeGuerra';
 import { type CenaDoTour, DURACAO_PARADA, TOUR } from './tour';
 
@@ -101,11 +102,13 @@ export function TelaSala() {
   const selecionarRa = useCallback((id: string) => setFiltro((f) => (f.ra === id ? f : { ...f, ra: id })), []);
   // No calor, quem desenha os chamados é o MapLibre: as camadas do deck.gl não mudam a cada chegada.
   const noDeck = modo === 'calor' ? SEM_CHAMADOS : filtrados;
-  const porRaNoDeck = modo === 'regioes' ? porRa : null;
+  const porRaNoDeck = modo === 'regioes' || modo === 'anormal' ? porRa : null;
+  // Cada região contra ela mesma: só é calculado quando o modo está à vista.
+  const anormal = useMemo(() => (modo === 'anormal' ? foraDoNormal(vivo.incidentes, vivo.agora, filtro.area) : null), [modo, vivo.incidentes, vivo.agora, filtro.area]);
   const comContexto = ligadas.size > 0;
   const camadasDosChamados = useMemo(
-    () => camadasDeChamados({ modo, filtrados: noDeck, porRa: porRaNoDeck ?? new Map(), raSelecionada: ra, discreto: comContexto }),
-    [modo, noDeck, porRaNoDeck, ra, comContexto],
+    () => camadasDeChamados({ modo, filtrados: noDeck, porRa: porRaNoDeck ?? new Map(), raSelecionada: ra, discreto: comContexto, anormal }),
+    [modo, noDeck, porRaNoDeck, ra, comContexto, anormal],
   );
   const camadasDoContexto = useMemo(() => camadasDeContexto(contexto, ligadas), [contexto, ligadas]);
   const camadas = useMemo(() => [...camadasDosChamados, ...camadasDoContexto], [camadasDosChamados, camadasDoContexto]);
@@ -223,7 +226,7 @@ export function TelaSala() {
         alvo={alvo}
         aoInteragir={pararTudo}
         aoClicarRa={selecionarRa}
-        dicaDasRas={modo !== 'regioes'}
+        dicaDasRas={modo !== 'regioes' && modo !== 'anormal'}
         raSelecionada={ra}
         telaCheia={telao || emTour}
       />
@@ -257,6 +260,7 @@ export function TelaSala() {
         modo={modo}
         aoMudarFiltro={setFiltro}
         aoLimparRa={limparRa}
+        aoVoarPara={(centro) => voar({ tipo: 'vista', vista: { centro, zoom: 12.4, inclinacao: 50, rotacao: -14 } })}
       />
       {emTour && (
         <div className="pointer-events-none absolute bottom-10 left-1/2 z-20 -translate-x-1/2">

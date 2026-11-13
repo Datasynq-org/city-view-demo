@@ -1,12 +1,19 @@
 import { AnimatePresence, motion } from 'motion/react';
 import type { ReactNode } from 'react';
-import { type Incidente, ROTULO_SITUACAO } from '../../dominio/incidente';
+import { ROTULO_SITUACAO } from '../../dominio/incidente';
 import { type AreaId, AREAS, TIPO_POR_ID } from '../../dominio/orgaos';
 import { REGIAO_POR_ID } from '../../dominio/ras';
 import { duracao, haQuanto, numero, percentual, type Periodo, PERIODOS, type VelocidadeDaArea } from '../../indicadores/indicadores';
 import type { ModoMapa } from '../../mapa/camadas';
 import { CORES_DAS_FAIXAS } from '../../mapa/calor';
 import { Contador } from '../../ui/Contador';
+import { Variacao } from '../../ui/Variacao';
+import { contraAMeta, META_NO_PRAZO, NOTA_DA_META } from '../../indicadores/metas';
+import type { Chegadas } from '../../indicadores/indicadores';
+import type { Incidente as Sugerido } from '../../inteligencia/agrupamento';
+import type { Estado as EstadoDaInteligencia } from '../../inteligencia/estado';
+import { decisaoDe, ROTULO_DA_SITUACAO } from '../../inteligencia/decisoes';
+import { esperaRevisao, ROTULO_DA_SITUACAO_DO_INCIDENTE, situacaoDoIncidente } from '../../inteligencia/encaminhamento';
 import { Painel } from '../../ui/Painel';
 import { CORES, ESCALA_CONCENTRACAO } from '../../ui/tokens';
 
@@ -56,26 +63,39 @@ export function Filtros({ periodo, area, ra, aoMudarPeriodo, aoMudarArea, aoLimp
 }
 
 /** Número que conta até o valor novo quando o filtro muda. */
-function Kpi({ rotulo, children, nota }: { rotulo: string; children: ReactNode; nota?: string }) {
+function Kpi({ rotulo, children, nota, extra }: { rotulo: string; children: ReactNode; nota?: string; extra?: ReactNode }) {
   return (
     <div className="rounded border border-linha bg-poco px-3 py-2">
       <p className="condensado text-rotulo text-texto-2">{rotulo}</p>
       <p className="mt-1 text-valor font-semibold text-tinta tabular-nums">{children}</p>
       {nota && <p className="text-nota text-texto-2">{nota}</p>}
+      {extra && <p className="mt-0.5 leading-tight">{extra}</p>}
     </div>
   );
 }
 
-export function Numeros({ abertos, recebidos, tempo, noPrazo, nomePeriodo }: { abertos: number; recebidos: number; tempo: number | null; noPrazo: number | null; nomePeriodo: string }) {
+export function Numeros({ abertos, recebidos, tempo, noPrazo, nomePeriodo, p90, variacaoDoTempo, variacaoDoPrazo }: {
+  abertos: number;
+  recebidos: number;
+  tempo: number | null;
+  noPrazo: number | null;
+  nomePeriodo: string;
+  /** Em quanto tempo 9 em cada 10 foram resolvidos. */
+  p90: number | null;
+  /** Contra o período anterior, medido com a mesma idade: tempo em %, prazo em pontos. */
+  variacaoDoTempo: number | null;
+  variacaoDoPrazo: number | null;
+}) {
   return (
     <Painel className="p-4">
       <p className="titulo-painel">A cidade agora</p>
       <div className="mt-2.5 grid grid-cols-2 gap-2">
         <Kpi rotulo="Abertos agora" nota="esperando alguém agir"><Contador valor={abertos} formato={numero} /></Kpi>
         <Kpi rotulo="Recebidos" nota={nomePeriodo.toLowerCase()}><Contador valor={recebidos} formato={numero} /></Kpi>
-        <Kpi rotulo="Tempo até resolver" nota="mediana">{duracao(tempo)}</Kpi>
-        <Kpi rotulo="No prazo" nota="dos resolvidos">{percentual(noPrazo)}</Kpi>
+        <Kpi rotulo="Metade resolvida em" nota={`9 em cada 10 em até ${duracao(p90)}`} extra={<Variacao valor={variacaoDoTempo} unidade="%" bomSeCair curta />}>{duracao(tempo)}</Kpi>
+        <Kpi rotulo="No prazo" nota={contraAMeta(noPrazo).replace(/ de \d+%$/, '')} extra={<Variacao valor={variacaoDoPrazo} unidade=" pts" curta />}>{percentual(noPrazo)}</Kpi>
       </div>
+      <p className="mt-2 text-micro text-texto-2">▲▼ contra o período anterior, medido com a mesma idade · {NOTA_DA_META}: {Math.round(META_NO_PRAZO * 100)}% no prazo</p>
     </Painel>
   );
 }
@@ -85,7 +105,7 @@ export function Velocidade({ linhas, area, aoMudarArea }: { linhas: VelocidadeDa
   return (
     <Painel className="p-4">
       <p className="titulo-painel">Velocidade da gestão</p>
-      <p className="mt-1.5 text-nota text-texto-2">% resolvido no prazo · mediana até resolver</p>
+      <p className="mt-1.5 text-nota text-texto-2">% resolvido no prazo · metade resolvida em até · traço: {NOTA_DA_META} ({Math.round(META_NO_PRAZO * 100)}%)</p>
       <ul className="mt-1.5 space-y-0.5">
         {linhas.map((l) => {
           const ativa = area === l.area;
@@ -101,6 +121,7 @@ export function Velocidade({ linhas, area, aoMudarArea }: { linhas: VelocidadeDa
                 <svg className="mt-1.5 block h-[5px] w-full" viewBox="0 0 100 4" preserveAspectRatio="none" aria-hidden="true">
                   <rect x="0" y="0" width="100" height="4" fill="var(--color-linha)" />
                   <rect x="0" y="0" width={Math.max(1, p * 100)} height="4" fill={ativa ? CORES.acentoClaro : CORES.acento} />
+                  <rect x={META_NO_PRAZO * 100 - 0.3} y="0" width="0.6" height="4" fill="var(--color-tinta)" />
                 </svg>
               </button>
             </li>
@@ -169,29 +190,82 @@ export function MaisFrequentes({ titulo, nota, linhas }: { titulo: string; nota:
 }
 
 /** Os chamados mais recentes, entrando com animação. */
-export function ChegandoAgora({ lista, agora }: { lista: Incidente[]; agora: number }) {
+/**
+ * O que a inteligência sugere de mais grave, na tela que a governadora olha
+ * (CV-DEM-002, F2): a sala passa a contar a notícia, não só o volume. Clicar
+ * voa até o lugar; o atalho leva ao insight.
+ */
+export function PedeAtencao({ incidentes, total, estado, aoVoar }: { incidentes: Sugerido[]; total: number; estado: EstadoDaInteligencia; aoVoar: (i: Sugerido) => void }) {
+  const COR: Record<Sugerido['severidade'], string> = { crítico: 'bg-alerta', sério: 'bg-aviso', atenção: 'bg-texto-2' };
+  return (
+    <Painel className="p-4">
+      <div className="flex items-baseline justify-between gap-2">
+        <p className="titulo-painel">Pede atenção agora</p>
+        <a href="#/inteligencia" className="condensado text-micro text-acento-claro hover:underline">
+          {total} insights →
+        </a>
+      </div>
+      <ul className="mt-1.5">
+        {incidentes.map((i) => {
+          const an = estado.andamentos[i.codigo];
+          const situacao = an ? (esperaRevisao(an) ? 'Espera quem revisa' : ROTULO_DA_SITUACAO_DO_INCIDENTE[situacaoDoIncidente(an)]) : ROTULO_DA_SITUACAO[decisaoDe(estado.decisoes, i.codigo).situacao];
+          return (
+            <li key={i.codigo} className="border-t border-linha py-2 first:border-t-0">
+              <button type="button" onClick={() => aoVoar(i)} title="Ver no mapa" className="block w-full text-left hover:text-tinta">
+                <span className="flex items-start gap-2">
+                  <span className={`mt-1.5 size-1.5 shrink-0 rounded-full ${COR[i.severidade]}`} aria-hidden="true" />
+                  <span className="min-w-0">
+                    <span className="block text-nota leading-snug text-tinta">{i.titulo}</span>
+                    <span className="block truncate text-rotulo text-texto-2">
+                      {i.severidade} · {(i.raId && REGIAO_POR_ID[i.raId]?.nome) || '–'} · {numero(i.chamados)} chamados · {i.orgaos.length} órgão{i.orgaos.length === 1 ? '' : 's'}
+                    </span>
+                  </span>
+                </span>
+              </button>
+              <p className="mt-1 flex items-center justify-between gap-2 pl-3.5 text-micro">
+                <span className={an ? 'text-acento-claro' : 'text-texto-2'}>{situacao}</span>
+                <a href={`#/inteligencia?caso=${i.casoId ?? ''}`} className="text-acento-claro hover:underline">
+                  abrir o insight →
+                </a>
+              </p>
+            </li>
+          );
+        })}
+      </ul>
+    </Painel>
+  );
+}
+
+/** O que acabou de chegar. Chamados seguidos do mesmo tipo entram numa linha só. */
+export function ChegandoAgora({ lista, agora }: { lista: Chegadas[]; agora: number }) {
   return (
     <Painel className="p-4">
       <p className="titulo-painel">Chegando agora</p>
       <ul className="mt-1.5">
         <AnimatePresence initial={false}>
-          {lista.map((i) => (
-            <motion.li key={i.id} layout initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}
-              className="flex items-start justify-between gap-3 border-t border-linha py-2.5 first:border-t-0">
-              <div className="min-w-0">
-                <p className="truncate text-corpo text-tinta">{TIPO_POR_ID[i.tipoId]?.nome ?? i.tipoId}</p>
-                <p className="truncate text-nota text-texto-2">{REGIAO_POR_ID[i.local.raId]?.nome ?? i.local.raId} · {NOME_AREA[i.area].curto}</p>
-              </div>
-              <div className="shrink-0 text-right">
-                {/* O que acabou de entrar leva o ponto do "ao vivo"; o resto, um ponto neutro. */}
-                <p className="condensado flex items-center justify-end gap-1.5 text-rotulo text-texto">
-                  <span className={`inline-block size-1.5 rounded-full ${i.situacao === 'recebido' ? 'bg-acento-claro' : 'bg-linha-forte'}`} aria-hidden="true" />
-                  {ROTULO_SITUACAO[i.situacao]}
-                </p>
-                <p className="text-nota text-texto-2 tabular-nums">{haQuanto(agora, i.criadoEm)}</p>
-              </div>
-            </motion.li>
-          ))}
+          {lista.map((g) => {
+            const i = g.maisRecente;
+            const varios = g.chamados > 1;
+            return (
+              <motion.li key={g.id} layout initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}
+                className="flex items-start justify-between gap-3 border-t border-linha py-2.5 first:border-t-0">
+                <div className="min-w-0">
+                  <p className="truncate text-corpo text-tinta">{TIPO_POR_ID[g.tipoId]?.nome ?? g.tipoId}</p>
+                  <p className="truncate text-nota text-texto-2">
+                    {varios ? (g.ras.length === 1 ? REGIAO_POR_ID[g.ras[0]!]?.nome : `${g.ras.length} regiões`) : (REGIAO_POR_ID[i.local.raId]?.nome ?? i.local.raId)} · {NOME_AREA[g.area].curto}
+                  </p>
+                </div>
+                <div className="shrink-0 text-right">
+                  {/* O que acabou de entrar leva o ponto do "ao vivo"; o resto, um ponto neutro. */}
+                  <p className="condensado flex items-center justify-end gap-1.5 text-rotulo text-texto">
+                    <span className={`inline-block size-1.5 rounded-full ${i.situacao === 'recebido' ? 'bg-acento-claro' : 'bg-linha-forte'}`} aria-hidden="true" />
+                    {varios ? `${g.chamados} seguidos` : ROTULO_SITUACAO[i.situacao]}
+                  </p>
+                  <p className="text-nota text-texto-2 tabular-nums">{varios ? `desde ${haQuanto(agora, g.maisAntigo.criadoEm)}` : haQuanto(agora, i.criadoEm)}</p>
+                </div>
+              </motion.li>
+            );
+          })}
         </AnimatePresence>
       </ul>
     </Painel>
@@ -205,6 +279,21 @@ export function ChegandoAgora({ lista, agora }: { lista: Incidente[]; agora: num
  */
 export function Legenda({ modo }: { modo: ModoMapa }) {
   const cheias = ESCALA_CONCENTRACAO.map(([r, g, b]) => `rgb(${r},${g},${b})`);
+  if (modo === 'anormal') {
+    return (
+      <Painel className="px-3.5 py-2.5">
+        <div className="flex items-center gap-3 text-nota text-texto">
+          <span className="flex items-center gap-1.5">
+            <span className="inline-block h-2 w-5 rounded-[1px] bg-linha-forte" aria-hidden="true" />
+            No normal
+          </span>
+          <span className="h-2 w-20 rounded-[1px] xl:w-32" style={{ background: `linear-gradient(90deg, ${cheias.join(',')})` }} aria-hidden="true" />
+          <span>Acima do normal</span>
+        </div>
+        <p className="mt-1 max-w-[26rem] text-micro text-texto-2">Últimos 7 dias contra as 3 semanas anteriores da própria região, descontada a mudança do DF inteiro.</p>
+      </Painel>
+    );
+  }
   const faixas = modo === 'calor' ? CORES_DAS_FAIXAS : cheias;
   return (
     <Painel className="px-3.5 py-2.5">
