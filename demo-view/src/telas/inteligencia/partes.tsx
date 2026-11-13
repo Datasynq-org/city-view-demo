@@ -7,13 +7,14 @@ import { AnimatePresence, motion } from 'motion/react';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { REGIAO_POR_ID } from '../../dominio/ras';
 import { type Incidente, NOME_DO_TIPO, type Resultado } from '../../inteligencia/agrupamento';
-import { type Severidade, siglaDoOrgao } from '../../inteligencia/casos';
+import { CASO_POR_ID, type Severidade, siglaDoOrgao } from '../../inteligencia/casos';
 import { type Decisao, faltaParaEnviar, JANELA_DE_ENVIO, type MotivoDeDescarte, MOTIVOS_DE_DESCARTE, ROTULO_DA_SITUACAO } from '../../inteligencia/decisoes';
 import { reduzMovimento } from '../../mapa/vista';
 import { corDoOrgao, familiasDe } from '../../inteligencia/cores';
 import { Contador } from '../../ui/Contador';
 import { Painel } from '../../ui/Painel';
 import { useTema } from '../../ui/tema';
+import { faixaDaConfianca, O_QUE_E_A_NOTA, ROTULO_DA_FAIXA } from '../../inteligencia/confianca';
 import { PlanoOuAndamento } from './Encaminhamento';
 
 const n = (v: number) => Math.round(v).toLocaleString('pt-BR');
@@ -190,6 +191,12 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
       </motion.header>
 
       <motion.div variants={CASCATA} initial={parado ? false : 'oculto'} animate="visivel" className="min-h-0 flex-1 space-y-4 overflow-x-hidden overflow-y-auto px-4 py-3">
+        {inc.casoId && CASO_POR_ID[inc.casoId]?.duvidoso && (
+          <motion.p variants={PARTE} className="rounded border border-dashed border-aviso/60 px-3 py-2 text-rotulo text-texto">
+            <span className="condensado mr-1.5 text-micro text-aviso">Para descartar</span>
+            {CASO_POR_ID[inc.casoId]!.duvidoso}
+          </motion.p>
+        )}
         <motion.p variants={PARTE} className="rounded border border-linha bg-poco px-3 py-2 text-nota text-tinta">{inc.ganho}</motion.p>
 
         <motion.section variants={PARTE}>
@@ -252,8 +259,11 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
         <motion.section variants={PARTE}>
           <Rotulo>Confiança</Rotulo>
           <div className="flex items-center gap-3">
-            <span className="text-valor leading-8 font-semibold text-tinta tabular-nums">
-              <Contador valor={Math.round(inc.confianca * 100)} formato={pct} doZero atraso={0.3} />
+            <span className="w-16 shrink-0" title={O_QUE_E_A_NOTA}>
+              <span className="block text-corpo leading-6 font-semibold text-tinta">{ROTULO_DA_FAIXA[faixaDaConfianca(inc.confianca)]}</span>
+              <span className="block text-micro text-texto-2 tabular-nums">
+                nota <Contador valor={Math.round(inc.confianca * 100)} formato={(v) => String(Math.round(v))} doZero atraso={0.3} />
+              </span>
             </span>
             <div className="flex-1 space-y-1">
               <Barra valor={inc.partes.assunto} rotulo="Mesmo assunto" />
@@ -261,6 +271,7 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
               <Barra valor={inc.partes.tempo} rotulo="Mesma hora" />
             </div>
           </div>
+          <p className="mt-1.5 text-micro text-texto-2">{O_QUE_E_A_NOTA}</p>
         </motion.section>
 
         <motion.section variants={PARTE}>

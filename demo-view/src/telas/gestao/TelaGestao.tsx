@@ -14,6 +14,7 @@ import { contraAMeta, META_NO_PRAZO, NOTA_DA_META } from '../../indicadores/meta
 import { tempoNoQuantil } from '../../indicadores/indicadores';
 import { naturezaDoOrgao, ROTULO_DA_NATUREZA } from '../../dominio/orgaos';
 import { Variacao } from '../../ui/Variacao';
+import { Origem } from '../../ui/Origem';
 import { escolhaAtual } from '../../ui/perfil';
 import { type ReactNode, useMemo, useState } from 'react';
 import { cidade } from '../../dados/cidade';
@@ -63,7 +64,7 @@ const COLUNAS: { id: Coluna; nome: string; dica: string }[] = [
   { id: 'foraDoPrazo', nome: 'Fora do prazo', dica: 'Abertos há mais tempo que o prazo do tipo. Ordena pela parte dos chamados do órgão, não pelo total' },
   { id: 'noPrazo', nome: 'No prazo', dica: 'Dos resolvidos, quantos dentro do prazo' },
   { id: 'tempo', nome: 'Tempo', dica: 'Metade dos chamados é resolvida em até este tempo (mediana)' },
-  { id: 'repetidos', nome: 'Repetidos', dica: 'Mesmo tipo, a menos de 150 m e de 24 h: o City View agruparia' },
+  { id: 'repetidos', nome: 'Parecidos', dica: 'Chamados parecidos: mesmo tipo, a menos de 150 m e de 24 h. Regra simples, para a base inteira; os incidentes da Inteligência usam outra conta, mais fina' },
 ];
 
 export function TelaGestao() {
@@ -123,7 +124,7 @@ export function TelaGestao() {
             {[
               ['Em aberto', numero(resumo.abertos), 'esperando alguém agir'],
               ['Fora do prazo', numero(resumo.fora), 'abertos além do prazo do tipo'],
-              ['Repetidos', numero(resumo.repetidos), 'o City View agruparia'],
+              ['Chamados parecidos', numero(resumo.repetidos), 'mesmo tipo, perto e na mesma hora'],
             ].map(([r, v, nota]) => (
               <div key={r} className="rounded border border-linha px-3 py-2">
                 <p className="condensado text-micro text-texto-2">{r}</p>
@@ -132,6 +133,7 @@ export function TelaGestao() {
               </div>
             ))}
           </div>
+          <Origem className="mt-3" area={area} conta="O período atual contra o anterior, medido como estava com a mesma idade. O prazo é o de cada tipo de chamado; o tempo é a mediana até resolver." atualizacao="A cada chamado que chega e a cada mudança de situação no órgão (simulado)." />
         </Painel>
 
         <Painel className="p-5">
@@ -281,7 +283,7 @@ function VisaoDoGestor({ linha, dias, aoFechar }: { linha: LinhaDoOrgao; dias: n
             <span className="min-w-0">
               <span className="text-nota text-tinta">{t.nome}</span>
               <span className="block text-micro text-texto-2">
-                prazo de {duracao(t.prazoHoras)} · {percentual(t.noPrazo)} no prazo · {duracao(t.tempo)} até resolver{t.repetidos > 0 ? ` · ${numero(t.repetidos)} repetidos` : ''}
+                prazo de {duracao(t.prazoHoras)} · {percentual(t.noPrazo)} no prazo · {duracao(t.tempo)} até resolver{t.repetidos > 0 ? ` · ${numero(t.repetidos)} parecidos` : ''}
               </span>
               <Barra valor={t.noPrazo ?? 0} className="mt-1 max-w-40" />
             </span>
@@ -292,7 +294,7 @@ function VisaoDoGestor({ linha, dias, aoFechar }: { linha: LinhaDoOrgao; dias: n
 
       <div className="mt-4 grid grid-cols-2 gap-2">
         <div className="rounded border border-linha px-3 py-2">
-          <p className="condensado text-micro text-texto-2">Repetidos que o City View agruparia</p>
+          <p className="condensado text-micro text-texto-2">Chamados parecidos, que o City View agruparia</p>
           <p className="text-corpo font-semibold text-tinta tabular-nums">{numero(linha.repetidos)}</p>
           <p className="text-micro text-texto-2">{linha.chamados ? percentual(linha.repetidos / linha.chamados) : '–'} dos chamados do período</p>
         </div>

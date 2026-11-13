@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { gerarBase } from '../dados/gerador';
 import { REGIOES } from '../dominio/ras';
-import { diaDaSemana, foraDoNormal, HISTORICO_NO_GRAFICO, HORIZONTE, pressaoPorRegiao, prever, previsaoPara, serieDiaria, ultimoDia, variacaoPorTipo } from './previsao';
+import { avaliar, diaDaSemana, foraDoNormal, HISTORICO_NO_GRAFICO, HORIZONTE, pressaoPorRegiao, prever, previsaoPara, serieDiaria, ultimoDia, variacaoPorTipo } from './previsao';
 
 /** Quinta-feira, 12/11/2026, 15h30 em Brasília. */
 const AGORA = Date.UTC(2026, 10, 12, 18, 30);
@@ -98,5 +98,39 @@ describe('o que sobe, onde reforçar e o que está fora do normal', () => {
 
   it('com histórico curto demais, não inventa anomalia', () => {
     expect(foraDoNormal(gerarBase({ agora: AGORA, dias: 40, diasDetalhados: 7 }))).toEqual([]);
+  });
+});
+
+describe('previsão avaliada em várias janelas, contra o palpite simples', () => {
+  it('série constante: erro zero nos dois, em quatro janelas', () => {
+    const a = avaliar(new Array<number>(140).fill(100), 139, dow);
+    expect(a.janelas).toBe(4);
+    expect(a.erro).toBeCloseTo(0);
+    expect(a.erroIngenuo).toBeCloseTo(0);
+  });
+
+  it('histórico curto dá menos janelas, ou nenhuma', () => {
+    expect(avaliar(new Array<number>(80).fill(100), 79, dow).janelas).toBe(1);
+    expect(avaliar(new Array<number>(60).fill(100), 59, dow).janelas).toBe(0);
+  });
+
+  it('com padrão semanal e ruído, ganha de repetir as duas últimas semanas', () => {
+    // Ruído determinístico, que o palpite simples carrega em dobro (o do dia e o de 14 dias antes).
+    const serie = Array.from({ length: 140 }, (_, d) => (dow(d) >= 5 ? 200 : 100) + ((d * 37) % 23) - 11);
+    const a = avaliar(serie, 139, dow);
+    expect(a.erro).toBeLessThan(a.erroIngenuo);
+  });
+
+  it('na cidade simulada, mede em mais de uma janela e o erro é uma fração do volume', () => {
+    const a = previsaoPara(base).avaliacao;
+    expect(a.janelas).toBeGreaterThan(1);
+    expect(a.erro).toBeGreaterThan(0);
+    expect(a.erro).toBeLessThan(1);
+  });
+
+  it('reforço só para a região cuja alta passa da margem da própria previsão', () => {
+    const p = pressaoPorRegiao(base);
+    for (const r of p) if (r.foraDaMargem) expect(r.aMais).toBeGreaterThan(0);
+    expect(p.filter((r) => r.foraDaMargem).length).toBeLessThan(p.filter((r) => r.aMais > 0).length);
   });
 });

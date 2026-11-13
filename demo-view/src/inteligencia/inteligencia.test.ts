@@ -11,8 +11,10 @@ const resultado = agrupar(chamados, ligacoes);
 const doCaso = (id: string) => resultado.incidentes.filter((i) => i.casoId === id);
 
 describe('casos', () => {
-  it('são os nove da demo exploratória, cada um numa RA que existe', () => {
-    expect(CASOS).toHaveLength(9);
+  it('são os nove da demo exploratória e um plantado para a IA errar, cada um numa RA que existe', () => {
+    expect(CASOS).toHaveLength(10);
+    // Só um é para descartar, e diz por quê.
+    expect(CASOS.filter((c) => c.duvidoso).map((c) => c.id)).toEqual(['coincidencia-guara']);
     for (const c of CASOS) {
       expect(REGIAO_POR_ID[c.raId], c.id).toBeDefined();
       const [lon, lat] = posicaoDoCaso(c);
@@ -132,5 +134,26 @@ describe('decisões', () => {
     const confirmado = avancar(confirmar({}, 'X', 0), 9999);
     expect(descartar(confirmado, 'X', 'Dados insuficientes')).toBe(confirmado);
     expect(confirmar(confirmado, 'X', 10_000)).toBe(confirmado);
+  });
+});
+
+describe('método: confiança em palavras e previsão avaliada', () => {
+  it('a confiança vira faixa; os limites são os declarados', async () => {
+    const { faixaDaConfianca, LIMITE_DA_ALTA, LIMITE_DA_MEDIA } = await import('./confianca');
+    expect(faixaDaConfianca(LIMITE_DA_ALTA)).toBe('alta');
+    expect(faixaDaConfianca(LIMITE_DA_ALTA - 0.01)).toBe('média');
+    expect(faixaDaConfianca(LIMITE_DA_MEDIA - 0.01)).toBe('baixa');
+  });
+
+  it('a sugestão plantada vira incidente: a nota de semelhança não a segura, quem segura é a pessoa', () => {
+    const ch = gerarChamados();
+    const r = agrupar(ch, calcularLigacoes(ch));
+    expect(r.incidentes.some((i) => i.casoId === 'coincidencia-guara')).toBe(true);
+  });
+
+  it('o ganho em horas usa a premissa declarada', async () => {
+    const { horasPoupadas, MINUTOS_POR_ATENDIMENTO } = await import('./resumo');
+    expect(horasPoupadas(60, 6)).toBe(6);
+    expect(horasPoupadas(10)).toBeCloseTo((10 * MINUTOS_POR_ATENDIMENTO) / 60);
   });
 });

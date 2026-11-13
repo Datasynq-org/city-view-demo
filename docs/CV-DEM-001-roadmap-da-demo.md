@@ -422,3 +422,32 @@ seguem abertos e valem antes de mostrar a alguém de fora.
 
 Testes: 315.
 
+*Acréscimo de 13/11/2026 · acrescentar e método.* Pedido do Sammuel: os itens
+de "acrescentar" (A1 a A4 e A6; o A5 já estava) e os de método (D1 a D6) do
+CV-DEM-002. Branch `demo/acrescentar-metodo`, sobre `demo/perfis`.
+
+**Decisões:**
+- **A demo passa a ter nove telas:** entra o **Resumo do dia**, logo depois da
+  sala. As perguntas prontas ficam no pé dele, e não numa tela própria: são o
+  mesmo gesto de quem quer saber "o que eu preciso saber hoje".
+- **"Pergunte à cidade" sem modelo de linguagem.** Seis perguntas fixas, cada
+  uma uma função pura (`inteligencia/perguntas.ts`) que devolve frase, números,
+  a conta e, às vezes, um mapa. A pergunta livre continua por fazer (precisa de
+  chave e de um intermediário no servidor).
+- **O décimo caso é para a IA errar** (`duvidoso`, em `inteligencia/casos.ts`).
+  A nota de semelhança dele sai alta, porque lugar e assunto batem, e isso é o
+  ponto: mostra por que a nota não é chance de acerto e por que quem decide é
+  uma pessoa. Os outros nove seguem como estavam.
+- **A previsão não foi mudada; foi medida melhor.** O método é o mesmo. O que
+  muda é dizer o erro em várias janelas e compará-lo com o palpite mais simples.
+  Na base simulada ele ganha (11% contra 15%); se não ganhasse, a tela diria.
+- **Reforço só fora da margem.** Com a régua honesta, a lista de "onde reforçar"
+  fica vazia na base de hoje, e a tela diz que não há reforço a recomendar. É o
+  certo, mas é uma tela a menos para mostrar: se a equipe quiser a cena, o
+  caminho é plantar uma alta local na base, à vista, não afrouxar a régua.
+- **Premissa do ganho:** 6 minutos por atendimento repetido, de exemplo.
+
+Com isto, do CV-DEM-002 ficam abertos só os três riscos (R1 a R3).
+
+Testes: 331.
+

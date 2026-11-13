@@ -47,6 +47,14 @@ export function resumir(r: Resultado, decisoes: Decisoes = {}): Resumo {
   };
 }
 
+/**
+ * O ganho dito em tempo de equipe (CV-DEM-002, A2). **Premissa de exemplo**, da
+ * equipe: quanto leva atender um chamado repetido (registrar, conferir,
+ * responder). O número real depende de cada central e é pergunta para o Daniel.
+ */
+export const MINUTOS_POR_ATENDIMENTO = 6;
+export const horasPoupadas = (atendimentos: number, minutos = MINUTOS_POR_ATENDIMENTO) => (atendimentos * minutos) / 60;
+
 export interface FiltroDeInsights {
   severidade: Severidade | null;
   tipo: TipoCaso | null;

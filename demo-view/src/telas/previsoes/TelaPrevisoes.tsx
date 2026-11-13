@@ -11,6 +11,7 @@ import { type AreaId, AREAS, ORGAO_POR_ID } from '../../dominio/orgaos';
 import { numero, percentual } from '../../indicadores/indicadores';
 import { foraDoNormal, HORIZONTE, pressaoPorRegiao, previsaoPara, TEXTO_DO_MOTIVO, variacaoPorTipo } from '../../inteligencia/previsao';
 import { Barra, Linha } from '../../ui/graficos';
+import { Origem } from '../../ui/Origem';
 import { Painel } from '../../ui/Painel';
 
 const dataCurta = (t: number) => new Date(t).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit' });
@@ -46,7 +47,12 @@ export function TelaPrevisoes() {
   const sobem = [...tipos].sort((a, b) => b.variacao - a.variacao).slice(0, 5);
   const caem = [...tipos].sort((a, b) => a.variacao - b.variacao).slice(0, 5).filter((t) => t.variacao < 0);
   const maiorAlta = sobem[0];
-  const reforcar = regioes.filter((p) => p.aMais > 0).slice(0, 8);
+  // Só entra quem tem alta fora da margem da própria previsão: reforço em cima de ruído desmoraliza a previsão.
+  const emAlta = regioes.filter((p) => p.aMais > 0);
+  const reforcar = emAlta.filter((p) => p.foraDaMargem).slice(0, 8);
+  const dentroDaMargem = emAlta.length - emAlta.filter((p) => p.foraDaMargem).length;
+  const av = r.avaliacao;
+  const ganha = av.janelas > 0 && av.erro < av.erroIngenuo;
   const maiorAMais = Math.max(1, ...reforcar.map((p) => p.aMais));
   const variacao = r.ultimos > 0 ? r.proximos / r.ultimos - 1 : 0;
   const primeiroPrevisto = r.pontos.findIndex((p) => p.real === null);
@@ -66,7 +72,7 @@ export function TelaPrevisoes() {
         <Numero rotulo="Próximas duas semanas" valor={numero(r.proximos)} nota={`chamados previstos · ${sinal(variacao)} sobre as duas últimas`} />
         <Numero rotulo="Maior alta prevista" valor={maiorAlta ? sinal(maiorAlta.variacao) : '–'} nota={maiorAlta ? `${maiorAlta.tipo.nome} · ${TEXTO_DO_MOTIVO[maiorAlta.motivo].toLowerCase()}` : 'sem tipos com volume'} />
         <Numero rotulo="Fora do normal agora" valor={`${anomalias.length}`} nota="combinações de tipo e região bem acima do esperado" destaque={anomalias.length > 0} />
-        <Numero rotulo="Acerto da previsão" valor={percentual(r.acerto)} nota="ao prever as duas últimas semanas sem olhar para elas" />
+        <Numero rotulo="Erro típico da previsão" valor={av.janelas ? percentual(av.erro) : '–'} nota={av.janelas ? `em ${av.janelas} janelas de duas semanas · repetir as duas últimas erra ${percentual(av.erroIngenuo)}` : 'histórico curto demais para medir'} />
       </div>
 
       <Painel className="p-5">
@@ -111,7 +117,7 @@ export function TelaPrevisoes() {
         </Painel>
 
         <Painel className="p-5">
-          <Titulo nota="Regiões com mais chamados a mais previstos para as próximas duas semanas, sobre as duas últimas.">Onde reforçar as equipes</Titulo>
+          <Titulo nota="Regiões em que a alta prevista para as próximas duas semanas passa da margem da própria previsão. As demais não entram: seria recomendar reforço em cima de ruído.">Onde reforçar as equipes</Titulo>
           {reforcar.length ? (
             <ul className="space-y-1.5">
               {reforcar.map((p) => (
@@ -127,8 +133,9 @@ export function TelaPrevisoes() {
               ))}
             </ul>
           ) : (
-            <p className="text-nota text-texto-2">Nenhuma região com alta prevista neste recorte.</p>
+            <p className="text-nota text-texto">Nenhuma região com alta fora da margem: não há reforço a recomendar agora.</p>
           )}
+          {dentroDaMargem > 0 && <p className="mt-3 text-micro text-texto-2">{dentroDaMargem} regi{dentroDaMargem === 1 ? 'ão tem' : 'ões têm'} alta prevista dentro da margem: sem mudança relevante.</p>}
         </Painel>
       </div>
 
@@ -168,8 +175,16 @@ export function TelaPrevisoes() {
             <li>A margem vem do quanto o método errou nas últimas quatro semanas, e alarga com a distância.</li>
           </ol>
           <p className="mt-3 rounded border border-linha bg-poco px-3 py-2 text-rotulo text-texto">
-            O acerto de {percentual(r.acerto)} é medido de verdade: o método previu as duas últimas semanas sem vê-las, e comparamos com o que aconteceu.
+            {av.janelas ? (
+              <>
+                O erro é medido de verdade: o método previu {av.janelas} janelas de duas semanas do passado sem vê-las, e errou em média {percentual(av.erro)} do volume. O palpite mais simples, repetir as duas semanas anteriores, erra {percentual(av.erroIngenuo)}. {ganha ? 'O método ganha do palpite simples.' : 'O método não ganha do palpite simples neste recorte: vale tanto quanto repetir as últimas semanas.'}
+              </>
+            ) : (
+              'O histórico deste recorte é curto demais para medir o erro.'
+            )}
           </p>
+          <p className="mt-2 text-micro text-texto-2">O motivo "chuva" não sai do modelo: vem do tipo do chamado e do calendário (a estação chuvosa do DF vai de meados de outubro a abril). Oito semanas não enxergam estação.</p>
+          <Origem className="mt-2" area={area} conta="Oito semanas de chamados por dia, o padrão de cada dia da semana e a tendência recente." atualizacao="Uma vez por dia, com o dia fechado (simulado)." />
           <p className="mt-2 text-micro text-texto-2">É uma proposta, sobre dados simulados. No produto, entrariam também a previsão do tempo, o calendário e o histórico real de cada órgão.</p>
         </Painel>
       </div>

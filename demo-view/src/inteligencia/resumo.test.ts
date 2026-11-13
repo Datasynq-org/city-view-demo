@@ -40,7 +40,7 @@ describe('filtros da grade', () => {
 
   it('filtra por severidade, por tipo de caso e por órgão (inclusive o que só aparece na operação)', () => {
     expect(filtrarInsights(r.incidentes, { ...SEM_FILTRO, severidade: 'crítico' }).every((x) => x.inc.severidade === 'crítico')).toBe(true);
-    expect(filtrarInsights(r.incidentes, { ...SEM_FILTRO, tipo: 'Causa comum' }).map((x) => x.inc.casoId).sort()).toEqual(['cadeia-taguatinga', 'dengue-sol-nascente']);
+    expect(filtrarInsights(r.incidentes, { ...SEM_FILTRO, tipo: 'Causa comum' }).map((x) => x.inc.casoId).sort()).toEqual(['cadeia-taguatinga', 'coincidencia-guara', 'dengue-sol-nascente']);
     const daNovacap = filtrarInsights(r.incidentes, { ...SEM_FILTRO, orgao: 'novacap' }).map((x) => x.inc.casoId);
     expect(daNovacap).toContain('cadeia-taguatinga');
     expect(daNovacap).toContain('alagamento-vicente-pires');

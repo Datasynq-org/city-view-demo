@@ -54,6 +54,8 @@ export interface Previsao {
   valores: number[];
   inferior: number[];
   superior: number[];
+  /** Margem (80%) da soma do período inteiro, tratando os erros dos dias como independentes. */
+  margemDaSoma: number;
 }
 
 /**
@@ -99,15 +101,17 @@ export function prever(serie: readonly number[], fim: number, dow: (d: number) =
   const inferior: number[] = [];
   const superior: number[] = [];
   let acumulado = 0;
+  let variancia = 0;
   for (let k = 1; k <= h; k++) {
     acumulado += tendencia * 0.9 ** k;
     const v = Math.max(0, (nivel + acumulado) * fator(fim + k));
     const margem = 1.28 * erro * Math.sqrt(1 + k / 7);
+    variancia += margem ** 2;
     valores.push(v);
     inferior.push(Math.max(0, v - margem));
     superior.push(v + margem);
   }
-  return { valores, inferior, superior };
+  return { valores, inferior, superior, margemDaSoma: Math.sqrt(variancia) };
 }
 
 export interface Ponto {
@@ -125,6 +129,49 @@ export interface Resultado {
   ultimos: number;
   /** Acerto ao prever as duas semanas que acabaram de passar (1 − erro percentual). */
   acerto: number;
+  /** O erro medido em várias janelas, contra o palpite ingênuo (CV-DEM-002, D2). */
+  avaliacao: Avaliacao;
+}
+
+export interface Avaliacao {
+  /** Quantas janelas de duas semanas foram testadas (o histórico limita). */
+  janelas: number;
+  /** Erro típico: soma dos erros de cada dia sobre o total real, em média entre as janelas. */
+  erro: number;
+  /** O mesmo, para o palpite "vai ser igual às duas últimas semanas". */
+  erroIngenuo: number;
+}
+
+/**
+ * Uma janela só não é acerto, é um exemplo. Aqui o método prevê várias janelas
+ * de duas semanas do passado, sem vê-las, e é comparado com o palpite mais
+ * simples que existe: repetir as duas semanas anteriores. Se não ganhar dele,
+ * a tela diz.
+ */
+export function avaliar(serie: readonly number[], U: number, dow: (d: number) => number, maximo = 4): Avaliacao {
+  let janelas = 0;
+  let erro = 0;
+  let erroIngenuo = 0;
+  for (let j = 1; j <= maximo; j++) {
+    const fim = U - HORIZONTE * j;
+    // O método olha oito semanas para trás de `fim`.
+    if (fim - 56 < 0) break;
+    const p = prever(serie, fim, dow);
+    let real = 0;
+    let e = 0;
+    let ei = 0;
+    for (let k = 1; k <= HORIZONTE; k++) {
+      const r = serie[fim + k] ?? 0;
+      real += r;
+      e += Math.abs(r - p.valores[k - 1]!);
+      ei += Math.abs(r - (serie[fim + k - HORIZONTE] ?? 0));
+    }
+    if (real <= 0) continue;
+    janelas++;
+    erro += e / real;
+    erroIngenuo += ei / real;
+  }
+  return janelas ? { janelas, erro: erro / janelas, erroIngenuo: erroIngenuo / janelas } : { janelas: 0, erro: 0, erroIngenuo: 0 };
 }
 
 const soma = (v: readonly number[], de: number, ate: number) => {
@@ -154,15 +201,20 @@ export function previsaoPara(base: BaseSimulada, f: Filtro = {}): Resultado {
     realT += real;
     erroT += Math.abs(real - v);
   });
-  return { pontos, proximos: p.valores.reduce((s, v) => s + v, 0), ultimos: soma(serie, U - HORIZONTE + 1, U), acerto: realT > 0 ? Math.max(0, 1 - erroT / realT) : 0 };
+  return { pontos, proximos: p.valores.reduce((s, v) => s + v, 0), ultimos: soma(serie, U - HORIZONTE + 1, U), acerto: realT > 0 ? Math.max(0, 1 - erroT / realT) : 0, avaliacao: avaliar(serie, U, dow) };
 }
 
 // ---------------------------------------------------------------- o que sobe e o que cai
 
 export type Motivo = 'chuva' | 'fim-de-semana' | 'tendencia';
 
+/**
+ * O motivo não sai do modelo (CV-DEM-002, D6): oito semanas não enxergam
+ * estação. "Chuva" vem do tipo do chamado e do calendário (a estação chuvosa do
+ * DF vai de meados de outubro a abril); os outros dois, do perfil do tipo.
+ */
 export const TEXTO_DO_MOTIVO: Record<Motivo, string> = {
-  chuva: 'Estação chuvosa',
+  chuva: 'Tipo que sobe com a chuva · estação chuvosa, pelo calendário',
   'fim-de-semana': 'Padrão de noites e fins de semana',
   tendencia: 'Tendência das últimas semanas',
 };
@@ -198,6 +250,8 @@ export interface Pressao {
   /** Chamados a mais (ou a menos) previstos para as próximas duas semanas. */
   aMais: number;
   variacao: number;
+  /** A alta prevista passa da margem da própria previsão (CV-DEM-002, D3): só então vale recomendar reforço. */
+  foraDaMargem: boolean;
 }
 
 /** Onde reforçar as equipes: as regiões com mais chamados a mais previstos. */
@@ -207,8 +261,9 @@ export function pressaoPorRegiao(base: BaseSimulada, f: Filtro = {}): Pressao[] 
   return REGIOES.map((ra) => {
     const serie = serieDiaria(base, { ...f, ra: ra.id });
     const ultimos = soma(serie, U - HORIZONTE + 1, U);
-    const proximos = prever(serie, U, dow).valores.reduce((s, v) => s + v, 0);
-    return { ra, ultimos, proximos, aMais: proximos - ultimos, variacao: ultimos > 0 ? proximos / ultimos - 1 : 0 };
+    const p = prever(serie, U, dow);
+    const proximos = p.valores.reduce((s, v) => s + v, 0);
+    return { ra, ultimos, proximos, aMais: proximos - ultimos, variacao: ultimos > 0 ? proximos / ultimos - 1 : 0, foraDaMargem: proximos - ultimos > p.margemDaSoma };
   }).sort((a, b) => b.aMais - a.aMais);
 }
 

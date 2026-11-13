@@ -7,6 +7,7 @@ import { duracao, haQuanto, numero, percentual, type Periodo, PERIODOS, type Vel
 import type { ModoMapa } from '../../mapa/camadas';
 import { CORES_DAS_FAIXAS } from '../../mapa/calor';
 import { Contador } from '../../ui/Contador';
+import { Origem } from '../../ui/Origem';
 import { Variacao } from '../../ui/Variacao';
 import { contraAMeta, META_NO_PRAZO, NOTA_DA_META } from '../../indicadores/metas';
 import type { Chegadas } from '../../indicadores/indicadores';
@@ -74,7 +75,9 @@ function Kpi({ rotulo, children, nota, extra }: { rotulo: string; children: Reac
   );
 }
 
-export function Numeros({ abertos, recebidos, tempo, noPrazo, nomePeriodo, p90, variacaoDoTempo, variacaoDoPrazo }: {
+export function Numeros({ abertos, recebidos, tempo, noPrazo, nomePeriodo, p90, variacaoDoTempo, variacaoDoPrazo, area }: {
+  /** A área do filtro, para dizer de que sistemas o número viria. */
+  area: AreaId | null;
   abertos: number;
   recebidos: number;
   tempo: number | null;
@@ -96,6 +99,7 @@ export function Numeros({ abertos, recebidos, tempo, noPrazo, nomePeriodo, p90, 
         <Kpi rotulo="No prazo" nota={contraAMeta(noPrazo).replace(/ de \d+%$/, '')} extra={<Variacao valor={variacaoDoPrazo} unidade=" pts" curta />}>{percentual(noPrazo)}</Kpi>
       </div>
       <p className="mt-2 text-micro text-texto-2">▲▼ contra o período anterior, medido com a mesma idade · {NOTA_DA_META}: {Math.round(META_NO_PRAZO * 100)}% no prazo</p>
+      <Origem className="mt-2" area={area} conta="Abertos: o que ainda espera alguém agir. No prazo e tempo: dos chamados do período já resolvidos, contra o prazo de cada tipo." />
     </Painel>
   );
 }

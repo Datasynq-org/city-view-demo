@@ -6,6 +6,7 @@ import { mudarTema, useTema } from './tema';
 /** Ícones próprios, de traço fino (24×24). Sem biblioteca. */
 const ICONE: Record<Tela, ReactNode> = {
   sala: <path d="M3 5h18v11H3zM8 20h8M12 16v4" />,
+  resumo: <path d="M7 3h8l4 4v14H7zM15 3v4h4M10 12h6M10 16h6" />,
   gestao: <path d="M4 19V9M10 19V5M16 19v-7M21 19H3" />,
   regioes: <path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14" />,
   inteligencia: (

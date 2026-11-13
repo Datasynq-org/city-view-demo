@@ -89,6 +89,23 @@ export function foraDoNormal(incidentes: readonly Incidente[], agora: number, ar
   );
 }
 
+/**
+ * Quanto o DF inteiro mudou: os últimos 7 dias sobre a média das semanas
+ * anteriores (0,11 = 11% acima). `null` sem base. É o "o que mudou?" mais simples.
+ */
+export function mudancaDoDf(incidentes: readonly Incidente[], agora: number): number | null {
+  let atual = 0;
+  let antes = 0;
+  const inicio = agora - SEMANA;
+  const base = inicio - SEMANAS_DE_BASE * SEMANA;
+  for (const i of incidentes) {
+    if (i.criadoEm > agora || i.criadoEm < base) continue;
+    if (i.criadoEm >= inicio) atual++;
+    else antes++;
+  }
+  return antes > 0 ? atual / (antes / SEMANAS_DE_BASE) - 1 : null;
+}
+
 export type Medida = 'por10mil' | 'chamados' | 'tempo' | 'noPrazo';
 
 export const MEDIDAS: { id: Medida; nome: string; nota: string }[] = [

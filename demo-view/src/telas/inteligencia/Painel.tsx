@@ -9,14 +9,16 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { REGIAO_POR_ID } from '../../dominio/ras';
 import { type Incidente, NOME_DO_TIPO, type Resultado } from '../../inteligencia/agrupamento';
 import { type Severidade, siglaDoOrgao } from '../../inteligencia/casos';
+import { faixaDaConfianca } from '../../inteligencia/confianca';
 import { type Decisao, ROTULO_DA_SITUACAO } from '../../inteligencia/decisoes';
 import { ROTULO_DA_SITUACAO_DO_INCIDENTE, situacaoDoIncidente } from '../../inteligencia/encaminhamento';
 import type { Estado } from '../../inteligencia/estado';
-import { type FiltroDeInsights, filtrarInsights, opcoesDeFiltro, type Resumo, SEM_FILTRO } from '../../inteligencia/resumo';
+import { type FiltroDeInsights, filtrarInsights, horasPoupadas, MINUTOS_POR_ATENDIMENTO, opcoesDeFiltro, type Resumo, SEM_FILTRO } from '../../inteligencia/resumo';
 import { reduzMovimento } from '../../mapa/vista';
 import { Painel } from '../../ui/Painel';
 import { escolhaAtual } from '../../ui/perfil';
 import { useTema } from '../../ui/tema';
+import { Origem } from '../../ui/Origem';
 import { EmAndamento, Registro } from './Encaminhamento';
 import { CorDoOrgao, Faixa, LegendaDasAreas } from './partes';
 
@@ -98,7 +100,7 @@ function Cartao({ inc, decisao, andando, ativo, recuado, aoAbrir }: { inc: Incid
           <span className="block rounded border border-linha bg-poco px-3 py-2 text-rotulo text-tinta">{inc.ganho}</span>
           <span className="mt-2 flex items-center justify-between gap-2 text-micro text-texto-2">
             <span>
-              {n(inc.chamados)} chamados · {inc.orgaos.length} órgão{inc.orgaos.length === 1 ? '' : 's'} · confiança {Math.round(inc.confianca * 100)}%
+              {n(inc.chamados)} chamados · {inc.orgaos.length} órgão{inc.orgaos.length === 1 ? '' : 's'} · confiança {faixaDaConfianca(inc.confianca)}
             </span>
             <span className={`condensado rounded border px-1.5 py-0.5 ${decisao.situacao === 'sugerido' ? 'border-dashed border-linha-forte' : descartado ? 'border-linha line-through' : 'border-acento-claro/60 text-acento-claro'}`}>{andando ?? ROTULO_DA_SITUACAO[decisao.situacao]}</span>
           </span>
@@ -125,6 +127,8 @@ export function PainelDeInsights({ resultado, resumo, estado, decisaoDe, aberto,
   const [filtro, setFiltro] = useState<FiltroDeInsights>(() => ({ ...SEM_FILTRO, orgao: escolhaAtual().orgao }));
   const [aba, setAba] = useState<Aba>('insights');
   const emAndamento = Object.keys(estado.andamentos).length;
+  // Os cidadãos dos incidentes já resolvidos: receberam uma resposta só.
+  const avisados = Object.values(estado.andamentos).reduce((s, an) => s + (situacaoDoIncidente(an) === 'resolvido' ? (estado.fichas[an.codigo]?.chamados ?? 0) : 0), 0);
   const abrirPeloCodigo = (codigo: string) => {
     const k = resultado.incidentes.findIndex((i) => i.codigo === codigo);
     if (k >= 0) aoAbrir(k);
@@ -146,10 +150,11 @@ export function PainelDeInsights({ resultado, resumo, estado, decisaoDe, aberto,
         <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-4 lg:grid-cols-5">
           <Numero valor={n(resumo.chamados)} rotulo="chamados" nota="em todas as filas" />
           <Numero valor={n(resumo.incidentes)} rotulo="incidentes sugeridos" nota={`${resumo.porSeveridade.crítico} críticos · ${resumo.porSeveridade.sério} sérios`} />
-          <Numero valor={n(resumo.evitados)} rotulo="atendimentos repetidos a menos" nota="em cada incidente, todos menos um" />
+          <Numero valor={n(resumo.evitados)} rotulo="atendimentos poupados" nota={`em cada incidente, todos menos um · ≈ ${n(horasPoupadas(resumo.evitados))} h de equipe, a ${MINUTOS_POR_ATENDIMENTO} min cada (premissa de exemplo)`} />
           <Numero valor={`${resumo.entreOrgaos}`} rotulo="cruzam mais de um órgão" nota={`${resumo.comOperacao} usam a operação dos sistemas`} />
-          <Numero valor={`${resumo.porSituacao.confirmado + resumo.porSituacao.enviando}`} rotulo="confirmados por uma pessoa" nota={`${resumo.porSituacao.sugerido} esperam decisão · ${resumo.porSituacao.descartado} descartados`} />
+          <Numero valor={`${resumo.porSituacao.confirmado + resumo.porSituacao.enviando}`} rotulo="confirmados por uma pessoa" nota={`${resumo.porSituacao.sugerido} esperam decisão · ${resumo.porSituacao.descartado} descartados${avisados > 0 ? ` · ${n(avisados)} cidadãos avisados com uma resposta só` : ''}`} />
         </div>
+        <Origem className="mt-3" conta="Chamados de órgãos diferentes ligados por assunto, lugar e hora; os grupos viram incidentes sugeridos. Os casos da demonstração são escritos pela equipe, e a IA os reencontra entre os chamados do dia a dia." />
       </Painel>
 
       <div role="tablist" aria-label="O que ver" className="flex gap-1 border-b border-linha">
@@ -203,6 +208,34 @@ export function PainelDeInsights({ resultado, resumo, estado, decisaoDe, aberto,
         ))}
       </ul>
       {visiveis.length === 0 && <p className="text-nota text-texto-2">Nenhum insight com esses filtros.</p>}
+
+      {/* Triangulação (magno 7.2): fora da conta, como proposta, até a resposta à pergunta 9.3. */}
+      <section className="rounded-lg border border-dashed border-linha-forte p-5">
+        <p className="flex flex-wrap items-center gap-2">
+          <span className="condensado rounded border border-dashed border-linha-forte px-1.5 py-0.5 text-micro text-texto-2">Proposta · não é um insight da demo</span>
+          <span className="condensado text-micro text-texto-2">Triangulação</span>
+        </p>
+        <h3 className="mt-2 text-corpo font-semibold text-tinta">O problema invisível: quando quase ninguém reclama</h3>
+        <p className="mt-1 max-w-3xl text-nota text-texto">
+          Todos os insights acima partem de chamados. Chamado mede quem tem canal e costume de reclamar, não quem mais precisa. A triangulação olha o contrário: uma região em que a <span className="text-tinta">operação</span> do órgão mostra aperto (fila longa, espera alta) e os <span className="text-tinta">chamados</span> quase não aparecem.
+        </p>
+        <div className="mt-3 grid max-w-3xl gap-2 sm:grid-cols-3">
+          {[
+            ['Operação', 'espera alta na unidade de saúde da região', 'o que o sistema do órgão registra'],
+            ['Chamados', 'quase nenhum, na mesma região', 'o que o cidadão relata'],
+            ['Leitura', 'problema que não chega pelos canais', 'o que os dois juntos sugerem'],
+          ].map(([r, v, nota]) => (
+            <div key={r} className="rounded border border-linha px-3 py-2">
+              <p className="condensado text-micro text-texto-2">{r}</p>
+              <p className="text-nota text-tinta">{v}</p>
+              <p className="text-micro text-texto-2">{nota}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 max-w-3xl text-micro text-texto-2">
+          Exemplo ilustrativo, sem número: a demo não tem dado de fila de saúde. Depende de os órgãos liberarem dados de operação, o que ainda é pergunta em aberto. Não usa redes sociais: só o que o órgão registra e o que o cidadão relata.
+        </p>
+      </section>
       </>
       )}
     </div>

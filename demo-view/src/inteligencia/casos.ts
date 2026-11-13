@@ -66,6 +66,11 @@ export interface Caso {
   /** Deslocamento em relação ao núcleo urbano da RA, em unidades de ~100 m ([leste, sul]). */
   deslocamento: [number, number];
   detectadoHaMin: number;
+  /**
+   * Caso plantado para a IA errar (CV-DEM-002, D5): a sugestão é fraca e o certo
+   * é a pessoa descartar. O texto explica por quê, e aparece no insight.
+   */
+  duvidoso?: string;
   sinais: Sinal[];
   leitura: string;
   recomendacao: string[];
@@ -401,6 +406,39 @@ export const CASOS: Caso[] = [
       { quando: "há 2 meses", texto: "Primeira interrupção do trimestre" },
       { quando: "há 7 dias", texto: "Terceira interrupção" },
       { quando: "há 10 h", texto: "City View marca a recorrência" },
+    ],
+  },
+  {
+    id: "coincidencia-guara",
+    titulo: "Buracos e falta d'água na mesma quadra",
+    tipo: "Causa comum",
+    severidade: "atenção",
+    area: "saneamento",
+    raId: "guara",
+    local: "Guará II, quadra residencial",
+    deslocamento: [6, 4],
+    detectadoHaMin: 240,
+    duvidoso: "Sugestão fraca, mantida de propósito na demonstração: mostra o que a pessoa faz quando a IA junta o que não devia. A nota de semelhança sai alta porque o lugar e o assunto batem; é por isso que ela não é a chance de acerto.",
+    sinais: [
+      { orgaoId: "novacap", canal: "162", quantidade: 7, descricao: "Buraco no asfalto, em 20 dias" },
+      { orgaoId: "caesb", canal: "115", quantidade: 9, descricao: "Falta d'água num só dia" },
+      { orgaoId: "caesb", canal: "Operação da rede", quantidade: 1, descricao: "Manutenção programada na quadra, avisada com antecedência; nenhum vazamento registrado", fonte: "operação" },
+    ],
+    leitura:
+      "Os dois problemas aparecem na mesma quadra, e a IA sugere causa comum, como no vazamento de Taguatinga. Mas a operação da CAESB registra uma manutenção programada de um dia, sem vazamento, e os buracos vêm de antes. Pode ser só coincidência de lugar.",
+    recomendacao: [
+      "Conferir com a CAESB se houve vazamento na quadra.",
+      "Se não houve, descartar: os chamados voltam para as filas de cada órgão.",
+    ],
+    encaminhamentos: [
+      { orgaoId: "caesb", papel: "responsável", pedido: "Confirmar se houve vazamento na quadra", prazoH: 24 },
+      { orgaoId: "novacap", papel: "apoio", pedido: "Aguardar a confirmação antes de recompor o asfalto", prazoH: 48 },
+    ],
+    ganho: "Nenhum, se for coincidência. O descarte fica no registro e mostra quantas sugestões a IA erra.",
+    linhaDoTempo: [
+      { quando: "há 20 dias", texto: "Primeiro chamado de buraco na quadra" },
+      { quando: "ontem", texto: "Manutenção programada da CAESB; 9 chamados de falta d'água" },
+      { quando: "há 4 h", texto: "City View sugere causa comum" },
     ],
   },
 ];

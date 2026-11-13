@@ -273,6 +273,46 @@ cadeia (`demo/fluxo-incidente`, `demo/visualizacao`, `demo/linha-do-tempo`,
 
 Testes: 315.
 
+*Acréscimo de 13/11/2026 · o que faltava acrescentar e o método.* Branch
+`demo/acrescentar-metodo`, sobre `demo/perfis`. Também vem do
+[CV-DEM-002](../docs/CV-DEM-002-revisao-por-papeis.md).
+
+- **Resumo do dia** (tela nova, `#/resumo`, a segunda da governadora): a frase
+  da gestão, o que mudou no DF inteiro, o que pede decisão, o que piorou e o que
+  foi resolvido. **Imprimir** tira a folha no tema claro, sem a barra.
+  Captura: `capturas/acresc-resumo.png`.
+- **Pergunte à cidade**, no pé do resumo: seis **perguntas prontas**,
+  respondidas com contas de verdade sobre a base simulada, com a conta dita e o
+  mapa quando a resposta é sobre regiões. A pergunta livre, escrita ou falada,
+  precisa de um modelo de linguagem e **não está feita**; a tela diz isso.
+  Captura: `capturas/acresc-pergunta.png`.
+- **De onde vem:** sob os painéis de números (sala, gestão, inteligência,
+  previsões, resumo), uma linha que abre a conta, a atualização e os sistemas de
+  onde o número viria, com a situação de cada ligação lida do catálogo de
+  conectores. Hoje: 3 ligados, 11 propostos, e tudo simulado.
+- **Ganho em tempo de equipe:** os atendimentos poupados aparecem também em
+  horas, a 6 minutos cada. É **premissa de exemplo**, marcada na tela.
+- **Triangulação:** um cartão no pé do painel de insights, marcado "Proposta ·
+  não é um insight da demo": o problema que não chega pelos canais (operação
+  apertada, quase nenhum chamado). Sem número e sem rede social.
+- **Confiança em palavras:** "alta", "média" ou "baixa", com a nota ao lado e a
+  frase que diz o que ela é: semelhança entre os chamados, não a chance de a IA
+  estar certa.
+- **Uma sugestão para descartar:** o décimo caso ("Buracos e falta d'água na
+  mesma quadra", Guará) é plantado para a IA errar. A operação da CAESB mostra
+  manutenção programada, sem vazamento. O insight diz "Para descartar" e por
+  quê. Captura: `capturas/acresc-para-descartar.png`.
+- **Previsão avaliada:** no lugar do "acerto 91%" de uma janela, o **erro
+  típico** em quatro janelas de duas semanas (11%), contra o palpite de repetir
+  as duas semanas anteriores (15%). **Onde reforçar as equipes** só lista região
+  cuja alta passa da margem da própria previsão: hoje, nenhuma.
+- **"Chuva"** como motivo de alta agora diz de onde vem: do tipo do chamado e do
+  calendário, não do modelo.
+- **Dois nomes para duas contas:** "chamados parecidos" na Gestão (regra simples
+  de 150 m e 24 h) e "atendimentos poupados" na Inteligência.
+
+Testes: 331.
+
 **Previsões** (feita, aguardando revisão; proposta): as próximas duas semanas
 com a margem, o que está fora do normal agora, o que deve subir e cair, onde
 reforçar as equipes e o acerto do método, medido ao prever as duas últimas

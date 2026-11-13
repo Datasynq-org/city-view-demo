@@ -7,6 +7,7 @@ import { TelaInteligencia } from './telas/inteligencia/TelaInteligencia';
 import { TelaJornada } from './telas/jornada/TelaJornada';
 import { TelaPrevisoes } from './telas/previsoes/TelaPrevisoes';
 import { TelaRegioes } from './telas/regioes/TelaRegioes';
+import { TelaResumo } from './telas/resumo/TelaResumo';
 import { TelaSala } from './telas/sala/TelaSala';
 import { TelaEntrada } from './telas/entrada/TelaEntrada';
 import { BarraLateral } from './ui/BarraLateral';
@@ -17,6 +18,8 @@ function conteudo(tela: Tela) {
   switch (tela) {
     case 'sala':
       return <TelaSala />;
+    case 'resumo':
+      return <TelaResumo />;
     case 'gestao':
       return <TelaGestao />;
     case 'regioes':
@@ -64,7 +67,7 @@ export function App() {
         {conteudo(tela)}
         {/* Por cima do mapa e por baixo da barra de comando de cada tela (z-20). */}
         <div className="faixa-superior z-10" aria-hidden="true" />
-        <p className="pointer-events-none absolute top-0 left-4 z-30 flex h-[3.75rem] max-w-[calc(50%-14rem)] items-center text-nota text-texto-2 lg:left-5">
+        <p className="nao-imprime pointer-events-none absolute top-0 left-4 z-30 flex h-[3.75rem] max-w-[calc(50%-14rem)] items-center text-nota text-texto-2 lg:left-5">
           <span className="truncate">
             <span className="text-tinta">{atual.nome}</span>
             <span className="ml-2 hidden 2xl:inline">· {atual.pergunta}</span>

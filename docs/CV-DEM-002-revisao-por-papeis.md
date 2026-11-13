@@ -508,3 +508,30 @@ Continuam abertos: A1 a A4, A6, D1 a D6, R1 a R3.
   A sala não diz isso em lugar nenhum. É exatamente o "o que mudou?" da
   governadora, e cabe numa linha no alto.
 
+*Acréscimo de 13/11/2026 · acrescentar e método.*
+
+| Achado | Situação | Onde |
+| --- | --- | --- |
+| A1 origem de cada número | Feito | "De onde vem", sob os painéis de números |
+| A2 ganho em tempo de equipe | Feito, com premissa **de exemplo** (6 min) | Inteligência › Painel |
+| A3 pergunte à cidade | Feito com perguntas prontas; a pergunta livre não | Resumo do dia |
+| A4 resumo do dia | Feito, com impressão | Tela nova, `#/resumo` |
+| A6 triangulação | Feito como cartão de proposta, sem número | Inteligência › Painel, no pé |
+| D1 confiança em palavras | Feito | Insight e cartões |
+| D2 erro em várias janelas | Feito: 11%, contra 15% do palpite simples | Previsões |
+| D3 reforço fora da margem | Feito; hoje a lista fica vazia | Previsões |
+| D4 dois "repetidos" | Feito: "parecidos" e "poupados" | Gestão e Inteligência |
+| D5 falso positivo de propósito | Feito: o caso do Guará | Inteligência |
+| D6 origem do motivo "chuva" | Feito | Previsões |
+
+Continuam abertos: **R1** (ponto exato de chamados de segurança; "a mesma
+casa"), **R2** (modo telão sem o que não pode ir à parede) e **R3** ("quatro
+órgãos" no apagão).
+
+**O que o trabalho mostrou:**
+- A lista de reforço vazia (D3) confirma o achado: as altas de 2% a 4% eram
+  ruído. A tela ficou mais honesta e menos vistosa.
+- O caso plantado (D5) saiu com confiança "alta". Não foi ajustado para sair
+  "baixa": é a melhor prova de que a nota mede semelhança, e de que o registro
+  de decisões é que diz quanto a IA acerta.
+

@@ -385,3 +385,12 @@
 /* No claro, a sombra dos painéis é leve: o contorno já separa do fundo. */
 :root[data-tema='claro'] .painel-vidro { box-shadow: 0 4px 14px rgb(20 30 40 / 0.1); }
 
+/* ---------- Impressão: o resumo do dia numa folha ----------
+   Saem a barra lateral, a faixa do alto e o que é só de tela; a página deixa de rolar. */
+@media print {
+  .barra-lateral, .faixa-superior, .nao-imprime { display: none !important; }
+  html, body, #raiz { height: auto !important; overflow: visible !important; background: #fff !important; }
+  .pagina { height: auto !important; overflow: visible !important; padding: 0 !important; }
+  .painel-vidro { break-inside: avoid; box-shadow: none !important; }
+}
+

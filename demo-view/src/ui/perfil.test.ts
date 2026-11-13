@@ -11,8 +11,8 @@ describe('entrar por perfil', () => {
     }
   });
 
-  it('a governadora vê três telas; o operador, todas; sem perfil, todas', () => {
-    expect(telasDoPerfil('governadora')).toEqual(['sala', 'gestao', 'cidadao']);
+  it('a governadora vê quatro telas; o operador, todas; sem perfil, todas', () => {
+    expect(telasDoPerfil('governadora')).toEqual(['sala', 'resumo', 'gestao', 'cidadao']);
     expect(telasDoPerfil('operador')).toHaveLength(TELAS.length);
     expect(telasDoPerfil(null)).toHaveLength(TELAS.length);
   });

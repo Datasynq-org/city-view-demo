@@ -99,7 +99,7 @@ export function SalaDeGuerra({ base, incidentes, agora, doPeriodo, filtrados, po
     <>
       <div className="sala-coluna sala-esquerda">
         <Filtros periodo={filtro.periodo} area={filtro.area} ra={ra} aoMudarPeriodo={mudarPeriodo} aoMudarArea={mudarArea} aoLimparRa={aoLimparRa} />
-        <Numeros {...numeros} nomePeriodo={nomePeriodo} variacaoDoTempo={comparacao.tempo === null ? null : comparacao.tempo * 100} variacaoDoPrazo={comparacao.noPrazo} />
+        <Numeros {...numeros} area={filtro.area} nomePeriodo={nomePeriodo} variacaoDoTempo={comparacao.tempo === null ? null : comparacao.tempo * 100} variacaoDoPrazo={comparacao.noPrazo} />
         <Velocidade linhas={porArea} area={filtro.area} aoMudarArea={mudarArea} />
       </div>
       <div className="sala-coluna sala-direita">

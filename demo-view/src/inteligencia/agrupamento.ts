@@ -57,6 +57,7 @@ const ROTEIRO: Record<string, { raio: number; sinais: [assunto: string, janelaH:
   'dengue-sol-nascente': { raio: 900, sinais: [['descarte-irregular', 1080], ['foco-de-mosquito', 480], ['lotacao-na-saude', 360]] },
   'placas-aguas-claras': { raio: 120, sinais: [['placa-derrubada', 720], ['sinistro-com-vitima', 720]] },
   'agua-sao-sebastiao': { raio: 1300, sinais: [['falta-dagua', 168]] },
+  'coincidencia-guara': { raio: 180, sinais: [['buraco-na-quadra', 480], ['falta-dagua-programada', 20]] },
 };
 
 /** Alcance dos assuntos do dia a dia (o ruído): perto e recente. */
@@ -134,7 +135,7 @@ function ruido(n: number, rand: Rand): Chamado[] {
 
 export const SEMENTE = 20261112;
 
-/** Os chamados da tela: os dos 9 casos e o ruído do dia a dia. A mesma semente dá sempre os mesmos. */
+/** Os chamados da tela: os dos casos e o ruído do dia a dia. A mesma semente dá sempre os mesmos. */
 export function gerarChamados(semente = SEMENTE, avulsos = 220): Chamado[] {
   const rand = mulberry32(semente);
   return [...CASOS.flatMap((c) => chamadosDoCaso(c, rand)), ...ruido(avulsos, rand)];
