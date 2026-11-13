@@ -15,6 +15,7 @@ import { Contador } from '../../ui/Contador';
 import { Painel } from '../../ui/Painel';
 import { useTema } from '../../ui/tema';
 import { faixaDaConfianca, O_QUE_E_A_NOTA, ROTULO_DA_FAIXA } from '../../inteligencia/confianca';
+import { ehReal } from '../../inteligencia/reais';
 import { PlanoOuAndamento } from './Encaminhamento';
 
 const n = (v: number) => Math.round(v).toLocaleString('pt-BR');
@@ -255,6 +256,29 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
             </ul>
           )}
         </motion.section>
+
+        {ehReal(inc) && (
+          <motion.section variants={PARTE}>
+            <Rotulo>
+              O que os cidadãos escreveram · {inc.relatos.length} relatos reais
+            </Rotulo>
+            <ul>
+              {inc.relatos.slice(0, 6).map((r) => (
+                <li key={r.protocolo} className="border-t border-linha py-1.5 first:border-t-0">
+                  <p className="text-nota text-texto">{r.texto}</p>
+                  <p className="mt-0.5 flex justify-between gap-2 text-micro text-texto-2">
+                    <span>
+                      {r.quando} · <span className="font-mono">{r.protocolo}</span>
+                    </span>
+                    <span className={r.aberto ? 'text-aviso' : 'text-acento-claro'}>{r.status}</span>
+                  </p>
+                </li>
+              ))}
+            </ul>
+            {inc.relatos.length > 6 && <p className="mt-1 text-micro text-texto-2">e mais {inc.relatos.length - 6}, mais antigos.</p>}
+            <p className="mt-1.5 text-micro text-texto-2">Texto do mapa público, sem foto; telefone, e-mail, CPF e placa são retirados. Relatos não são pessoas: o mapa não diz quem relatou.</p>
+          </motion.section>
+        )}
 
         <motion.section variants={PARTE}>
           <Rotulo>Confiança</Rotulo>

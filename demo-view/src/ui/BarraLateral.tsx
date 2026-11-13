@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { type Tela, TELAS } from '../navegacao';
 import { mudarPerfil, PERFIL_POR_ID, telasDoPerfil, usePerfil } from './perfil';
+import { FONTES, mudarFonte, useFonte } from '../dados/fonte';
 import { mudarTema, useTema } from './tema';
 
 /** Ícones próprios, de traço fino (24×24). Sem biblioteca. */
@@ -34,6 +35,8 @@ const ICONE: Record<Tela, ReactNode> = {
  */
 export function BarraLateral({ tela, aoIr, aberta, aoAlternar }: { tela: Tela; aoIr: (t: Tela) => void; aberta: boolean; aoAlternar: () => void }) {
   const tema = useTema();
+  const fonte = useFonte();
+  const outraFonte = FONTES.find((f) => f.id !== fonte)!;
   const { perfil, orgao } = usePerfil();
   // A barra mostra as telas do perfil, na ordem dele; a tela aberta por endereço aparece mesmo fora dela.
   const doPerfil = telasDoPerfil(perfil);
@@ -72,6 +75,12 @@ export function BarraLateral({ tela, aoIr, aberta, aoAlternar }: { tela: Tela; a
           );
         })}
       </nav>
+      <button type="button" onClick={() => mudarFonte(outraFonte.id)} aria-pressed={fonte === 'aguas-claras'} title={`Fonte dos chamados: ${FONTES.find((f) => f.id === fonte)!.nome}. Trocar para ${outraFonte.nome} (${outraFonte.nota})`} className={`mx-1.5 mb-0.5 flex h-9 shrink-0 items-center gap-3 rounded-md px-2.5 text-rotulo hover:bg-poco hover:text-tinta ${fonte === 'aguas-claras' ? 'text-aviso' : 'text-texto-2'}`}>
+        <svg viewBox="0 0 24 24" className="size-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M4 6c0-1.700 3.600-3 8-3s8 1.300 8 3-3.600 3-8 3-8-1.300-8-3zM4 6v6c0 1.700 3.600 3 8 3s8-1.300 8-3V6M4 12v6c0 1.700 3.600 3 8 3s8-1.300 8-3v-6" />
+        </svg>
+        <span className={`truncate ${aberta ? '' : 'sr-only'}`}>{FONTES.find((f) => f.id === fonte)!.nome}</span>
+      </button>
       <button type="button" onClick={trocar} title={perfil ? `Perfil: ${PERFIL_POR_ID[perfil].nome}${orgao ? ` (${orgao})` : ''}. Trocar` : 'Escolher um perfil'} className="mx-1.5 mb-0.5 flex h-9 shrink-0 items-center gap-3 rounded-md px-2.5 text-rotulo text-texto-2 hover:bg-poco hover:text-tinta">
         <svg viewBox="0 0 24 24" className="size-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 8l-4 4 4 4M6 12h10" />

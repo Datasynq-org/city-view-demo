@@ -18,6 +18,10 @@ import { reduzMovimento } from '../../mapa/vista';
 import { Painel } from '../../ui/Painel';
 import { escolhaAtual } from '../../ui/perfil';
 import { useTema } from '../../ui/tema';
+import { dataDaLeitura, numeros, ROTULO_DO_STATUS } from '../../dados/aguasClaras/demandas';
+import { JANELA_DIAS, MINIMO_DE_RELATOS, RAIO_M } from '../../inteligencia/reais';
+import { siglaDoOrgao as sigla } from '../../inteligencia/casos';
+import { Linha } from '../../ui/graficos';
 import { Origem } from '../../ui/Origem';
 import { EmAndamento, Registro } from './Encaminhamento';
 import { CorDoOrgao, Faixa, LegendaDasAreas } from './partes';
@@ -110,9 +114,72 @@ function Cartao({ inc, decisao, andando, ativo, recuado, aoAbrir }: { inc: Incid
   );
 }
 
+/** O que o dado real sustenta: volume, status, tipo, órgão e a série por mês. Sem tempo nem prazo. */
+function AguasClarasEmNumeros() {
+  const d = useMemo(() => numeros(), []);
+  const mes = (m: string) => `${m.slice(5)}/${m.slice(0, 4)}`;
+  return (
+    <Painel className="p-5">
+      <h2 className="titulo-painel">Águas Claras em números · dado real</h2>
+      <p className="mt-0.5 text-rotulo text-texto-2">
+        Demandas do mapa público do site parceiro, lidas em {dataDaLeitura()}. {n(d.comFoto)} têm foto (as fotos não entram na demo).
+      </p>
+      <div className="mt-4 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.3fr)]">
+        <div>
+          <p className="text-valor font-semibold text-tinta tabular-nums">{n(d.total)}</p>
+          <p className="text-nota text-texto">
+            demandas, de {mes(d.porMes[0]!.mes)} a {mes(d.porMes.at(-1)!.mes)}
+          </p>
+          <ul className="mt-2 space-y-0.5 text-rotulo">
+            {d.porStatus.map((s) => (
+              <li key={s.status} className="flex justify-between gap-3">
+                <span className="text-texto">{ROTULO_DO_STATUS[s.status]}</span>
+                <span className="text-tinta tabular-nums">
+                  {n(s.n)} <span className="text-texto-2">· {Math.round((s.n / d.total) * 100)}%</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <p className="condensado mb-1 text-micro text-texto-2">Por tipo · finalizadas</p>
+          <ul className="space-y-0.5 text-rotulo">
+            {d.porTipo.map((t) => (
+              <li key={t.tipo} className="flex justify-between gap-3">
+                <span className="truncate text-texto">{t.tipo}</span>
+                <span className="text-tinta tabular-nums">
+                  {n(t.n)} <span className="text-texto-2">· {Math.round((t.finalizadas / t.n) * 100)}%</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="condensado mt-3 mb-1 text-micro text-texto-2">Órgãos com mais demandas</p>
+          <ul className="space-y-0.5 text-rotulo">
+            {d.porOrgao.slice(0, 5).map((o) => (
+              <li key={o.orgaoId} className="flex justify-between gap-3">
+                <span className="truncate text-texto">{sigla(o.orgaoId)}</span>
+                <span className="text-tinta tabular-nums">
+                  {n(o.n)} <span className="text-texto-2">· {Math.round((o.finalizadas / o.n) * 100)}%</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <p className="condensado mb-1 text-micro text-texto-2">Demandas por mês</p>
+          <Linha serie={d.porMes.map((m) => m.n)} altura={34} desdeZero formato={(v) => n(v)} descricao="Demandas criadas por mês em Águas Claras" inicio={mes(d.porMes[0]!.mes)} fim={`${mes(d.porMes.at(-1)!.mes)} (parcial)`} />
+          <p className="mt-2 text-micro text-texto-2">O mapa público não traz a data de resolução: tempo até resolver e prazo cumprido não saem deste dado. Isso viria do banco do dfac.</p>
+        </div>
+      </div>
+    </Painel>
+  );
+}
+
 type Aba = 'insights' | 'andamento' | 'registro';
 
-export function PainelDeInsights({ resultado, resumo, estado, decisaoDe, aberto, aoAbrir, comInsight }: {
+export function PainelDeInsights({ resultado, resumo, estado, real = false, decisaoDe, aberto, aoAbrir, comInsight }: {
+  /** Os chamados são as demandas reais de Águas Claras, não a cidade simulada. */
+  real?: boolean;
   resultado: Resultado;
   resumo: Resumo;
   /** O estado comum: o andamento de cada incidente confirmado e o registro. */
@@ -144,17 +211,28 @@ export function PainelDeInsights({ resultado, resumo, estado, decisaoDe, aberto,
 
   return (
     <div className={`pagina ${comInsight ? 'pagina-com-insight' : ''}`}>
+      {real && <AguasClarasEmNumeros />}
       <Painel className="p-5">
         <h2 className="titulo-painel">Insights ocultos</h2>
-        <p className="mt-0.5 text-rotulo text-texto-2">O que nenhum órgão vê sozinho: chamados e dados de operação que, cruzados, contam outra história. Sugestões da IA; uma pessoa confirma.</p>
+        <p className="mt-0.5 text-rotulo text-texto-2">
+          {real
+            ? `Relatos reais que falam do mesmo ponto. A regra: mesmo tipo, a até ${RAIO_M} m e ${JANELA_DIAS} dias, com texto parecido; pelo menos ${MINIMO_DE_RELATOS} relatos. Os textos de cada insight são gerados dos números do grupo. Uma pessoa confirma.`
+            : 'O que nenhum órgão vê sozinho: chamados e dados de operação que, cruzados, contam outra história. Sugestões da IA; uma pessoa confirma.'}
+        </p>
         <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-4 lg:grid-cols-5">
-          <Numero valor={n(resumo.chamados)} rotulo="chamados" nota="em todas as filas" />
+          <Numero valor={n(resumo.chamados)} rotulo={real ? 'relatos reais' : 'chamados'} nota={real ? 'do mapa público, com ponto no mapa' : 'em todas as filas'} />
           <Numero valor={n(resumo.incidentes)} rotulo="incidentes sugeridos" nota={`${resumo.porSeveridade.crítico} críticos · ${resumo.porSeveridade.sério} sérios`} />
           <Numero valor={n(resumo.evitados)} rotulo="atendimentos poupados" nota={`em cada incidente, todos menos um · ≈ ${n(horasPoupadas(resumo.evitados))} h de equipe, a ${MINUTOS_POR_ATENDIMENTO} min cada (premissa de exemplo)`} />
           <Numero valor={`${resumo.entreOrgaos}`} rotulo="cruzam mais de um órgão" nota={`${resumo.comOperacao} usam a operação dos sistemas`} />
           <Numero valor={`${resumo.porSituacao.confirmado + resumo.porSituacao.enviando}`} rotulo="confirmados por uma pessoa" nota={`${resumo.porSituacao.sugerido} esperam decisão · ${resumo.porSituacao.descartado} descartados${avisados > 0 ? ` · ${n(avisados)} cidadãos avisados com uma resposta só` : ''}`} />
         </div>
-        <Origem className="mt-3" conta="Chamados de órgãos diferentes ligados por assunto, lugar e hora; os grupos viram incidentes sugeridos. Os casos da demonstração são escritos pela equipe, e a IA os reencontra entre os chamados do dia a dia." />
+        {real ? (
+          <p className="mt-3 text-micro text-texto-2">
+            <span className="condensado border-b border-dashed border-linha-forte">De onde vem</span> Demandas reais do mapa público de Águas Claras (site parceiro dfaguasclaras.com.br), lidas em {dataDaLeitura()}. O agrupamento é calculado aqui; o plano de envio e as respostas dos órgãos são simulados.
+          </p>
+        ) : (
+          <Origem className="mt-3" conta="Chamados de órgãos diferentes ligados por assunto, lugar e hora; os grupos viram incidentes sugeridos. Os casos da demonstração são escritos pela equipe, e a IA os reencontra entre os chamados do dia a dia." />
+        )}
       </Painel>
 
       <div role="tablist" aria-label="O que ver" className="flex gap-1 border-b border-linha">
@@ -210,7 +288,7 @@ export function PainelDeInsights({ resultado, resumo, estado, decisaoDe, aberto,
       {visiveis.length === 0 && <p className="text-nota text-texto-2">Nenhum insight com esses filtros.</p>}
 
       {/* Triangulação (magno 7.2): fora da conta, como proposta, até a resposta à pergunta 9.3. */}
-      <section className="rounded-lg border border-dashed border-linha-forte p-5">
+      <section className={`rounded-lg border border-dashed border-linha-forte p-5 ${real ? 'hidden' : ''}`}>
         <p className="flex flex-wrap items-center gap-2">
           <span className="condensado rounded border border-dashed border-linha-forte px-1.5 py-0.5 text-micro text-texto-2">Proposta · não é um insight da demo</span>
           <span className="condensado text-micro text-texto-2">Triangulação</span>

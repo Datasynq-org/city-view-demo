@@ -141,6 +141,11 @@ export interface EstadoDoGrafo {
    * `corte` horas. `null` ou ausente: agora, com tudo.
    */
   corte?: number | null;
+  /**
+   * O tamanho das colunas: 1 para o DF inteiro; menor quando o grafo mostra um
+   * bairro (os relatos reais de Águas Claras), para a coluna não cobrir a quadra.
+   */
+  escala?: number;
 }
 
 /** O chamado (ou o arco) já existia há `corte` horas? */
@@ -171,6 +176,7 @@ export const chegadosAte = (base: BaseDoGrafo, corte: number | null | undefined)
 export function camadasDoGrafo(e: EstadoDoGrafo): Layer[] {
   const { base, resultado, etapa, aberto, descartados } = e;
   const corte = e.corte ?? null;
+  const escala = e.escala ?? 1;
   // No tempo voltado, cada incidente tem só os chamados que já tinham chegado; com menos de dois, ainda não existe.
   const chegados = chegadosPorIncidente(base, resultado, corte);
   const formado = (k: number) => chegados[k]!.pontos >= 2;
@@ -301,21 +307,21 @@ export function camadasDoGrafo(e: EstadoDoGrafo): Layer[] {
         id: 'grafo-colunas',
         data: colunas,
         diskResolution: 6,
-        radius: 520,
+        radius: 520 * escala,
         extruded: true,
         getPosition: (c) => c.centro,
-        getElevation: (c) => alturaDaColuna(c.chamados),
+        getElevation: (c) => alturaDaColuna(c.chamados) * escala,
         getFillColor: (c) => [...COR_DA_SEVERIDADE[c.severidade], alfa(c.k)],
         material: { ambient: 0.75, diffuse: 0.45, shininess: 18 },
         pickable: true,
         transitions: { getElevation: 700, getFillColor: 300 },
-        updateTriggers: { getFillColor: chave, getElevation: chave },
+        updateTriggers: { getFillColor: chave, getElevation: [...chave, escala] },
         ...NA_PILHA,
       }),
       new TextLayer<(typeof colunas)[number]>({
         id: 'grafo-numeros',
         data: colunas.filter((c) => !haAberto || c.k === aberto),
-        getPosition: (c) => [c.centro[0], c.centro[1], c.k === aberto ? 0 : alturaDaColuna(c.chamados) + 350],
+        getPosition: (c) => [c.centro[0], c.centro[1], c.k === aberto ? 0 : (alturaDaColuna(c.chamados) + 350) * escala],
         getText: (c) => Math.round(c.chamados).toLocaleString('pt-BR'),
         getSize: 13,
         getColor: claro ? [12, 17, 22, 255] : [255, 255, 255, 255],

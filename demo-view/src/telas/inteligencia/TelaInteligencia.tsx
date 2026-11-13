@@ -20,6 +20,8 @@ import { parametrosDoHash } from '../../navegacao';
 import { Painel } from '../../ui/Painel';
 import { useTema } from '../../ui/tema';
 import { resumir } from '../../inteligencia/resumo';
+import { useFonte } from '../../dados/fonte';
+import { agruparReais, chamadosReais, ligacoesReais } from '../../inteligencia/reais';
 import { PainelDeInsights } from './Painel';
 import { Fila, Insight, LegendaDasAreas, PorOrgao } from './partes';
 
@@ -31,10 +33,18 @@ const casoDoEndereco = () => parametrosDoHash().get('caso');
 
 export function TelaInteligencia() {
   // ------------------------------------------------ o motor
-  const chamados = useMemo(() => gerarChamados(), []);
-  const ligacoes = useMemo(() => calcularLigacoes(chamados), [chamados]);
+  // A fonte escolhe os chamados: os da cidade simulada, ou os relatos reais de Águas Claras.
+  const real = useFonte() === 'aguas-claras';
+  const chamados = useMemo(() => (real ? chamadosReais() : gerarChamados()), [real]);
+  const ligacoes = useMemo(() => (real ? ligacoesReais(chamados) : calcularLigacoes(chamados)), [chamados, real]);
   const [sens, setSens] = useState(SENSIBILIDADE_PADRAO);
-  const resultado = useMemo(() => agrupar(chamados, ligacoes, limiarDaSensibilidade(sens)), [chamados, ligacoes, sens]);
+  const resultado = useMemo(() => (real ? agruparReais(chamados, ligacoes, limiarDaSensibilidade(sens)) : agrupar(chamados, ligacoes, limiarDaSensibilidade(sens))), [chamados, ligacoes, sens, real]);
+  // Para onde o mapa volta quando nada está aberto: o DF, ou Águas Claras enquadrada nos relatos.
+  const casa = useMemo((): Destino => {
+    if (!real || !chamados.length) return DF;
+    const centro: [number, number] = [chamados.reduce((s, c) => s + c.ponto[0], 0) / chamados.length, chamados.reduce((s, c) => s + c.ponto[1], 0) / chamados.length];
+    return { tipo: 'vista', vista: { centro, zoom: 13.1, inclinacao: 45, rotacao: -14 } };
+  }, [real, chamados]);
   const base = useMemo(() => prepararGrafo(chamados, resultado), [chamados, resultado]);
 
   // ------------------------------------------------ o que a pessoa vê e decide
@@ -91,12 +101,13 @@ export function TelaInteligencia() {
   const [tocando, setTocando] = useState(false);
   // Com um insight aberto, a janela é a dele; sem, as últimas horas da cidade.
   const janelaDoTempo = useMemo((): [number, number] => {
-    if (!inc) return [0, HORAS_DA_BARRA];
+    // Sem insight: as últimas horas da cidade simulada, ou todo o período dos relatos reais.
+    if (!inc) return [0, real ? Math.max(...chamados.map((c) => c.horas)) : HORAS_DA_BARRA];
     const horas = inc.membros.map((m) => chamados[m]!.horas);
     const [min, max] = [Math.min(...horas), Math.max(...horas)];
     const folga = Math.max(0.5, (max - min) * 0.08);
     return [Math.max(0, min - folga), max + folga];
-  }, [inc, chamados]);
+  }, [inc, chamados, real]);
   const corte = momento === null ? null : janelaDoTempo[1] - momento * (janelaDoTempo[1] - janelaDoTempo[0]);
   // Trocar de insight troca a janela: a barra volta para "agora".
   useEffect(() => {
@@ -132,7 +143,7 @@ export function TelaInteligencia() {
   // Com um insight aberto, a conta é a dele; sem, a da cidade.
   const chegaramAteAqui = useMemo(() => (aberto >= 0 ? (chegadosPorIncidente(base, resultado, corte)[aberto]?.chamados ?? 0) : chegadosAte(base, corte)), [base, resultado, corte, aberto]);
 
-  const estado = useMemo(() => ({ base, resultado, etapa, aberto, descartados, corte }), [base, resultado, etapa, aberto, descartados, corte, tema]);
+  const estado = useMemo(() => ({ base, resultado, etapa, aberto, descartados, corte, escala: real ? 0.1 : 1 }), [base, resultado, etapa, aberto, descartados, corte, real, tema]);
   const camadas = useMemo(() => camadasDoGrafo(estado), [estado]);
   const animadas = useCallback((t: number) => camadasVivas(estado, ondas, t), [estado, ondas]);
 
@@ -149,17 +160,17 @@ export function TelaInteligencia() {
   useEffect(() => {
     if (abertoAntes.current === aberto) return;
     const primeira = abertoAntes.current === null;
-    if (primeira && aberto < 0) {
+    if (primeira && aberto < 0 && !real) {
       abertoAntes.current = aberto;
       return;
     }
     // Depois que as margens mudam (o painel do insight abre ou fecha). Na abertura, depois do mapa carregar.
     const t = setTimeout(() => {
       abertoAntes.current = aberto;
-      voar(inc ? { tipo: 'vista', vista: { centro: inc.centro, zoom: zoomDoIncidente(inc), inclinacao: 55, rotacao: -14 } } : DF);
+      voar(inc ? { tipo: 'vista', vista: { centro: inc.centro, zoom: zoomDoIncidente(inc), inclinacao: 55, rotacao: -14 } } : casa);
     }, primeira ? 3200 : 0);
     return () => clearTimeout(t);
-  }, [aberto, inc, voar]);
+  }, [aberto, inc, voar, casa, real]);
 
   const abrir = useCallback((k: number) => setAberto((a) => (a === k ? a : k)), []);
   const fechar = useCallback(() => {
@@ -219,7 +230,7 @@ export function TelaInteligencia() {
       {vista === 'grafo' ? (
         <Mapa margens={margens} camadas={camadas} animadas={animadas} alvo={alvo} semImagem dicaDasRas={false} clicaveis={CLICAVEIS} aoClicarObjeto={aoClicarObjeto} />
       ) : (
-        <PainelDeInsights resultado={resultado} resumo={resumo} estado={estadoComum} decisaoDe={(c) => decisaoDe(decisoes, c)} aberto={aberto} aoAbrir={abrir} comInsight={Boolean(inc)} />
+        <PainelDeInsights resultado={resultado} resumo={resumo} estado={estadoComum} real={real} decisaoDe={(c) => decisaoDe(decisoes, c)} aberto={aberto} aoAbrir={abrir} comInsight={Boolean(inc)} />
       )}
 
       {/* No alto: painel ou grafo e, no grafo, as três etapas. */}
@@ -294,7 +305,7 @@ export function TelaInteligencia() {
         type="button"
         onClick={() => {
           setFilaAberta((v) => !v);
-          setTimeout(() => !inc && voar(DF), 0);
+          setTimeout(() => !inc && voar(casa), 0);
         }}
         aria-label={filaAberta ? 'Recolher a fila de insights' : 'Mostrar a fila de insights'}
         className={`absolute top-1/2 z-20 hidden h-12 w-5 -translate-y-1/2 place-items-center rounded-r border border-l-0 border-linha bg-painel text-texto-2 hover:text-tinta ${vista === 'grafo' ? 'lg:grid' : ''} ${filaAberta ? 'left-[23rem]' : 'left-0'}`}

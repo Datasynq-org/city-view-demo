@@ -14,7 +14,8 @@ const n = (v: number) => Math.round(v).toLocaleString('pt-BR');
 export function haHoras(h: number): string {
   if (h < 0.75) return 'agora';
   if (h < 48) return `há ${n(h)} h`;
-  return `há ${n(h / 24)} dias`;
+  if (h < 24 * 75) return `há ${n(h / 24)} dias`;
+  return `há ${n(h / 24 / 30.4)} meses`;
 }
 
 export function BarraDoTempo({ momento, tocando, janela, corte, chegaram, total, doInsight, aoMudar, aoAlternar, dica }: {

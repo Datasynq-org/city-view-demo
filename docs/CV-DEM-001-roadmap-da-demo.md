@@ -492,3 +492,56 @@ telas; a de regiões passa a se chamar "Regiões e serviços".
   tela nova. Onde o parágrafo anterior fala em "tela Analytics" e "dez telas",
   vale este.
 
+*Acréscimo de 13/11/2026 · demandas reais de Águas Claras.* Pedido do Sammuel:
+"puxar os dados do DFAC de Águas Claras para colocar no app e mockar nosso fluxo
+(insights, rede, grafos com aqueles dados)". Branch `demo/aguas-claras`, sobre
+`demo/analytics`. É a primeira vez que a demo mostra dado real.
+
+**O que foi decidido com ele:** fonte = o mapa público agora, o banco do dfac
+depois (se ele liberar o acesso); uma chave de fonte no app; mostrar o texto dos
+cidadãos, limpando.
+
+**Decisões da execução:**
+- **A fonte é o endpoint público do site parceiro**
+  (`GET https://dfaguasclaras.com.br/mapadedemandas/api/demandas`, sem login,
+  achado no código do dfac). Uma leitura só, em 13/11/2026: 853 demandas, todas
+  com `autorizacao = aprovado`, só os 13 campos esperados. O banco de produção
+  do dfac não foi tocado.
+- **O arquivo fica no repositório**, em `src/` (e não em `public/`, como estava
+  no plano: assim o dado entra nos testes). É dado já publicado; o repositório é
+  privado.
+- **Agrupamento próprio para o dado real** (`inteligencia/reais.ts`), no
+  espírito da regra de recorrência do dfac. A primeira versão ligava tipos
+  diferentes só pela vizinhança e juntava assuntos sem relação (carro abandonado
+  com asfalto afundado); passou a exigir texto parecido e pelo menos três
+  relatos. De 158 grupos, ficaram 28.
+- **"Sem órgão atribuído" não é órgão:** 97 demandas vêm sem órgão no site; elas
+  entram, mas não contam como cruzamento entre órgãos.
+- **O selo muda com a fonte e com a tela:** na Inteligência, "Demandas reais de
+  Águas Claras, lidas em 13/11/2026 · fluxo simulado"; nas outras, "Esta tela:
+  cidade simulada".
+
+**O que ficou diferente do plano:**
+- **Só a Inteligência roda sobre o dado real.** O plano previa também a sala e
+  os blocos de volume do Resumo e da Gestão. Essas telas são construídas sobre o
+  modelo da cidade simulada (prazo por tipo, tempo até resolver, chegadas ao
+  vivo, DF inteiro), que o dado real não preenche. Em vez de adaptá-las pela
+  metade, os números reais (total, status, tipo, órgão, série por mês) ficam num
+  bloco no alto da Inteligência, e o selo avisa nas demais.
+- **A "rede" (operação dos órgãos) não foi ligada ao dado real:** continua só na
+  cidade simulada.
+
+**Achados no dado, para a equipe:**
+- 853 demandas em 26 meses; 46% finalizadas, 47% encaminhadas, 6% em andamento.
+- Os números diferem pouco dos do magno 6.1 (843 em 06/11): são dez a mais em
+  uma semana.
+- Há relatos repetidos palavra por palavra no mesmo dia e ponto (oito do mesmo
+  afundamento de asfalto): provavelmente a mesma pessoa reenviando.
+- Há recorrência escrita pelo próprio cidadão ("pela 5ª vez em 2026 abriram
+  buracos na Rua 19 Sul"): o melhor exemplo real do que o City View propõe.
+
+**Pendente:** o banco do dfac (demandas do WhatsApp, datas de envio e de
+resolução), que depende de o Sammuel liberar o acesso.
+
+Testes: 365.
+

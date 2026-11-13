@@ -347,6 +347,45 @@ deixam o cinza e passam a usar uma cor só, a família quente do calor da sala:
 quanto mais quente, mais chamados ou pior o índice. A região escolhida continua
 com o contorno do acento, que é frio. O mapa público segue em verde.
 
+*Acréscimo de 13/11/2026 · demandas reais de Águas Claras.* Pedido do Sammuel:
+puxar os dados do dfac de Águas Claras e rodar o nosso fluxo por cima. Branch
+`demo/aguas-claras`.
+
+**A chave de fonte** (botão na barra lateral; `?fonte=aguas-claras`): *Cidade
+simulada* (o padrão) ou *Águas Claras (real)*. O selo do canto muda com ela.
+
+- **O que é real:** 853 demandas do **mapa público** do site parceiro
+  dfaguasclaras.com.br (o mesmo que o dfac alimenta), de set./2024 a nov./2026:
+  tipo, descrição, lugar, status, órgão e data. Lidas **uma vez**, em
+  13/11/2026, e guardadas em `src/dados/aguasClaras/aguas-claras.json`. A demo
+  não chama o site ao abrir.
+- **O que é calculado sobre o real:** os incidentes da Inteligência
+  (`inteligencia/reais.ts`). Regra: mesmo tipo, a até 150 m e 180 dias, com
+  texto parecido; tipos diferentes só bem perto e com texto parecido; pelo menos
+  três relatos; nenhum grupo passa de 150 m de raio. Saem 28 incidentes de 853
+  relatos. A leitura, a recomendação e o ganho são **gerados dos números do
+  grupo**; o insight mostra **o que os cidadãos escreveram**.
+- **O que continua simulado:** o plano de envio, as respostas dos órgãos e a
+  mensagem ao cidadão.
+- **Onde vale:** na **Inteligência** (painel, grafo, ida e volta, registro,
+  voltar no tempo), com um bloco "Águas Claras em números". **As outras telas
+  seguem na cidade simulada**, e o selo diz isso.
+- **O que o dado não tem:** a data de resolução (logo, nada de tempo até
+  resolver nem de prazo) e quem relatou. Isso viria do banco do dfac.
+
+**Cuidados com o dado** (`src/dados/aguasClaras/limpar.ts`, com testes):
+- só entram os 13 campos que o site publica; campo novo faz a leitura parar;
+- das descrições saem telefone, e-mail, CPF e placa (na leitura de 13/11 saiu
+  uma placa; nenhum telefone, e-mail ou CPF apareceu);
+- **as fotos não entram**: só o fato de haver foto;
+- acentos quebrados que vêm do site são consertados.
+
+**Para refazer a leitura:** `node --experimental-strip-types scripts/baixar-aguas-claras.ts`
+(dentro de `demo-view/`). É uma chamada ao endpoint público, sem login.
+
+Capturas: `capturas/ac-painel.png`, `capturas/ac-insight.png`,
+`capturas/ac-grafo.png`. Testes: 365.
+
 **Previsões** (feita, aguardando revisão; proposta): as próximas duas semanas
 com a margem, o que está fora do normal agora, o que deve subir e cair, onde
 reforçar as equipes e o acerto do método, medido ao prever as duas últimas

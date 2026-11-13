@@ -90,6 +90,12 @@ export const FONTES_SIMULADAS: Record<string, { sigla: string; nome: string }> =
   'defesa-civil': { sigla: 'Defesa Civil', nome: 'Defesa Civil do Distrito Federal' },
   vigilancia: { sigla: 'Vigilância Ambiental', nome: 'Vigilância Ambiental em Saúde' },
   ses: { sigla: 'SES-DF', nome: 'Secretaria de Saúde do Distrito Federal' },
+  // Órgãos que aparecem nas demandas reais de Águas Claras (`dados/aguasClaras/`) e não estão no catálogo.
+  ssp: { sigla: 'SSP-DF', nome: 'Secretaria de Estado de Segurança Pública' },
+  'df-livre-de-carcacas': { sigla: 'DF Livre de Carcaças', nome: 'Programa DF Livre de Carcaças' },
+  semob: { sigla: 'SEMOB', nome: 'Secretaria de Transporte e Mobilidade do DF' },
+  sedes: { sigla: 'SEDES', nome: 'Secretaria de Desenvolvimento Social' },
+  'sem-orgao': { sigla: 'Sem órgão atribuído', nome: 'O site não atribuiu a demanda a um órgão' },
 };
 
 export const siglaDoOrgao = (id: string) => ORGAO_POR_ID[id]?.sigla ?? FONTES_SIMULADAS[id]?.sigla ?? id;

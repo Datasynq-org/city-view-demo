@@ -9,12 +9,15 @@ import { TelaPrevisoes } from './telas/previsoes/TelaPrevisoes';
 import { TelaRegioes } from './telas/regioes/TelaRegioes';
 import { TelaResumo } from './telas/resumo/TelaResumo';
 import { TelaSala } from './telas/sala/TelaSala';
+import { dataDaLeitura } from './dados/aguasClaras/demandas';
+import { useFonte, usaDadoReal } from './dados/fonte';
+import { reiniciar } from './inteligencia/estado';
 import { TelaEntrada } from './telas/entrada/TelaEntrada';
 import { BarraLateral } from './ui/BarraLateral';
 import { usePerfil } from './ui/perfil';
 import { Selo } from './ui/Selo';
 
-function conteudo(tela: Tela) {
+function conteudo(tela: Tela, fonte: string) {
   switch (tela) {
     case 'sala':
       return <TelaSala />;
@@ -31,7 +34,8 @@ function conteudo(tela: Tela) {
     case 'jornada':
       return <TelaJornada />;
     case 'inteligencia':
-      return <TelaInteligencia />;
+      // Trocar a fonte troca os chamados: a tela recomeça.
+      return <TelaInteligencia key={fonte} />;
     case 'integracoes':
       return <TelaIntegracoes />;
   }
@@ -46,6 +50,14 @@ export function App() {
   // Em tela larga a barra abre com os nomes; nas demais, só os ícones.
   const [aberta, setAberta] = useState(() => window.innerWidth >= 1536);
   const atual = TELAS.find((t) => t.id === tela)!;
+  const fonte = useFonte();
+  // As decisões eram sobre os incidentes da outra fonte.
+  useEffect(() => reiniciar(), [fonte]);
+  const selo = usaDadoReal(fonte, tela)
+    ? `Demandas reais de Águas Claras, lidas em ${dataDaLeitura()} · fluxo simulado`
+    : fonte === 'aguas-claras'
+      ? 'Esta tela: cidade simulada · o dado real está na Inteligência'
+      : undefined;
   // Quem chega pela raiz, sem ter escolhido, vê a entrada. Um endereço de tela abre direto, em qualquer perfil.
   const { perfil } = usePerfil();
   const semEndereco = !/^#\/?\w/.test(window.location.hash) && !new URLSearchParams(window.location.search).has('tela');
@@ -64,7 +76,7 @@ export function App() {
     <div className="flex h-full">
       <BarraLateral tela={tela} aoIr={ir} aberta={aberta} aoAlternar={() => setAberta((a) => !a)} />
       <div className="relative min-w-0 flex-1">
-        {conteudo(tela)}
+        {conteudo(tela, fonte)}
         {/* Por cima do mapa e por baixo da barra de comando de cada tela (z-20). */}
         <div className="faixa-superior z-10" aria-hidden="true" />
         <p className="nao-imprime pointer-events-none absolute top-0 left-4 z-30 flex h-[3.75rem] max-w-[calc(50%-14rem)] items-center text-nota text-texto-2 lg:left-5">
@@ -74,7 +86,7 @@ export function App() {
           </span>
         </p>
       </div>
-      <Selo />
+      <Selo texto={selo} />
     </div>
   );
 }
