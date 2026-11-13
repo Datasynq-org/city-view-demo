@@ -9,7 +9,6 @@ const ICONE: Record<Tela, ReactNode> = {
   resumo: <path d="M7 3h8l4 4v14H7zM15 3v4h4M10 12h6M10 16h6" />,
   gestao: <path d="M4 19V9M10 19V5M16 19v-7M21 19H3" />,
   regioes: <path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14" />,
-  analytics: <path d="M4 20h16M6 16l4-5 3 3 5-8M18 6h-3M18 6v3" />,
   inteligencia: (
     <>
       <circle cx="6" cy="7" r="2" />

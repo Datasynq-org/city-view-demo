@@ -475,3 +475,20 @@ e metas por serviço.
 
 Testes: 341.
 
+*Acréscimo de 13/11/2026 · Analytics fundida em Regiões.* O Sammuel viu a tela
+Analytics e achou ruim e supérflua: "Regiões é quase o mesmo, podem ser
+combinadas em uma página só". Feito, na mesma branch. A demo volta a ter nove
+telas; a de regiões passa a se chamar "Regiões e serviços".
+
+- **O que mudou:** os quatro serviços viraram uma faixa no alto de Regiões.
+  Escolher um troca a leitura do mesmo mapa e do mesmo ranking para o índice
+  dele, e abre os sinais do sistema do órgão. O perfil da região ganhou os
+  quatro índices. Nada da conta mudou (`indicadores/ecossistema.ts`).
+- **O que saiu:** a tela à parte, o gráfico de volume por serviço (a Gestão já
+  mostra por órgão) e o painel grande de "como o índice é feito", que virou um
+  parágrafo.
+- **A lição:** mapa por região mais ranking mais detalhe já era Regiões. Uma
+  leitura nova do mesmo recorte entra como opção da tela que existe, não como
+  tela nova. Onde o parágrafo anterior fala em "tela Analytics" e "dez telas",
+  vale este.
+

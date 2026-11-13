@@ -1,6 +1,9 @@
 /**
- * Regiões: "Como está cada região?". As 37 RAs lado a lado: o mapa em cores, o
- * ranking, quem espera mais e o perfil de cada uma contra o DF. Vem da tela
+ * Regiões e serviços: "Como está cada região, e cada serviço nela?". As 37 RAs
+ * lado a lado: o mapa em cores, o ranking, quem espera mais e o perfil de cada
+ * uma contra o DF. No alto, os serviços da cidade (energia, luz, água e esgoto,
+ * segurança): escolher um troca a leitura do mesmo mapa para o índice dele e
+ * mostra os sinais do sistema do órgão. Vem da tela
  * "Regiões" da demo exploratória. Dados SIMULADOS; população do Censo 2022.
  */
 import { type ReactNode, useMemo, useState } from 'react';
@@ -9,6 +12,7 @@ import { inicioDoDia } from '../../dados/gerador';
 import { type AreaId, AREAS, TIPO_POR_ID } from '../../dominio/orgaos';
 import { REGIAO_POR_ID } from '../../dominio/ras';
 import { entre } from '../../indicadores/gestao';
+import { type DominioId, DOMINIOS, indiceDoDominio, type IndiceDoDominio, MINIMO_DE_CHAMADOS } from '../../indicadores/ecossistema';
 import { duracao, numero, percentual } from '../../indicadores/indicadores';
 import { composicao, type Medida, MEDIDAS, type PerfilDaRa, perfis, ranking, tiposMaisFrequentes } from '../../indicadores/regioes';
 import { casosDaRa } from '../../inteligencia/casos';
@@ -17,6 +21,7 @@ import { Barra } from '../../ui/graficos';
 import { MapaDasRas } from '../../ui/MapaDasRas';
 import { Painel } from '../../ui/Painel';
 import { Grupo } from '../sala/partes';
+import { ComoOIndiceEFeito, FaixaDosServicos, Indice, OndeEstaPior, ServicosDaRa, SistemaDoOrgao } from './Servicos';
 
 const DIA = 86_400_000;
 type Janela = '7' | '14' | '30';
@@ -64,6 +69,13 @@ export function TelaRegioes() {
   const [area, setArea] = useState<AreaId | null>(null);
   const [medida, setMedida] = useState<Medida>('por10mil');
   const [ra, setRa] = useState<string | null>(() => parametrosDoHash().get('ra'));
+  // Um serviço escolhido troca a leitura do mapa e do ranking para o índice dele.
+  const [servico, setServico] = useState<DominioId | null>(() => {
+    const pedido = parametrosDoHash().get('servico');
+    return DOMINIOS.some((d) => d.id === pedido) ? (pedido as DominioId) : null;
+  });
+  const indices = useMemo(() => DOMINIOS.map((d) => indiceDoDominio(chegados, agora, d.id)), [chegados, agora]);
+  const doServico: IndiceDoDominio | undefined = indices.find((i) => i.dominio.id === servico);
   const dias = Number(janela);
   const fim = inicioDoDia(agora) + DIA;
 
@@ -71,14 +83,27 @@ export function TelaRegioes() {
   const { regioes, df } = useMemo(() => perfis(doPeriodo), [doPeriodo]);
   const ordem = useMemo(() => ranking(regioes, medida), [regioes, medida]);
   const esperam = useMemo(() => ranking(regioes, 'tempo').filter((p) => p.tempo !== null && p.chamados >= 30).slice(0, 6), [regioes]);
-  const valores = useMemo(() => new Map(regioes.map((p) => [p.ra, p.chamados ? p[medida] : null])), [regioes, medida]);
+  const valores = useMemo(() => (doServico ? new Map(doServico.regioes.map((r) => [r.ra, r.indice])) : new Map(regioes.map((p) => [p.ra, p.chamados ? p[medida] : null]))), [regioes, medida, doServico]);
+  const semIndice = doServico ? doServico.regioes.filter((r) => r.indice === null).length : 0;
   const maior = Math.max(1e-9, ...ordem.map((p) => p[medida] ?? 0));
   const perfil = ra ? regioes.find((p) => p.ra === ra) : undefined;
   const nota = MEDIDAS.find((m) => m.id === medida)!;
 
   return (
     <main className="pagina">
-      <div className="flex flex-wrap items-center gap-2">
+      <FaixaDosServicos indices={indices} ativo={servico} aoEscolher={setServico} />
+
+      {doServico && (
+        <p className="flex flex-wrap items-center gap-2 text-rotulo text-texto-2">
+          <span className="condensado rounded border border-dashed border-linha-forte px-2 py-1 text-micro">Proposta · simulado</span>
+          Vendo o índice de <span className="text-tinta">{doServico.dominio.nome}</span>, nos últimos 30 dias.
+          <button type="button" onClick={() => setServico(null)} className="rounded border border-linha px-2 py-1 text-texto hover:text-tinta">
+            Voltar às medidas gerais
+          </button>
+        </p>
+      )}
+
+      <div className={`flex flex-wrap items-center gap-2 ${doServico ? 'hidden' : ''}`}>
         <Grupo rotulo="Período" opcoes={JANELAS} valor={janela} aoMudar={setJanela} />
         <Grupo rotulo="O que comparar" opcoes={MEDIDAS} valor={medida} aoMudar={setMedida} />
         <div className="flex flex-wrap gap-1.5" role="group" aria-label="Área">
@@ -92,12 +117,22 @@ export function TelaRegioes() {
 
       <div className="pagina-grade">
         <Painel className="p-5">
-          <Titulo nota={`${nota.nota}. Limites oficiais (IDE/DF). Clique numa região para ver o perfil.`}>As 37 regiões administrativas</Titulo>
-          <MapaDasRas valores={valores} selecionada={ra} aoEscolher={(id) => setRa((a) => (a === id ? null : id))} formato={FORMATO[medida]} rotulo={nota.nome} invertida={medida === 'noPrazo'} />
+          <Titulo nota={doServico ? `${doServico.dominio.mede}. Quanto mais forte o tom, pior o índice. Clique numa região para ver o perfil.` : `${nota.nota}. Limites oficiais (IDE/DF). Clique numa região para ver o perfil.`}>{doServico ? `${doServico.dominio.nome} · índice por região` : 'As 37 regiões administrativas'}</Titulo>
+          {doServico ? (
+            <MapaDasRas valores={valores} selecionada={ra} aoEscolher={(id) => setRa((a) => (a === id ? null : id))} formato={(v) => String(Math.round(v))} rotulo="Índice, de 0 a 100" invertida dominio={[40, 100]} comValor />
+          ) : (
+            <MapaDasRas valores={valores} selecionada={ra} aoEscolher={(id) => setRa((a) => (a === id ? null : id))} formato={FORMATO[medida]} rotulo={nota.nome} invertida={medida === 'noPrazo'} />
+          )}
+          {doServico && semIndice > 0 && <p className="mt-2 text-micro text-texto-2">{semIndice} regi{semIndice === 1 ? 'ão fica' : 'ões ficam'} sem índice: menos de {MINIMO_DE_CHAMADOS} chamados no período.</p>}
         </Painel>
 
         {perfil ? (
-          <Perfil perfil={perfil} df={df} lista={doPeriodo.filter((i) => i.local.raId === perfil.ra)} dias={dias} aoFechar={() => setRa(null)} />
+          <Perfil perfil={perfil} df={df} lista={doPeriodo.filter((i) => i.local.raId === perfil.ra)} dias={dias} aoFechar={() => setRa(null)} indices={indices} servico={servico} aoEscolherServico={setServico} />
+        ) : doServico ? (
+          <Painel className="p-5">
+            <Titulo nota="As regiões com o pior índice deste serviço, e do que ele é feito em cada uma">Onde está pior</Titulo>
+            <OndeEstaPior indice={doServico} aoEscolher={setRa} />
+          </Painel>
         ) : (
           <Painel className="p-5">
             <Titulo nota="Tempo até resolver (mediana), no mesmo período. Só regiões com 30 chamados ou mais.">Quem espera mais pelo atendimento</Titulo>
@@ -117,6 +152,30 @@ export function TelaRegioes() {
         )}
       </div>
 
+      {doServico && (
+        <Painel className="p-5">
+          <Titulo nota="O que o sistema do órgão registraria, além dos chamados. Vale para o DF inteiro; valores e nomes ilustrativos, e cada órgão decide o que libera.">{doServico.dominio.nome} · qualidade da rede, do serviço e saúde do sistema</Titulo>
+          <SistemaDoOrgao dominio={doServico.dominio} />
+          <ComoOIndiceEFeito dominio={doServico.dominio} />
+        </Painel>
+      )}
+
+      {doServico ? (
+        <Painel className="p-5">
+          <Titulo nota="Índice do serviço, do pior ao melhor. Regiões com chamados de menos ficam de fora.">Ranking das regiões</Titulo>
+          <ol className="grid gap-x-8 gap-y-1 md:grid-cols-2 xl:grid-cols-3">
+            {doServico.piores.map((r, k) => (
+              <li key={r.ra}>
+                <button type="button" onClick={() => setRa(r.ra)} aria-pressed={r.ra === ra} className={`grid w-full grid-cols-[1.5rem_1fr_auto] items-center gap-2 rounded px-1 py-1 text-left text-rotulo ${r.ra === ra ? 'bg-realce' : 'hover:bg-poco'}`}>
+                  <span className="text-texto-2 tabular-nums">{k + 1}</span>
+                  <span className="truncate text-texto">{REGIAO_POR_ID[r.ra]?.nome}</span>
+                  <Indice valor={r.indice} />
+                </button>
+              </li>
+            ))}
+          </ol>
+        </Painel>
+      ) : (
       <Painel className="p-5">
         <Titulo nota={`${nota.nome}, no período${medida === 'noPrazo' ? ': do pior ao melhor' : ': do maior ao menor'}`}>Ranking das regiões</Titulo>
         <ol className="grid gap-x-8 gap-y-1 md:grid-cols-2 xl:grid-cols-3">
@@ -132,11 +191,12 @@ export function TelaRegioes() {
           ))}
         </ol>
       </Painel>
+      )}
     </main>
   );
 }
 
-function Perfil({ perfil, df, lista, dias, aoFechar }: { perfil: PerfilDaRa; df: PerfilDaRa; lista: ReturnType<typeof entre>; dias: number; aoFechar: () => void }) {
+function Perfil({ perfil, df, lista, dias, aoFechar, indices, servico, aoEscolherServico }: { perfil: PerfilDaRa; df: PerfilDaRa; lista: ReturnType<typeof entre>; dias: number; aoFechar: () => void; indices: IndiceDoDominio[]; servico: DominioId | null; aoEscolherServico: (id: DominioId) => void }) {
   const r = REGIAO_POR_ID[perfil.ra]!;
   const areas = useMemo(() => composicao(lista), [lista]);
   const tipos = useMemo(() => tiposMaisFrequentes(lista, 5), [lista]);
@@ -165,6 +225,9 @@ function Perfil({ perfil, df, lista, dias, aoFechar }: { perfil: PerfilDaRa; df:
           <p className="mt-1.5 text-micro text-texto-2">{perfil.chamados ? percentual(perfil.abertos / perfil.chamados) : '–'} dos chamados do período</p>
         </div>
       </div>
+
+      <h3 className="condensado mt-4 mb-1.5 text-micro text-texto-2">Os serviços nesta região · índice de 0 a 100, em 30 dias</h3>
+      <ServicosDaRa linhas={indices.map((i) => ({ dominio: i.dominio, r: i.regioes.find((x) => x.ra === perfil.ra) }))} ativo={servico} aoEscolher={aoEscolherServico} />
 
       <h3 className="condensado mt-4 mb-1.5 text-micro text-texto-2">De onde vêm os chamados</h3>
       <ul className="space-y-1">

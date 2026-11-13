@@ -313,30 +313,33 @@ Testes: 315.
 
 Testes: 331.
 
-*Acréscimo de 13/11/2026 · Analytics do ecossistema.* Pedido do Sammuel: uma
-página só de analytics, com o ecossistema inteiro (qualidade de rede, luz no DF,
-saneamento, mapa de segurança com índices). Branch `demo/analytics`.
+*Acréscimo de 13/11/2026 · os serviços dentro de Regiões.* Pedido do Sammuel:
+analytics do ecossistema inteiro (qualidade de rede, luz no DF, saneamento, mapa
+de segurança com índices). A primeira versão foi uma tela à parte ("Analytics");
+ficou repetindo Regiões e foi **fundida nela** no mesmo dia. Branch
+`demo/analytics`.
 
-**Analytics** (`#/analytics`, décima tela; `?dominio=seguranca` abre num
-serviço): "Como está cada serviço da cidade?". PROPOSTA, sobre dados simulados.
+**Regiões e serviços** (`#/regioes`; `?servico=seguranca` abre num serviço,
+`?ra=ceilandia` numa região). PROPOSTA, sobre dados simulados.
 
-- **Quatro serviços no alto:** Energia (Neoenergia), Luz na cidade (CEB IPes),
-  Água e esgoto (CAESB) e Segurança (PMDF), cada um com o **índice do DF** (0 a
-  100, com a faixa em palavra: bom, atenção, crítico), os chamados, o prazo
-  cumprido, a pior região e o sinal do sistema do órgão.
-- **Mapa do índice por região**, em escala fixa, com o valor escrito, e a lista
-  de **onde está pior**. Clicar numa região abre as três partes do índice dela.
-- **Rede, serviço e sistema:** o que o sistema do órgão registraria (clientes
-  sem energia, pontos de luz apagados, setores com pressão baixa, fila,
-  disponibilidade do canal…), vindo de `dominio/operacao.ts`. Valores
-  ilustrativos. A PMDF não tem operação simulada, e a tela diz por quê.
+- **No alto, os quatro serviços:** Energia (Neoenergia), Luz na cidade (CEB
+  IPes), Água e esgoto (CAESB) e Segurança (PMDF), cada um com o índice do DF (0
+  a 100, com a faixa em palavra) e o sinal do sistema do órgão.
+- **Escolher um serviço troca a leitura do mesmo mapa** para o índice dele, em
+  escala fixa e com o valor escrito; ao lado, onde está pior; abaixo, a
+  **qualidade da rede, do serviço e a saúde do sistema** do órgão
+  (`dominio/operacao.ts`) e como o índice é feito. Escolher de novo, ou "Voltar
+  às medidas gerais", devolve a tela de sempre.
+- **No perfil de cada região:** os quatro índices lado a lado e as três partes
+  do que estiver escolhido.
 - **O índice** é proposta da equipe (`indicadores/ecossistema.ts`): pressão
   (chamados por 10 mil habitantes contra as outras regiões, 40%), prazo (40%) e
   fila além do prazo (20%). Mede o serviço **pelo que chega aos canais**. Na
   segurança, a tela diz que **não é índice de criminalidade**, é sempre por
-  região e fica fora do mapa público.
+  região e fica fora do mapa público. A PMDF não tem operação simulada.
 
-Capturas: `capturas/analytics-energia.png`, `capturas/analytics-seguranca.png`. Testes: 341.
+Capturas: `capturas/regioes-servico.png`, `capturas/regioes-servico-regiao.png`.
+A demo tem nove telas. Testes: 341.
 
 **Previsões** (feita, aguardando revisão; proposta): as próximas duas semanas
 com a margem, o que está fora do normal agora, o que deve subir e cair, onde

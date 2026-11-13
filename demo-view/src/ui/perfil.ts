@@ -15,7 +15,7 @@ import { type Tela, TELAS } from '../navegacao';
 export type Perfil = 'governadora' | 'gestor' | 'operador';
 
 export const PERFIS: { id: Perfil; nome: string; nota: string; telas: Tela[] }[] = [
-  { id: 'governadora', nome: 'Governadora', nota: 'Onde agir, como anda a gestão e o que a população vê', telas: ['sala', 'resumo', 'analytics', 'gestao', 'cidadao'] },
+  { id: 'governadora', nome: 'Governadora', nota: 'Onde agir, como anda a gestão e o que a população vê', telas: ['sala', 'resumo', 'regioes', 'gestao', 'cidadao'] },
   { id: 'gestor', nome: 'Gestor de órgão', nota: 'A fila do órgão, os incidentes em que ele entra e o que cruza com os outros', telas: ['gestao', 'inteligencia', 'jornada'] },
   { id: 'operador', nome: 'Operador da sala', nota: 'Todas as telas: quem revisa as sugestões e acompanha os órgãos', telas: TELAS.map((t) => t.id) },
 ];
