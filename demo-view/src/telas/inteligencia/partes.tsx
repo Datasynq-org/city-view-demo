@@ -16,6 +16,7 @@ import { Painel } from '../../ui/Painel';
 import { useTema } from '../../ui/tema';
 import { faixaDaConfianca, O_QUE_E_A_NOTA, ROTULO_DA_FAIXA } from '../../inteligencia/confianca';
 import { ehReal } from '../../inteligencia/reais';
+import type { ResumoDaRegiao } from '../../inteligencia/regiao';
 import { PlanoOuAndamento } from './Encaminhamento';
 
 const n = (v: number) => Math.round(v).toLocaleString('pt-BR');
@@ -400,6 +401,101 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
         )}
       </motion.footer>
     </Painel>
+  );
+}
+
+// ---------------------------------------------------------------- a região escolhida
+
+/**
+ * O cartão que paira sobre a região escolhida no seletor: os chamados que caem
+ * nela e o que a inteligência fez deles. O flutuar é leve e para com "reduzir
+ * movimento".
+ */
+export function CartaoDaRegiao({ r, aoFechar }: { r: ResumoDaRegiao; aoFechar: () => void }) {
+  const maior = Math.max(1, ...r.porOrgao.map((o) => o.chamados));
+  const parte = (v: number, de: number) => (de > 0 ? `${Math.round((v / de) * 100)}%` : '–');
+  return (
+    <motion.div animate={reduzMovimento() ? undefined : { y: [0, -4, 0] }} transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}>
+      <Painel className="pointer-events-auto w-[23rem] p-4 shadow-[0_18px_40px_-18px_rgba(0,0,0,0.6)]">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="condensado text-micro text-texto-2">Região escolhida</p>
+            <h2 className="truncate text-corpo font-semibold text-tinta">{r.nome}</h2>
+            <p className="text-micro text-texto-2">{n(r.populacao)} habitantes</p>
+          </div>
+          <button type="button" onClick={aoFechar} aria-label="Voltar ao DF inteiro" title="Voltar ao DF inteiro" className="-mt-1 -mr-1 rounded px-2 py-1 text-texto-2 hover:bg-poco hover:text-tinta">
+            ✕
+          </button>
+        </div>
+
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          <div>
+            <p className="text-valor leading-7 font-semibold text-tinta tabular-nums">
+              <Contador valor={r.chamados} formato={n} doZero atraso={0.3} />
+            </p>
+            <p className="text-rotulo text-texto">chamados</p>
+            <p className="text-micro text-texto-2">{n(r.por10mil)} por 10 mil hab.</p>
+          </div>
+          <div>
+            <p className="text-valor leading-7 font-semibold text-tinta tabular-nums">
+              <Contador valor={r.incidentes} formato={n} doZero atraso={0.4} />
+            </p>
+            <p className="text-rotulo text-texto">incidente{r.incidentes === 1 ? '' : 's'}</p>
+            <p className="text-micro text-texto-2">
+              {r.porSeveridade.crítico} crítico{r.porSeveridade.crítico === 1 ? '' : 's'} · {r.porSeveridade.sério} sério{r.porSeveridade.sério === 1 ? '' : 's'}
+            </p>
+          </div>
+          <div>
+            <p className="text-valor leading-7 font-semibold text-tinta tabular-nums">{parte(r.agrupados, r.chamados)}</p>
+            <p className="text-rotulo text-texto">agrupados</p>
+            <p className="text-micro text-texto-2">{n(r.chamados - r.agrupados)} avulsos</p>
+          </div>
+        </div>
+
+        {r.relatos && (
+          <div className="mt-3 rounded border border-aviso/50 px-3 py-2">
+            <p className="flex items-center justify-between gap-2 text-rotulo text-texto">
+              <span>
+                <span className="condensado mr-1.5 rounded border border-aviso/70 px-1 text-micro text-aviso">Dado real</span>
+                {n(r.relatos.abertos + r.relatos.finalizados)} relatos do mapa público
+              </span>
+            </p>
+            <div className="mt-1.5 flex h-1.5 overflow-hidden rounded-full bg-realce" aria-hidden="true">
+              <span className="bg-acento-claro" style={{ width: parte(r.relatos.finalizados, r.relatos.abertos + r.relatos.finalizados) }} />
+            </div>
+            <p className="mt-1 flex justify-between text-micro text-texto-2">
+              <span>
+                {n(r.relatos.finalizados)} finalizados ({parte(r.relatos.finalizados, r.relatos.abertos + r.relatos.finalizados)})
+              </span>
+              <span className="text-aviso">{n(r.relatos.abertos)} abertos</span>
+            </p>
+          </div>
+        )}
+
+        <p className="condensado mt-3 mb-1 text-micro text-texto-2">Órgãos com mais chamados</p>
+        <ul className="space-y-1">
+          {r.porOrgao.slice(0, 4).map((o) => (
+            <li key={o.orgaoId} className="grid grid-cols-[7.5rem_1fr_2.75rem] items-center gap-2 text-rotulo">
+              <span className="flex min-w-0 items-center gap-1.5 truncate text-texto">
+                <CorDoOrgao orgao={o.orgaoId} />
+                <span className="truncate">{siglaDoOrgao(o.orgaoId)}</span>
+              </span>
+              <span className="h-1 rounded-full bg-realce">
+                <span className="block h-1 rounded-full bg-texto-2" style={{ width: `${(o.chamados / maior) * 100}%` }} />
+              </span>
+              <span className="text-right text-tinta tabular-nums">{n(o.chamados)}</span>
+            </li>
+          ))}
+        </ul>
+
+        <p className="mt-3 flex items-center justify-between gap-2 text-micro text-texto-2">
+          <span>{r.reais > 0 ? (r.reais >= r.chamados - 0.5 ? 'Tudo dado real.' : 'Dado real e simulado, somados.') : 'Dado simulado.'}</span>
+          <a href={`#/regioes?ra=${r.ra}`} className="text-acento-claro hover:underline">
+            Ver a região inteira →
+          </a>
+        </p>
+      </Painel>
+    </motion.div>
   );
 }
 

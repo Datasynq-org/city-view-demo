@@ -418,6 +418,12 @@ de cada uma ("Águas Claras (29)"); `?ra=aguas-claras` abre já escolhida.
 - "Todo o DF" devolve a visão inteira.
 - O selo da Inteligência ficou "Águas Claras real · DF simulado", para caber
   ao lado da barra.
+- **A região escolhida fica destacada no mapa** (contorno e preenchimento) e um
+  **cartão paira sobre ela** com os números: chamados com o ponto dentro do
+  limite da região, por 10 mil habitantes, incidentes por gravidade, a parte
+  agrupada, os órgãos com mais chamados e, onde há dado real, os relatos
+  finalizados e abertos (`inteligencia/regiao.ts`). O cartão sai quando um
+  insight abre e volta ao fechar; o ✕ devolve o DF inteiro.
 
 **Previsões** (feita, aguardando revisão; proposta): as próximas duas semanas
 com a margem, o que está fora do normal agora, o que deve subir e cair, onde

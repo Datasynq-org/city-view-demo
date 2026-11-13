@@ -584,3 +584,12 @@ escolhida o mapa fica de perto, então todas as colunas passam à escala de
 bairro e o que é de outra região sai de foco. É também a resposta de curto
 prazo ao volume: de perto, olha-se uma região por vez.
 
+*Acréscimo de 13/11/2026 · a região escolhida, destacada.* O Sammuel pediu que,
+ao escolher a região, ela fique destacada e com um cartão pairando sobre ela,
+com os chamados e as métricas. Feito: contorno e preenchimento na região, e o
+cartão no alto do mapa, com a região enquadrada abaixo dele. O cartão soma dado
+real e simulado quando os dois caem na região, e diz isso no rodapé; os relatos
+finalizados e abertos só aparecem onde há dado real. O cartão fica num lugar
+fixo da tela, acima da região, e não preso ao ponto do mapa: arrastar o mapa
+não o leva junto.
+

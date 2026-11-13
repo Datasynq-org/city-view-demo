@@ -207,7 +207,7 @@ export function montarEstilo({ regioes, urlFonteRotulo, limites = LIMITES_DF }: 
         id: CAMADA_RAS,
         type: 'fill',
         source: FONTE_RAS,
-        paint: { 'fill-color': TONS.limite, 'fill-opacity': ['case', sobre, 0.1, 0.02] },
+        paint: { 'fill-color': TONS.limite, 'fill-opacity': ['case', selecionada, 0.16, sobre, 0.1, 0.02] },
       },
       {
         // Base escura sob o limite: a linha clara se lê sobre qualquer textura da imagem.

@@ -23,8 +23,9 @@ import { useTema } from '../../ui/tema';
 import { resumir } from '../../inteligencia/resumo';
 import { agruparJuntos, chamadosJuntos, ligacoesJuntas } from '../../inteligencia/juntos';
 import { ehReal } from '../../inteligencia/reais';
+import { resumoDaRegiao } from '../../inteligencia/regiao';
 import { PainelDeInsights } from './Painel';
-import { Fila, Insight, LegendaDasAreas, PorOrgao } from './partes';
+import { CartaoDaRegiao, Fila, Insight, LegendaDasAreas, PorOrgao } from './partes';
 
 const CLICAVEIS = ['grafo-colunas', 'grafo-colunas-de-bairro', 'grafo-nos', 'grafo-chamados', 'grafo-avulsos'] as const;
 const DF: Destino = { tipo: 'df' };
@@ -72,6 +73,8 @@ export function TelaInteligencia() {
       .map((r) => ({ id: r.id, nome: r.nome, insights: conta.get(r.id)! }))
       .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
   }, [resultado]);
+  // O que se sabe da região escolhida: vai no cartão que paira sobre ela no mapa.
+  const daRa = useMemo(() => (ra ? resumoDaRegiao(ra, chamados, resultado, tudo.simulados) : null), [ra, chamados, resultado, tudo]);
   // Para onde o mapa volta quando nada está aberto: a região escolhida, ou o DF.
   const casa = useMemo((): Destino => (ra ? { tipo: 'ra', ra } : DF), [ra]);
   const mudarRa = (nova: string | null) => {
@@ -174,11 +177,12 @@ export function TelaInteligencia() {
   const camadas = useMemo(() => camadasDoGrafo(estado), [estado]);
   const animadas = useCallback((t: number) => camadasVivas(estado, ondas, t), [estado, ondas]);
 
-  const paineis = useRef({ fila: filaAberta, insight: aberto >= 0 });
-  paineis.current = { fila: filaAberta, insight: aberto >= 0 };
+  const paineis = useRef({ fila: filaAberta, insight: aberto >= 0, cartao: false });
+  // Com a região escolhida e nenhum insight aberto, o cartão dela paira no alto: a região é enquadrada abaixo dele.
+  paineis.current = { fila: filaAberta, insight: aberto >= 0, cartao: Boolean(ra) && aberto < 0 };
   const margens = useCallback((largura: number) => {
     if (largura < 1024) return { top: 120, bottom: 24, left: 16, right: 16 };
-    return { top: 84, bottom: 48, left: paineis.current.fila ? 372 : 32, right: paineis.current.insight ? 452 : 32 };
+    return { top: paineis.current.cartao ? 370 : 84, bottom: paineis.current.cartao ? 100 : 48, left: paineis.current.fila ? 372 : 32, right: paineis.current.insight ? 452 : 32 };
   }, []);
 
   const [alvo, setAlvo] = useState<{ destino: Destino; chave: number; lento?: boolean }>();
@@ -262,7 +266,7 @@ export function TelaInteligencia() {
   return (
     <main className="relative h-full overflow-hidden">
       {vista === 'grafo' ? (
-        <Mapa margens={margens} camadas={camadas} animadas={animadas} alvo={alvo} semImagem dicaDasRas={false} clicaveis={CLICAVEIS} aoClicarObjeto={aoClicarObjeto} />
+        <Mapa margens={margens} camadas={camadas} animadas={animadas} alvo={alvo} semImagem dicaDasRas={false} clicaveis={CLICAVEIS} aoClicarObjeto={aoClicarObjeto} raSelecionada={ra} />
       ) : (
         <PainelDeInsights resultado={resultado} resumo={resumo} estado={estadoComum} ra={ra} decisaoDe={(c) => decisaoDe(decisoes, c)} aberto={aberto} aoAbrir={abrir} comInsight={Boolean(inc)} />
       )}
@@ -363,6 +367,22 @@ export function TelaInteligencia() {
         <motion.div key="insight" className="intel-coluna intel-direita" initial={reduzMovimento() ? false : { x: 48, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={reduzMovimento() ? undefined : { x: 48, opacity: 0, transition: { duration: 0.2, ease: 'easeIn' } }} transition={{ duration: 0.3, ease: [0.2, 0.8, 0.2, 1] }}>
           <Insight key={inc.codigo} inc={inc} decisao={decisaoDe(decisoes, inc.codigo)} agora={agora} aoConfirmar={aoConfirmar} aoCancelar={aoCancelar} aoDescartar={aoDescartar} aoDesfazer={aoDesfazer} aoFechar={fechar} aoVerNoGrafo={vista === 'painel' ? () => { setEtapa(2); setVista('grafo'); } : undefined} />
         </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* A região escolhida: destacada no mapa, com o cartão pairando sobre ela. Sai quando um insight abre. */}
+      <AnimatePresence>
+        {vista === 'grafo' && daRa && !inc && (
+          <motion.div
+            key={daRa.ra}
+            className={`pointer-events-none absolute top-[4.75rem] z-10 hidden -translate-x-1/2 lg:block ${filaAberta ? 'left-[calc(50%+6rem)]' : 'left-[calc(50%-4.5rem)]'}`}
+            initial={reduzMovimento() ? false : { opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduzMovimento() ? undefined : { opacity: 0, y: -6, transition: { duration: 0.15 } }}
+            transition={{ duration: 0.3, delay: 0.25 }}
+          >
+            <CartaoDaRegiao r={daRa} aoFechar={() => mudarRa(null)} />
+          </motion.div>
         )}
       </AnimatePresence>
 
