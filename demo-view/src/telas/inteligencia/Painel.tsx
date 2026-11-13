@@ -19,7 +19,7 @@ import { Painel } from '../../ui/Painel';
 import { escolhaAtual } from '../../ui/perfil';
 import { useTema } from '../../ui/tema';
 import { dataDaLeitura, numeros, ROTULO_DO_STATUS } from '../../dados/aguasClaras/demandas';
-import { JANELA_DIAS, MINIMO_DE_RELATOS, RAIO_M } from '../../inteligencia/reais';
+import { ehReal, JANELA_DIAS, MINIMO_DE_RELATOS, RAIO_M } from '../../inteligencia/reais';
 import { siglaDoOrgao as sigla } from '../../inteligencia/casos';
 import { Linha } from '../../ui/graficos';
 import { Origem } from '../../ui/Origem';
@@ -50,6 +50,11 @@ function Opcao({ ativo, aoClicar, children }: { ativo: boolean; aoClicar: () => 
   );
 }
 
+/** De onde vem o insight: relatos reais ou caso simulado. Sempre dito, nunca só pela cor. */
+export function OrigemDoInsight({ real }: { real: boolean }) {
+  return <span className={`condensado rounded border px-1.5 py-px text-micro ${real ? 'border-aviso/70 text-aviso' : 'border-linha text-texto-2'}`}>{real ? 'Dado real' : 'Simulado'}</span>;
+}
+
 function Cartao({ inc, decisao, andando, ativo, recuado, aoAbrir }: { inc: Incidente; decisao: Decisao; /** Confirmado: em que pé está com os órgãos. */ andando: string | null; ativo: boolean; /** Outro cartão está aberto: este recua. */ recuado: boolean; aoAbrir: () => void }) {
   const relatos = inc.evidencias.filter((e) => e.fonte === 'chamado');
   const operacao = inc.evidencias.filter((e) => e.fonte === 'operação');
@@ -68,9 +73,12 @@ function Cartao({ inc, decisao, andando, ativo, recuado, aoAbrir }: { inc: Incid
       <motion.button ref={el} type="button" onClick={aoAbrir} aria-current={ativo ? 'true' : undefined} animate={ativo && !parado ? { scale: [1, 1.018, 1] } : { scale: 1 }} transition={{ duration: 0.32, ease: 'easeOut' }} className={`painel-vidro relative flex h-full w-full flex-col overflow-hidden p-4 text-left transition-[opacity,border-color,box-shadow] duration-200 ${ativo ? 'border-acento-claro! shadow-[0_0_0_1px_var(--color-acento-claro)]' : 'hover:border-linha-forte!'} ${descartado || recuado ? 'opacity-55 hover:opacity-100' : ''}`}>
         <Faixa ativo={ativo} />
         <span className="flex items-center justify-between gap-2">
-          <span className={`condensado inline-flex items-center gap-1.5 text-micro ${COR[inc.severidade]}`}>
-            <span className={`size-1.5 rounded-full ${FUNDO[inc.severidade]}`} aria-hidden="true" />
-            {ROTULO[inc.severidade]}
+          <span className="flex items-center gap-2">
+            <span className={`condensado inline-flex items-center gap-1.5 text-micro ${COR[inc.severidade]}`}>
+              <span className={`size-1.5 rounded-full ${FUNDO[inc.severidade]}`} aria-hidden="true" />
+              {ROTULO[inc.severidade]}
+            </span>
+            <OrigemDoInsight real={ehReal(inc)} />
           </span>
           <span className="condensado text-micro text-texto-2">
             {inc.tipoDoCaso ?? NOME_DO_TIPO[inc.tipo]} · <span className="font-mono normal-case">{inc.codigo}</span>
@@ -177,9 +185,7 @@ function AguasClarasEmNumeros() {
 
 type Aba = 'insights' | 'andamento' | 'registro';
 
-export function PainelDeInsights({ resultado, resumo, estado, real = false, decisaoDe, aberto, aoAbrir, comInsight }: {
-  /** Os chamados são as demandas reais de Águas Claras, não a cidade simulada. */
-  real?: boolean;
+export function PainelDeInsights({ resultado, resumo, estado, decisaoDe, aberto, aoAbrir, comInsight }: {
   resultado: Resultado;
   resumo: Resumo;
   /** O estado comum: o andamento de cada incidente confirmado e o registro. */
@@ -193,6 +199,9 @@ export function PainelDeInsights({ resultado, resumo, estado, real = false, deci
   // O gestor de órgão começa vendo os insights em que o órgão dele entra.
   const [filtro, setFiltro] = useState<FiltroDeInsights>(() => ({ ...SEM_FILTRO, orgao: escolhaAtual().orgao }));
   const [aba, setAba] = useState<Aba>('insights');
+  // De onde vem o insight: os relatos reais de Águas Claras ou a cidade simulada.
+  const [origem, setOrigem] = useState<'real' | 'simulado' | null>(null);
+  const reaisNaFila = resultado.incidentes.filter(ehReal);
   const emAndamento = Object.keys(estado.andamentos).length;
   // Os cidadãos dos incidentes já resolvidos: receberam uma resposta só.
   const avisados = Object.values(estado.andamentos).reduce((s, an) => s + (situacaoDoIncidente(an) === 'resolvido' ? (estado.fichas[an.codigo]?.chamados ?? 0) : 0), 0);
@@ -206,33 +215,24 @@ export function PainelDeInsights({ resultado, resumo, estado, real = false, deci
     { id: 'registro', nome: `Registro · ${estado.registro.length}` },
   ];
   const opcoes = useMemo(() => opcoesDeFiltro(resultado.incidentes), [resultado]);
-  const visiveis = useMemo(() => filtrarInsights(resultado.incidentes, filtro), [resultado, filtro]);
+  const visiveis = useMemo(() => filtrarInsights(resultado.incidentes, filtro).filter((x) => origem === null || ehReal(x.inc) === (origem === 'real')), [resultado, filtro, origem]);
   const mudar = <K extends keyof FiltroDeInsights>(k: K, v: FiltroDeInsights[K]) => setFiltro((f) => ({ ...f, [k]: f[k] === v ? null : v }));
 
   return (
     <div className={`pagina ${comInsight ? 'pagina-com-insight' : ''}`}>
-      {real && <AguasClarasEmNumeros />}
       <Painel className="p-5">
         <h2 className="titulo-painel">Insights ocultos</h2>
         <p className="mt-0.5 text-rotulo text-texto-2">
-          {real
-            ? `Relatos reais que falam do mesmo ponto. A regra: mesmo tipo, a até ${RAIO_M} m e ${JANELA_DIAS} dias, com texto parecido; pelo menos ${MINIMO_DE_RELATOS} relatos. Os textos de cada insight são gerados dos números do grupo. Uma pessoa confirma.`
-            : 'O que nenhum órgão vê sozinho: chamados e dados de operação que, cruzados, contam outra história. Sugestões da IA; uma pessoa confirma.'}
+          O que nenhum órgão vê sozinho: chamados e dados de operação que, cruzados, contam outra história. No DF, os casos são simulados; em Águas Claras, os relatos são reais. Sugestões da IA; uma pessoa confirma.
         </p>
         <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-4 lg:grid-cols-5">
-          <Numero valor={n(resumo.chamados)} rotulo={real ? 'relatos reais' : 'chamados'} nota={real ? 'do mapa público, com ponto no mapa' : 'em todas as filas'} />
+          <Numero valor={n(resumo.chamados)} rotulo="chamados" nota={`${n(reaisNaFila.reduce((t, i) => t + i.chamados, 0))} em incidentes reais de Águas Claras`} />
           <Numero valor={n(resumo.incidentes)} rotulo="incidentes sugeridos" nota={`${resumo.porSeveridade.crítico} críticos · ${resumo.porSeveridade.sério} sérios`} />
           <Numero valor={n(resumo.evitados)} rotulo="atendimentos poupados" nota={`em cada incidente, todos menos um · ≈ ${n(horasPoupadas(resumo.evitados))} h de equipe, a ${MINUTOS_POR_ATENDIMENTO} min cada (premissa de exemplo)`} />
           <Numero valor={`${resumo.entreOrgaos}`} rotulo="cruzam mais de um órgão" nota={`${resumo.comOperacao} usam a operação dos sistemas`} />
           <Numero valor={`${resumo.porSituacao.confirmado + resumo.porSituacao.enviando}`} rotulo="confirmados por uma pessoa" nota={`${resumo.porSituacao.sugerido} esperam decisão · ${resumo.porSituacao.descartado} descartados${avisados > 0 ? ` · ${n(avisados)} cidadãos avisados com uma resposta só` : ''}`} />
         </div>
-        {real ? (
-          <p className="mt-3 text-micro text-texto-2">
-            <span className="condensado border-b border-dashed border-linha-forte">De onde vem</span> Demandas reais do mapa público de Águas Claras (site parceiro dfaguasclaras.com.br), lidas em {dataDaLeitura()}. O agrupamento é calculado aqui; o plano de envio e as respostas dos órgãos são simulados.
-          </p>
-        ) : (
-          <Origem className="mt-3" conta="Chamados de órgãos diferentes ligados por assunto, lugar e hora; os grupos viram incidentes sugeridos. Os casos da demonstração são escritos pela equipe, e a IA os reencontra entre os chamados do dia a dia." />
-        )}
+        <Origem className="mt-3" conta="Chamados ligados por assunto, lugar e hora; os grupos viram incidentes sugeridos. No DF, os casos são escritos pela equipe e a IA os reencontra. Em Águas Claras, os relatos são reais (mapa público do site parceiro) e os grupos saem do que os cidadãos escreveram." />
       </Painel>
 
       <div role="tablist" aria-label="O que ver" className="flex gap-1 border-b border-linha">
@@ -249,6 +249,14 @@ export function PainelDeInsights({ resultado, resumo, estado, real = false, deci
       {aba === 'insights' && (
       <>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2" role="group" aria-label="Filtros">
+        <span className="flex flex-wrap items-center gap-1.5">
+          <Opcao ativo={origem === 'real'} aoClicar={() => setOrigem((o) => (o === 'real' ? null : 'real'))}>
+            Águas Claras · real ({reaisNaFila.length})
+          </Opcao>
+          <Opcao ativo={origem === 'simulado'} aoClicar={() => setOrigem((o) => (o === 'simulado' ? null : 'simulado'))}>
+            DF · simulado ({resultado.incidentes.length - reaisNaFila.length})
+          </Opcao>
+        </span>
         <span className="flex flex-wrap items-center gap-1.5">
           {SEVERIDADES.map((s) => (
             <Opcao key={s} ativo={filtro.severidade === s} aoClicar={() => mudar('severidade', s)}>
@@ -279,6 +287,14 @@ export function PainelDeInsights({ resultado, resumo, estado, real = false, deci
         </span>
       </div>
       <LegendaDasAreas orgaos={opcoes.orgaos} />
+      {origem === 'real' && (
+        <>
+          <AguasClarasEmNumeros />
+          <p className="text-rotulo text-texto-2">
+            A regra em Águas Claras: mesmo tipo, a até {RAIO_M} m e {JANELA_DIAS} dias, com texto parecido; pelo menos {MINIMO_DE_RELATOS} relatos. Os textos de cada insight são gerados dos números do grupo.
+          </p>
+        </>
+      )}
 
       <ul className="grade-de-insights">
         {visiveis.map(({ inc, k }) => (
@@ -288,7 +304,7 @@ export function PainelDeInsights({ resultado, resumo, estado, real = false, deci
       {visiveis.length === 0 && <p className="text-nota text-texto-2">Nenhum insight com esses filtros.</p>}
 
       {/* Triangulação (magno 7.2): fora da conta, como proposta, até a resposta à pergunta 9.3. */}
-      <section className={`rounded-lg border border-dashed border-linha-forte p-5 ${real ? 'hidden' : ''}`}>
+      <section className="rounded-lg border border-dashed border-linha-forte p-5">
         <p className="flex flex-wrap items-center gap-2">
           <span className="condensado rounded border border-dashed border-linha-forte px-1.5 py-0.5 text-micro text-texto-2">Proposta · não é um insight da demo</span>
           <span className="condensado text-micro text-texto-2">Triangulação</span>

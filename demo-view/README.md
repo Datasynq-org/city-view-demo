@@ -351,8 +351,13 @@ com o contorno do acento, que é frio. O mapa público segue em verde.
 puxar os dados do dfac de Águas Claras e rodar o nosso fluxo por cima. Branch
 `demo/aguas-claras`.
 
-**A chave de fonte** (botão na barra lateral; `?fonte=aguas-claras`): *Cidade
-simulada* (o padrão) ou *Águas Claras (real)*. O selo do canto muda com ela.
+**As duas fontes juntas, na Inteligência** (acréscimo do mesmo dia: a primeira
+versão tinha uma chave "cidade simulada / Águas Claras", e com ela ligada o DF
+sumia; o Sammuel pediu os dois juntos). O DF inteiro, com os casos simulados, e
+Águas Claras, com os relatos reais, ficam no mesmo mapa e na mesma lista. Cada
+insight leva a etiqueta **Dado real** ou **Simulado**, o painel filtra por
+origem, e os códigos dos reais começam com "AC-". As duas fontes não se
+misturam na conta: cada uma é agrupada pela sua regra (`inteligencia/juntos.ts`).
 
 - **O que é real:** 853 demandas do **mapa público** do site parceiro
   dfaguasclaras.com.br (o mesmo que o dfac alimenta), de set./2024 a nov./2026:
@@ -368,8 +373,11 @@ simulada* (o padrão) ou *Águas Claras (real)*. O selo do canto muda com ela.
 - **O que continua simulado:** o plano de envio, as respostas dos órgãos e a
   mensagem ao cidadão.
 - **Onde vale:** na **Inteligência** (painel, grafo, ida e volta, registro,
-  voltar no tempo), com um bloco "Águas Claras em números". **As outras telas
-  seguem na cidade simulada**, e o selo diz isso.
+  voltar no tempo). O filtro "Águas Claras · real" abre o bloco "Águas Claras
+  em números". Os incidentes reais também entram na fila de "Pede atenção
+  agora" da sala e no Resumo do dia, marcados. **O resto das telas segue na
+  cidade simulada.** O selo da Inteligência diz: "Águas Claras: dado real de
+  13/11/2026 · DF e fluxo simulados".
 - **O que o dado não tem:** a data de resolução (logo, nada de tempo até
   resolver nem de prazo) e quem relatou. Isso viria do banco do dfac.
 
@@ -384,7 +392,7 @@ simulada* (o padrão) ou *Águas Claras (real)*. O selo do canto muda com ela.
 (dentro de `demo-view/`). É uma chamada ao endpoint público, sem login.
 
 Capturas: `capturas/ac-painel.png`, `capturas/ac-insight.png`,
-`capturas/ac-grafo.png`. Testes: 365.
+`capturas/ac-grafo.png`. Testes: 370.
 
 **Previsões** (feita, aguardando revisão; proposta): as próximas duas semanas
 com a margem, o que está fora do normal agora, o que deve subir e cair, onde

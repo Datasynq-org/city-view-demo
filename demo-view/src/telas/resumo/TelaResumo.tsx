@@ -14,7 +14,7 @@ import { comparar, entre, leituraEmFrase, porOrgao } from '../../indicadores/ges
 import { duracao, numero, percentual, tempoNoQuantil } from '../../indicadores/indicadores';
 import { contraAMeta, NOTA_DA_META } from '../../indicadores/metas';
 import { foraDoNormal, mudancaDoDf } from '../../indicadores/regioes';
-import { incidentesSugeridos } from '../../inteligencia/atual';
+import { enderecoDoIncidente, incidentesSugeridos } from '../../inteligencia/atual';
 import { decisaoDe } from '../../inteligencia/decisoes';
 import { esperaRevisao, ROTULO_DA_SITUACAO_DO_INCIDENTE, situacaoDoIncidente } from '../../inteligencia/encaminhamento';
 import { useInteligencia } from '../../inteligencia/estado';
@@ -142,7 +142,7 @@ export function TelaResumo() {
                   <Linha
                     key={i.codigo}
                     nome={
-                      <a href={`#/inteligencia?caso=${i.casoId ?? ''}`} className="hover:underline">
+                      <a href={enderecoDoIncidente(i)} className="hover:underline">
                         {i.titulo}
                       </a>
                     }

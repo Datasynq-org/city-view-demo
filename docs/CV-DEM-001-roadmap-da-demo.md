@@ -545,3 +545,24 @@ resolução), que depende de o Sammuel liberar o acesso.
 
 Testes: 365.
 
+*Acréscimo de 13/11/2026 · as duas fontes juntas.* Com a chave de fonte em
+"Águas Claras", a Inteligência mostrava só Águas Claras, e o Sammuel estranhou:
+"agora tem só Águas Claras". Pediu os dois juntos. Feito, na mesma branch.
+
+- **A chave de fonte saiu.** A Inteligência mostra sempre o DF simulado e os
+  relatos reais de Águas Claras, no mesmo mapa e na mesma fila, por urgência: 10
+  incidentes simulados e 28 reais.
+- **Não se misturam na conta.** Cada fonte é ligada e agrupada pela sua regra;
+  um relato real nunca entra num caso simulado (`inteligencia/juntos.ts`, com
+  teste). Só a fila é comum.
+- **Cada insight diz de onde vem:** etiqueta "Dado real" ou "Simulado" no
+  cartão, na fila do grafo, no insight e em "Pede atenção agora" da sala. Os
+  códigos dos reais são "AC-01", "AC-02"…
+- **No grafo**, os incidentes reais têm coluna dez vezes menor (são de quadra,
+  não de região), para não cobrir o bairro.
+- **O selo** da Inteligência passa a dizer "Águas Claras: dado real de
+  13/11/2026 · DF e fluxo simulados". Onde o parágrafo anterior fala em chave de
+  fonte e em selo por fonte, vale este.
+
+Testes: 370.
+

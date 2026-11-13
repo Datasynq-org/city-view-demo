@@ -111,7 +111,10 @@ export function Fila({ resultado, aberto, decisaoDe, aoAbrir }: {
               <button ref={ativo ? ativoRef : undefined} type="button" onClick={() => aoAbrir(k)} aria-current={ativo ? 'true' : undefined} className={`relative block w-full border-b border-linha px-4 py-2.5 text-left transition-colors ${ativo ? 'bg-realce' : 'hover:bg-poco'}`}>
                 <Faixa ativo={ativo} />
                 <span className="flex items-center justify-between gap-2">
-                  <Gravidade s={inc.severidade} />
+                  <span className="flex items-center gap-2">
+                    <Gravidade s={inc.severidade} />
+                    {ehReal(inc) && <span className="condensado rounded border border-aviso/70 px-1 text-micro text-aviso">Dado real</span>}
+                  </span>
                   <span className="font-mono text-micro text-texto-2">{inc.codigo}</span>
                 </span>
                 <span className={`mt-0.5 block text-nota ${ativo ? 'text-tinta' : 'text-texto'}`}>{inc.titulo}</span>
@@ -172,6 +175,7 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <Gravidade s={inc.severidade} />
+            <span className={`condensado rounded border px-1.5 py-px text-micro ${ehReal(inc) ? 'border-aviso/70 text-aviso' : 'border-linha text-texto-2'}`}>{ehReal(inc) ? 'Dado real · Águas Claras' : 'Caso simulado'}</span>
             <span className="condensado text-micro text-texto-2">
               {NOME_DO_TIPO[inc.tipo]}
               {inc.tipoDoCaso && inc.tipoDoCaso !== 'Mesmo incidente' ? ` · ${inc.tipoDoCaso}` : ''}

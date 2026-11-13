@@ -9,7 +9,7 @@
  */
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { agrupar, calcularLigacoes, gerarChamados, limiarDaSensibilidade, SENSIBILIDADE_PADRAO } from '../../inteligencia/agrupamento';
+import { limiarDaSensibilidade, SENSIBILIDADE_PADRAO } from '../../inteligencia/agrupamento';
 import { decisaoDe, type Decisoes, type MotivoDeDescarte } from '../../inteligencia/decisoes';
 import { cancelar, confirmar, descartar, desfazer, reiniciar, useInteligencia } from '../../inteligencia/estado';
 import { camadasDoGrafo, camadasVivas, chegadosAte, chegadosPorIncidente, COR_DA_SEVERIDADE, type Etapa, ETAPAS, type Onda, prepararGrafo, zoomDoIncidente } from '../../mapa/camadas/grafo';
@@ -20,39 +20,36 @@ import { parametrosDoHash } from '../../navegacao';
 import { Painel } from '../../ui/Painel';
 import { useTema } from '../../ui/tema';
 import { resumir } from '../../inteligencia/resumo';
-import { useFonte } from '../../dados/fonte';
-import { agruparReais, chamadosReais, ligacoesReais } from '../../inteligencia/reais';
+import { agruparJuntos, chamadosJuntos, ligacoesJuntas } from '../../inteligencia/juntos';
+import { ehReal } from '../../inteligencia/reais';
 import { PainelDeInsights } from './Painel';
 import { Fila, Insight, LegendaDasAreas, PorOrgao } from './partes';
 
-const CLICAVEIS = ['grafo-colunas', 'grafo-nos', 'grafo-chamados'] as const;
+const CLICAVEIS = ['grafo-colunas', 'grafo-colunas-de-bairro', 'grafo-nos', 'grafo-chamados'] as const;
 const DF: Destino = { tipo: 'df' };
 
-/** `#/inteligencia?caso=apagao-planaltina` abre já no insight daquele caso. */
-const casoDoEndereco = () => parametrosDoHash().get('caso');
+/** `#/inteligencia?caso=apagao-planaltina` abre já no insight daquele caso; `?codigo=AC-01`, no incidente com esse código. */
+const casoDoEndereco = () => parametrosDoHash().get('caso') || parametrosDoHash().get('codigo');
 
 export function TelaInteligencia() {
   // ------------------------------------------------ o motor
-  // A fonte escolhe os chamados: os da cidade simulada, ou os relatos reais de Águas Claras.
-  const real = useFonte() === 'aguas-claras';
-  const chamados = useMemo(() => (real ? chamadosReais() : gerarChamados()), [real]);
-  const ligacoes = useMemo(() => (real ? ligacoesReais(chamados) : calcularLigacoes(chamados)), [chamados, real]);
+  // As duas fontes juntas: a cidade simulada (o DF inteiro) e os relatos reais de Águas Claras.
+  // Cada uma é ligada e agrupada pela sua regra; só a fila é comum (`inteligencia/juntos.ts`).
+  const tudo = useMemo(chamadosJuntos, []);
+  const chamados = tudo.chamados;
+  const ligacoes = useMemo(() => ligacoesJuntas(tudo), [tudo]);
   const [sens, setSens] = useState(SENSIBILIDADE_PADRAO);
-  const resultado = useMemo(() => (real ? agruparReais(chamados, ligacoes, limiarDaSensibilidade(sens)) : agrupar(chamados, ligacoes, limiarDaSensibilidade(sens))), [chamados, ligacoes, sens, real]);
-  // Para onde o mapa volta quando nada está aberto: o DF, ou Águas Claras enquadrada nos relatos.
-  const casa = useMemo((): Destino => {
-    if (!real || !chamados.length) return DF;
-    const centro: [number, number] = [chamados.reduce((s, c) => s + c.ponto[0], 0) / chamados.length, chamados.reduce((s, c) => s + c.ponto[1], 0) / chamados.length];
-    return { tipo: 'vista', vista: { centro, zoom: 13.1, inclinacao: 45, rotacao: -14 } };
-  }, [real, chamados]);
+  const resultado = useMemo(() => agruparJuntos(tudo, ligacoes, limiarDaSensibilidade(sens)), [tudo, ligacoes, sens]);
   const base = useMemo(() => prepararGrafo(chamados, resultado), [chamados, resultado]);
+  // Os incidentes reais são de bairro: a coluna deles é menor.
+  const pequenos = useMemo(() => new Set(resultado.incidentes.flatMap((i, k) => (ehReal(i) ? [k] : []))), [resultado]);
 
   // ------------------------------------------------ o que a pessoa vê e decide
   const pedido = useMemo(casoDoEndereco, []);
   // Abre no painel; quem chega por um link de caso vai direto ao grafo, no insight.
   const [vista, setVista] = useState<'painel' | 'grafo'>(() => (pedido || parametrosDoHash().get('vista') === 'grafo' ? 'grafo' : 'painel'));
   const [etapa, setEtapa] = useState<Etapa>(pedido ? 2 : 0);
-  const [aberto, setAberto] = useState(() => (pedido ? resultado.incidentes.findIndex((i) => i.casoId === pedido) : -1));
+  const [aberto, setAberto] = useState(() => (pedido ? resultado.incidentes.findIndex((i) => i.casoId === pedido || i.codigo === pedido) : -1));
   // As decisões e o andamento ficam no estado comum: a sala e a gestão veem os mesmos incidentes.
   const estadoComum = useInteligencia();
   const decisoes = estadoComum.decisoes;
@@ -101,13 +98,12 @@ export function TelaInteligencia() {
   const [tocando, setTocando] = useState(false);
   // Com um insight aberto, a janela é a dele; sem, as últimas horas da cidade.
   const janelaDoTempo = useMemo((): [number, number] => {
-    // Sem insight: as últimas horas da cidade simulada, ou todo o período dos relatos reais.
-    if (!inc) return [0, real ? Math.max(...chamados.map((c) => c.horas)) : HORAS_DA_BARRA];
+    if (!inc) return [0, HORAS_DA_BARRA];
     const horas = inc.membros.map((m) => chamados[m]!.horas);
     const [min, max] = [Math.min(...horas), Math.max(...horas)];
     const folga = Math.max(0.5, (max - min) * 0.08);
     return [Math.max(0, min - folga), max + folga];
-  }, [inc, chamados, real]);
+  }, [inc, chamados]);
   const corte = momento === null ? null : janelaDoTempo[1] - momento * (janelaDoTempo[1] - janelaDoTempo[0]);
   // Trocar de insight troca a janela: a barra volta para "agora".
   useEffect(() => {
@@ -143,7 +139,7 @@ export function TelaInteligencia() {
   // Com um insight aberto, a conta é a dele; sem, a da cidade.
   const chegaramAteAqui = useMemo(() => (aberto >= 0 ? (chegadosPorIncidente(base, resultado, corte)[aberto]?.chamados ?? 0) : chegadosAte(base, corte)), [base, resultado, corte, aberto]);
 
-  const estado = useMemo(() => ({ base, resultado, etapa, aberto, descartados, corte, escala: real ? 0.1 : 1 }), [base, resultado, etapa, aberto, descartados, corte, real, tema]);
+  const estado = useMemo(() => ({ base, resultado, etapa, aberto, descartados, corte, pequenos }), [base, resultado, etapa, aberto, descartados, corte, pequenos, tema]);
   const camadas = useMemo(() => camadasDoGrafo(estado), [estado]);
   const animadas = useCallback((t: number) => camadasVivas(estado, ondas, t), [estado, ondas]);
 
@@ -160,17 +156,17 @@ export function TelaInteligencia() {
   useEffect(() => {
     if (abertoAntes.current === aberto) return;
     const primeira = abertoAntes.current === null;
-    if (primeira && aberto < 0 && !real) {
+    if (primeira && aberto < 0) {
       abertoAntes.current = aberto;
       return;
     }
     // Depois que as margens mudam (o painel do insight abre ou fecha). Na abertura, depois do mapa carregar.
     const t = setTimeout(() => {
       abertoAntes.current = aberto;
-      voar(inc ? { tipo: 'vista', vista: { centro: inc.centro, zoom: zoomDoIncidente(inc), inclinacao: 55, rotacao: -14 } } : casa);
+      voar(inc ? { tipo: 'vista', vista: { centro: inc.centro, zoom: zoomDoIncidente(inc), inclinacao: 55, rotacao: -14 } } : DF);
     }, primeira ? 3200 : 0);
     return () => clearTimeout(t);
-  }, [aberto, inc, voar, casa, real]);
+  }, [aberto, inc, voar]);
 
   const abrir = useCallback((k: number) => setAberto((a) => (a === k ? a : k)), []);
   const fechar = useCallback(() => {
@@ -179,7 +175,7 @@ export function TelaInteligencia() {
   }, []);
   const aoClicarObjeto = useCallback(
     (camada: string, objeto: unknown) => {
-      if (camada === 'grafo-colunas' || camada === 'grafo-nos') abrir((objeto as { k: number }).k);
+      if (camada === 'grafo-colunas' || camada === 'grafo-colunas-de-bairro' || camada === 'grafo-nos') abrir((objeto as { k: number }).k);
       else {
         const g = resultado.grupo[(objeto as { i: number }).i] ?? -1;
         if (g >= 0) abrir(g);
@@ -230,7 +226,7 @@ export function TelaInteligencia() {
       {vista === 'grafo' ? (
         <Mapa margens={margens} camadas={camadas} animadas={animadas} alvo={alvo} semImagem dicaDasRas={false} clicaveis={CLICAVEIS} aoClicarObjeto={aoClicarObjeto} />
       ) : (
-        <PainelDeInsights resultado={resultado} resumo={resumo} estado={estadoComum} real={real} decisaoDe={(c) => decisaoDe(decisoes, c)} aberto={aberto} aoAbrir={abrir} comInsight={Boolean(inc)} />
+        <PainelDeInsights resultado={resultado} resumo={resumo} estado={estadoComum} decisaoDe={(c) => decisaoDe(decisoes, c)} aberto={aberto} aoAbrir={abrir} comInsight={Boolean(inc)} />
       )}
 
       {/* No alto: painel ou grafo e, no grafo, as três etapas. */}
@@ -305,7 +301,7 @@ export function TelaInteligencia() {
         type="button"
         onClick={() => {
           setFilaAberta((v) => !v);
-          setTimeout(() => !inc && voar(casa), 0);
+          setTimeout(() => !inc && voar(DF), 0);
         }}
         aria-label={filaAberta ? 'Recolher a fila de insights' : 'Mostrar a fila de insights'}
         className={`absolute top-1/2 z-20 hidden h-12 w-5 -translate-y-1/2 place-items-center rounded-r border border-l-0 border-linha bg-painel text-texto-2 hover:text-tinta ${vista === 'grafo' ? 'lg:grid' : ''} ${filaAberta ? 'left-[23rem]' : 'left-0'}`}

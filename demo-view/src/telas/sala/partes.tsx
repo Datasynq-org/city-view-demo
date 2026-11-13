@@ -6,6 +6,8 @@ import { REGIAO_POR_ID } from '../../dominio/ras';
 import { duracao, haQuanto, numero, percentual, type Periodo, PERIODOS, type VelocidadeDaArea } from '../../indicadores/indicadores';
 import type { ModoMapa } from '../../mapa/camadas';
 import { CORES_DAS_FAIXAS } from '../../mapa/calor';
+import { enderecoDoIncidente } from '../../inteligencia/atual';
+import { ehReal } from '../../inteligencia/reais';
 import { Contador } from '../../ui/Contador';
 import { Origem } from '../../ui/Origem';
 import { Variacao } from '../../ui/Variacao';
@@ -227,8 +229,11 @@ export function PedeAtencao({ incidentes, total, estado, aoVoar }: { incidentes:
                 </span>
               </button>
               <p className="mt-1 flex items-center justify-between gap-2 pl-3.5 text-micro">
-                <span className={an ? 'text-acento-claro' : 'text-texto-2'}>{situacao}</span>
-                <a href={`#/inteligencia?caso=${i.casoId ?? ''}`} className="text-acento-claro hover:underline">
+                <span className={an ? 'text-acento-claro' : 'text-texto-2'}>
+                  {situacao}
+                  {ehReal(i) && <span className="condensado ml-2 rounded border border-aviso/70 px-1 text-aviso">Dado real</span>}
+                </span>
+                <a href={enderecoDoIncidente(i)} className="text-acento-claro hover:underline">
                   abrir o insight →
                 </a>
               </p>
