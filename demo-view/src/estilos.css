@@ -54,14 +54,15 @@
   color-scheme: light;
 }
 
-/* Tons dos mapas em cores (`ui/MapaDasRas.tsx`): do pouco ao muito. No escuro o
-   muito é claro; no claro, o muito é escuro. */
+/* Tons dos mapas em cores (`ui/MapaDasRas.tsx`): do pouco ao muito, numa cor só
+   (a mesma família quente do calor da sala: quanto mais quente, mais chamados ou
+   pior o índice). No escuro o muito é claro; no claro, o muito é escuro. */
 :root {
-  --tom-0: #23282d; --tom-1: #39424a; --tom-2: #566470; --tom-3: #7b8b98; --tom-4: #a9b8c4; --tom-5: #dfe7ee;
+  --tom-0: #3a2c25; --tom-1: #6e3519; --tom-2: #a6481a; --tom-3: #da6b24; --tom-4: #f3a13c; --tom-5: #fbdc97;
   --verde-0: #1d2a22; --verde-1: #24402b; --verde-2: #2d5a37; --verde-3: #3a7a45; --verde-4: #49a054; --verde-5: #63c96b;
 }
 :root[data-tema='claro'] {
-  --tom-0: #e3e8ec; --tom-1: #c5ced6; --tom-2: #9fadb9; --tom-3: #76879a; --tom-4: #4f6072; --tom-5: #2a3745;
+  --tom-0: #fdebc8; --tom-1: #f8c98a; --tom-2: #ee9f52; --tom-3: #d9742a; --tom-4: #a84e1c; --tom-5: #6b3216;
   --verde-0: #e4f2e5; --verde-1: #c2e3c5; --verde-2: #98d09d; --verde-3: #68b870; --verde-4: #3f9a49; --verde-5: #23762d;
 }
 

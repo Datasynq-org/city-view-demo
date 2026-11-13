@@ -341,6 +341,12 @@ ficou repetindo Regiões e foi **fundida nela** no mesmo dia. Branch
 Capturas: `capturas/regioes-servico.png`, `capturas/regioes-servico-regiao.png`.
 A demo tem nove telas. Testes: 341.
 
+*Acréscimo de 13/11/2026 · cor nos mapas por região.* Os mapas em cores
+(`ui/MapaDasRas.tsx`: Regiões e serviços, e o mapa das perguntas no Resumo)
+deixam o cinza e passam a usar uma cor só, a família quente do calor da sala:
+quanto mais quente, mais chamados ou pior o índice. A região escolhida continua
+com o contorno do acento, que é frio. O mapa público segue em verde.
+
 **Previsões** (feita, aguardando revisão; proposta): as próximas duas semanas
 com a margem, o que está fora do normal agora, o que deve subir e cair, onde
 reforçar as equipes e o acerto do método, medido ao prever as duas últimas

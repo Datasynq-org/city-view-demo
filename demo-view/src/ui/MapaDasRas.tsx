@@ -31,7 +31,7 @@ const DESENHOS = REGIOES.map((r) => {
 /** As regiões em que cabe escrever o valor. */
 const COM_ROTULO = new Set([...DESENHOS].sort((a, b) => b.tamanho - a.tamanho).slice(0, 16).map((r) => r.id));
 
-/** Do pouco ao muito: tons neutros (definidos no CSS, por tema), para a seleção e os alertas ficarem com a cor. */
+/** Do pouco ao muito, numa cor só: a família quente do calor da sala (definida no CSS, por tema). A seleção fica com o acento, que é frio. */
 export const TONS = [0, 1, 2, 3, 4, 5].map((k) => `var(--tom-${k})`);
 
 export function MapaDasRas({ valores, selecionada, aoEscolher, formato, rotulo, tons = TONS, invertida = false, dominio, comValor = false, className = '' }: {
