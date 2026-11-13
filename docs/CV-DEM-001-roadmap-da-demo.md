@@ -451,3 +451,27 @@ Com isto, do CV-DEM-002 ficam abertos só os três riscos (R1 a R3).
 
 Testes: 331.
 
+*Acréscimo de 13/11/2026 · Analytics do ecossistema.* Pedido do Sammuel: "uma
+página só de analytics baseado no ecossistema inteiro, qualidade de rede, luz no
+DF, saneamento, mapa de segurança com índices". Branch `demo/analytics`, sobre
+`demo/acrescentar-metodo`. A demo passa a ter dez telas.
+
+**Decisões:**
+- **Um índice por serviço e por região**, de 0 a 100, feito só do que a base já
+  tem: chamados por habitante, prazo cumprido e fila além do prazo. Os pesos
+  (40, 40, 20) e as faixas (70 e 55) são da equipe, ditos na tela.
+- **"Qualidade de rede" vem da operação dos órgãos** (`dominio/operacao.ts`),
+  que já era proposta e simulada (magno 9.3). Ela aparece para o DF inteiro, não
+  por região: a base não simula a rede região a região.
+- **Segurança com cuidado dobrado:** o índice vem dos chamados ao 190, não é
+  índice de criminalidade; é por região, nunca por ponto; não entra no mapa
+  público. A operação da PMDF não é simulada.
+- **O limite do índice está na tela:** região que reclama pouco pode ter índice
+  alto e problema grande. É o mesmo ponto da triangulação.
+
+**O que não tem:** série histórica do índice (a base detalhada cobre 30 dias,
+que é a janela do próprio índice), comparação entre serviços numa mesma região
+e metas por serviço.
+
+Testes: 341.
+

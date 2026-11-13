@@ -6,13 +6,14 @@
  */
 import { useEffect, useState } from 'react';
 
-export type Tela = 'sala' | 'resumo' | 'gestao' | 'regioes' | 'inteligencia' | 'previsoes' | 'jornada' | 'cidadao' | 'integracoes';
+export type Tela = 'sala' | 'resumo' | 'gestao' | 'regioes' | 'analytics' | 'inteligencia' | 'previsoes' | 'jornada' | 'cidadao' | 'integracoes';
 
 export const TELAS: { id: Tela; nome: string; pergunta: string }[] = [
   { id: 'sala', nome: 'Sala de situação', pergunta: 'Onde a cidade precisa de mim agora?' },
   { id: 'resumo', nome: 'Resumo do dia', pergunta: 'O que eu preciso saber hoje?' },
   { id: 'gestao', nome: 'Gestão', pergunta: 'Como está a velocidade da gestão?' },
   { id: 'regioes', nome: 'Regiões', pergunta: 'Como está cada região?' },
+  { id: 'analytics', nome: 'Analytics', pergunta: 'Como está cada serviço da cidade?' },
   { id: 'inteligencia', nome: 'Inteligência', pergunta: 'O que os silos não estão vendo?' },
   { id: 'previsoes', nome: 'Previsões', pergunta: 'O que vem por aí?' },
   { id: 'jornada', nome: 'Jornada', pergunta: 'O que acontece quando o cidadão relata?' },
