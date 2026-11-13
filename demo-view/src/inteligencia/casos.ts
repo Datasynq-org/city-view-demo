@@ -36,6 +36,24 @@ export interface Sinal {
 
 export const fonteDoSinal = (s: Sinal): FonteSinal => s.fonte ?? 'chamado';
 
+/** O que cabe a cada órgão quando o incidente é confirmado. */
+export type Papel = 'responsável' | 'apoio' | 'avisado';
+
+/**
+ * Para quem vai cada pedido (o plano de envio, `plano.ts`). Escrito à mão, como
+ * a recomendação, e coerente com ela. Pode incluir órgão que não recebeu
+ * chamado nenhum, quando a solução passa por ele.
+ */
+export interface Encaminhamento {
+  orgaoId: string;
+  papel: Papel;
+  pedido: string;
+  /** Horas para atender; 0 para quem só é avisado. */
+  prazoH: number;
+  /** Roteiro da demonstração: o órgão devolve o pedido, com este motivo. */
+  devolve?: string;
+}
+
 export interface Caso {
   id: string;
   titulo: string;
@@ -51,6 +69,7 @@ export interface Caso {
   sinais: Sinal[];
   leitura: string;
   recomendacao: string[];
+  encaminhamentos: Encaminhamento[];
   ganho: string;
   linhaDoTempo: { quando: string; texto: string }[];
 }
@@ -94,6 +113,11 @@ export const CASOS: Caso[] = [
       "DER remove as pedras e avalia iluminação do trecho.",
       "Responder aos 9 cidadãos que relataram as pedras: o relato deles ajudou a identificar o risco.",
     ],
+    encaminhamentos: [
+      { orgaoId: "pmdf", papel: "responsável", pedido: "Patrulhar o trecho entre 20h e 0h enquanto o padrão se mantiver", prazoH: 2 },
+      { orgaoId: "der", papel: "apoio", pedido: "Remover as pedras e avaliar a iluminação do trecho", prazoH: 8 },
+      { orgaoId: "pcdf", papel: "avisado", pedido: "Trecho reclassificado como ponto de risco de segurança; os 4 roubos ficam ligados ao incidente", prazoH: 0 },
+    ],
     ganho: "16 chamados em 3 órgãos viram 1 alerta de segurança antes do próximo assalto.",
     linhaDoTempo: [
       { quando: "há 12 dias", texto: "Primeiro relato de pedras na pista (DER, via 162)" },
@@ -124,6 +148,11 @@ export const CASOS: Caso[] = [
       "Uma ocorrência na PMDF, com os 47 relatos anexados.",
       "Ação conjunta com o Brasília Ambiental (poluição sonora) e o DF Legal (alvará) para encerrar a recorrência.",
       "Um único retorno aos 47 cidadãos quando a ocorrência for atendida.",
+    ],
+    encaminhamentos: [
+      { orgaoId: "pmdf", papel: "responsável", pedido: "Abrir uma ocorrência só, com os 47 relatos anexados", prazoH: 2 },
+      { orgaoId: "ibram", papel: "apoio", pedido: "Ação conjunta de poluição sonora no endereço, para encerrar a recorrência", prazoH: 72 },
+      { orgaoId: "dflegal", papel: "apoio", pedido: "Conferir o alvará do endereço", prazoH: 72, devolve: "Não é comigo: o endereço é uma residência, não um estabelecimento" },
     ],
     ganho: "46 atendimentos repetidos evitados nesta noite, e um endereço reincidente que passa a ter dono.",
     linhaDoTempo: [
@@ -161,6 +190,12 @@ export const CASOS: Caso[] = [
       "Detran posiciona agentes nos 7 cruzamentos sem semáforo.",
       "Mensagem única aos 743 cidadãos com a previsão de religamento.",
     ],
+    encaminhamentos: [
+      { orgaoId: "neoenergia", papel: "responsável", pedido: "Religar os alimentadores e informar a previsão de religamento", prazoH: 8 },
+      { orgaoId: "defesa-civil", papel: "apoio", pedido: "Remover as árvores caídas sobre a rede, antes do religamento", prazoH: 4 },
+      { orgaoId: "novacap", papel: "apoio", pedido: "Remover as árvores, junto com a Defesa Civil", prazoH: 4 },
+      { orgaoId: "detran", papel: "apoio", pedido: "Posicionar agentes nos 7 cruzamentos sem semáforo", prazoH: 2 },
+    ],
     ganho: "743 chamados em 4 órgãos consolidados em 1 incidente com previsão única.",
     linhaDoTempo: [
       { quando: "há 3 dias", texto: "Temporal com rajadas sobre Planaltina" },
@@ -192,6 +227,11 @@ export const CASOS: Caso[] = [
       "SLU recolhe o entulho no mesmo trecho, no mesmo dia.",
       "Defesa Civil deixa equipe de prontidão e avisa os moradores do trecho.",
     ],
+    encaminhamentos: [
+      { orgaoId: "novacap", papel: "responsável", pedido: "Desobstruir os 6 pontos de drenagem antes da chuva", prazoH: 36 },
+      { orgaoId: "slu", papel: "apoio", pedido: "Recolher o entulho no mesmo trecho, no mesmo dia", prazoH: 36 },
+      { orgaoId: "defesa-civil", papel: "apoio", pedido: "Deixar equipe de prontidão e avisar os moradores do trecho", prazoH: 48 },
+    ],
     ganho: "Alagamento evitado ou reduzido: a ação acontece antes da chuva, não depois do chamado.",
     linhaDoTempo: [
       { quando: "há 5 semanas", texto: "Primeiro alagamento no trecho (199)" },
@@ -220,6 +260,10 @@ export const CASOS: Caso[] = [
       "Priorizar a troca das 14 lâmpadas na fila da CEB IPes.",
       "Reforço de ronda noturna no raio até a iluminação voltar.",
       "Acompanhar se os roubos caem depois da troca.",
+    ],
+    encaminhamentos: [
+      { orgaoId: "ceb-ipes", papel: "responsável", pedido: "Priorizar a troca das 14 lâmpadas", prazoH: 48 },
+      { orgaoId: "pmdf", papel: "apoio", pedido: "Reforçar a ronda noturna no raio até a iluminação voltar", prazoH: 12 },
     ],
     ganho: "Uma manutenção de baixo custo passa a ser tratada como medida de segurança.",
     linhaDoTempo: [
@@ -252,6 +296,11 @@ export const CASOS: Caso[] = [
       "Detran sinaliza o ponto até a recomposição.",
       "Um só acompanhamento para os 29 cidadãos, com as três etapas.",
     ],
+    encaminhamentos: [
+      { orgaoId: "caesb", papel: "responsável", pedido: "Consertar a rede primeiro, antes do asfalto", prazoH: 48 },
+      { orgaoId: "novacap", papel: "apoio", pedido: "Recompor o asfalto em seguida ao conserto da rede", prazoH: 96 },
+      { orgaoId: "detran", papel: "apoio", pedido: "Sinalizar o ponto até a recomposição", prazoH: 12 },
+    ],
     ganho: "Evita retrabalho da Novacap e novos acidentes no mesmo ponto.",
     linhaDoTempo: [
       { quando: "há 14 dias", texto: "Primeiro chamado de vazamento (115)" },
@@ -281,6 +330,12 @@ export const CASOS: Caso[] = [
       "Mutirão conjunto SLU e Vigilância Ambiental nos 9 pontos.",
       "Monitorar os pontos de descarte reincidentes com o DF Legal.",
     ],
+    encaminhamentos: [
+      { orgaoId: "slu", papel: "responsável", pedido: "Mutirão nos 9 pontos, com a Vigilância Ambiental", prazoH: 72 },
+      { orgaoId: "vigilancia", papel: "apoio", pedido: "Mutirão nos 9 pontos, com o SLU", prazoH: 72 },
+      { orgaoId: "dflegal", papel: "apoio", pedido: "Monitorar os pontos de descarte reincidentes", prazoH: 168 },
+      { orgaoId: "ses", papel: "avisado", pedido: "Focos de mosquito perto da unidade de saúde com reclamações de lotação", prazoH: 0 },
+    ],
     ganho: "Ação preventiva antes do pico de dengue da estação chuvosa.",
     linhaDoTempo: [
       { quando: "há 45 dias", texto: "Relatos de entulho começam a se acumular" },
@@ -308,6 +363,9 @@ export const CASOS: Caso[] = [
       "Estudo de engenharia de tráfego no cruzamento (redutor, semáforo ou rotatória).",
       "Repor a sinalização com proteção.",
     ],
+    encaminhamentos: [
+      { orgaoId: "detran", papel: "responsável", pedido: "Estudo de engenharia de tráfego no cruzamento e reposição da sinalização com proteção", prazoH: 240 },
+    ],
     ganho: "Troca um chamado de patrimônio recorrente por uma medida que evita acidentes.",
     linhaDoTempo: [
       { quando: "há 30 dias", texto: "Primeira placa derrubada" },
@@ -334,6 +392,9 @@ export const CASOS: Caso[] = [
     recomendacao: [
       "Comunicar a previsão de normalização a todos de uma vez, pelo canal que cada um usou.",
       "Levar a recorrência ao planejamento de investimento da CAESB.",
+    ],
+    encaminhamentos: [
+      { orgaoId: "caesb", papel: "responsável", pedido: "Comunicar a previsão de normalização a todos de uma vez e levar a recorrência ao planejamento", prazoH: 24 },
     ],
     ganho: "Cidadão informado sem precisar ligar; gestão vê a recorrência que o chamado isolado esconde.",
     linhaDoTempo: [

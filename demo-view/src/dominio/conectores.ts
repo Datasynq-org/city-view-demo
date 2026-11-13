@@ -88,6 +88,7 @@ export function contar(conectores: readonly Conector[] = CONECTORES): Record<Sit
 /** As regras que valem para todo conector (equipe; CV-REF-001, seção 7). */
 export const REGRAS: string[] = [
   'Nada se substitui: o órgão continua no sistema dele, do jeito que está acostumado.',
+  'Toda ligação é de ida e volta: o City View leva o pedido ao sistema do órgão e traz de volta a situação que ele informa.',
   'A gestão aponta quais são os sistemas; nós integramos, em qualquer tecnologia.',
   'Robô só com autorização formal do órgão e credencial institucional.',
   'O City View lê só o que a gestão autorizar, com finalidade declarada.',

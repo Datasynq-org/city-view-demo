@@ -14,6 +14,7 @@ import { corDoOrgao, familiasDe } from '../../inteligencia/cores';
 import { Contador } from '../../ui/Contador';
 import { Painel } from '../../ui/Painel';
 import { useTema } from '../../ui/tema';
+import { PlanoOuAndamento } from './Encaminhamento';
 
 const n = (v: number) => Math.round(v).toLocaleString('pt-BR');
 const ROTULO_SEVERIDADE: Record<Severidade, string> = { crítico: 'Crítico', sério: 'Sério', atenção: 'Atenção' };
@@ -271,6 +272,10 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
           </ol>
         </motion.section>
 
+        <motion.section variants={PARTE}>
+          <PlanoOuAndamento inc={inc} descartado={decisao.situacao === 'descartado'} />
+        </motion.section>
+
         {inc.linhaDoTempo.length > 0 && (
           <motion.section variants={PARTE}>
             <Rotulo>Linha do tempo</Rotulo>
@@ -291,13 +296,13 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
           <>
             <div className="flex gap-2">
               <button type="button" onClick={aoConfirmar} className="condensado flex-1 rounded-md bg-acento px-3 py-2 text-rotulo text-white hover:bg-acento-claro hover:text-base">
-                Confirmar
+                Confirmar e enviar
               </button>
               <button type="button" onClick={() => setDescartando(true)} className="condensado rounded-md border border-linha-forte px-3 py-2 text-rotulo text-texto hover:text-tinta">
                 Descartar
               </button>
             </div>
-            <p className="text-micro text-texto-2">A IA sugere. Uma pessoa decide antes de qualquer órgão ser avisado.</p>
+            <p className="text-micro text-texto-2">A IA sugere e monta o plano. Uma pessoa decide antes de qualquer pedido sair para um órgão.</p>
           </>
         )}
         {decisao.situacao === 'sugerido' && descartando && (
@@ -326,7 +331,7 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
         {decisao.situacao === 'enviando' && (
           <>
             <div className="flex items-center justify-between gap-3">
-              <p className="text-nota text-tinta">Confirmado. Avisando os órgãos em {Math.ceil(falta / 1000)} s…</p>
+              <p className="text-nota text-tinta">Confirmado. Os pedidos saem para os órgãos em {Math.ceil(falta / 1000)} s…</p>
               <button type="button" onClick={aoCancelar} className="condensado rounded-md border border-linha-forte px-3 py-1.5 text-rotulo text-texto hover:text-tinta">
                 Cancelar envio
               </button>
@@ -336,21 +341,7 @@ export function Insight({ inc, decisao, agora, aoConfirmar, aoCancelar, aoDescar
             </div>
           </>
         )}
-        {decisao.situacao === 'confirmado' && (
-          <div>
-            <Rotulo>Confirmado por uma pessoa · avisados (simulado)</Rotulo>
-            <ul className="flex flex-wrap gap-1.5">
-              {inc.orgaos.map((o, k) => (
-                <motion.li key={o} initial={reduzMovimento() ? false : { opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: k * 0.25 }} className="rounded border border-acento-claro/50 px-2 py-1 text-rotulo text-acento-claro">
-                  ✓ {siglaDoOrgao(o)}
-                </motion.li>
-              ))}
-              <motion.li initial={reduzMovimento() ? false : { opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: inc.orgaos.length * 0.25 }} className="rounded border border-acento-claro/50 px-2 py-1 text-rotulo text-acento-claro">
-                ✓ {n(inc.chamados)} cidadãos, com uma resposta só
-              </motion.li>
-            </ul>
-          </div>
-        )}
+        {decisao.situacao === 'confirmado' && <p className="text-nota text-texto">Confirmado por uma pessoa. Os pedidos seguiram para os órgãos; as respostas aparecem acima, em "Ida e volta".</p>}
         {decisao.situacao === 'descartado' && (
           <div className="flex items-center justify-between gap-3">
             <p className="text-nota text-texto">

@@ -10,7 +10,8 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { agrupar, calcularLigacoes, gerarChamados, limiarDaSensibilidade, SENSIBILIDADE_PADRAO } from '../../inteligencia/agrupamento';
-import { avancar, cancelarEnvio, confirmar, decisaoDe, type Decisoes, descartar, desfazerDescarte, type MotivoDeDescarte } from '../../inteligencia/decisoes';
+import { decisaoDe, type Decisoes, type MotivoDeDescarte } from '../../inteligencia/decisoes';
+import { cancelar, confirmar, descartar, desfazer, reiniciar, useInteligencia } from '../../inteligencia/estado';
 import { camadasDoGrafo, camadasVivas, COR_DA_SEVERIDADE, type Etapa, ETAPAS, type Onda, prepararGrafo, zoomDoIncidente } from '../../mapa/camadas/grafo';
 import { Mapa } from '../../mapa/Mapa';
 import { type Destino, reduzMovimento } from '../../mapa/vista';
@@ -41,7 +42,9 @@ export function TelaInteligencia() {
   const [vista, setVista] = useState<'painel' | 'grafo'>(() => (pedido || parametrosDoHash().get('vista') === 'grafo' ? 'grafo' : 'painel'));
   const [etapa, setEtapa] = useState<Etapa>(pedido ? 2 : 0);
   const [aberto, setAberto] = useState(() => (pedido ? resultado.incidentes.findIndex((i) => i.casoId === pedido) : -1));
-  const [decisoes, setDecisoes] = useState<Decisoes>({});
+  // As decisões e o andamento ficam no estado comum: a sala e a gestão veem os mesmos incidentes.
+  const estadoComum = useInteligencia();
+  const decisoes = estadoComum.decisoes;
   const [agora, setAgora] = useState(() => Date.now());
   const [ondas, setOndas] = useState<Onda[]>([]);
   const [porOrgao, setPorOrgao] = useState(false);
@@ -58,27 +61,26 @@ export function TelaInteligencia() {
   const mudarSens = (v: number) => {
     setSens(v);
     setAberto(-1);
-    setDecisoes({});
+    reiniciar();
   };
 
-  // Enquanto há envio na janela de cancelamento, o relógio anda; ao vencer, confirma e solta a onda.
+  // Enquanto há envio na janela de cancelamento, o relógio da tela anda (a contagem regressiva).
   const enviando = Object.values(decisoes).some((d) => d.situacao === 'enviando');
   useEffect(() => {
     if (!enviando) return;
-    const t = setInterval(() => {
-      const t1 = Date.now();
-      setAgora(t1);
-      setDecisoes((d) => {
-        const depois = avancar(d, t1);
-        if (depois !== d) {
-          const novos = resultado.incidentes.filter((i) => d[i.codigo]?.situacao === 'enviando' && depois[i.codigo]?.situacao === 'confirmado');
-          setOndas((o) => [...o.slice(-4), ...novos.map((i, k) => ({ id: t1 + k, centro: i.centro, cor: COR_DA_SEVERIDADE[i.severidade], em: performance.now() }))]);
-        }
-        return depois;
-      });
-    }, 200);
+    const t = setInterval(() => setAgora(Date.now()), 200);
     return () => clearInterval(t);
-  }, [enviando, resultado]);
+  }, [enviando]);
+  // Quando um envio vence a janela e os pedidos saem, o mapa solta a onda.
+  const decisoesAntes = useRef<Decisoes>(decisoes);
+  useEffect(() => {
+    const antes = decisoesAntes.current;
+    decisoesAntes.current = decisoes;
+    const novos = resultado.incidentes.filter((i) => antes[i.codigo]?.situacao === 'enviando' && decisoes[i.codigo]?.situacao === 'confirmado');
+    if (novos.length === 0) return;
+    const t1 = Date.now();
+    setOndas((o) => [...o.slice(-4), ...novos.map((i, k) => ({ id: t1 + k, centro: i.centro, cor: COR_DA_SEVERIDADE[i.severidade], em: performance.now() }))]);
+  }, [decisoes, resultado]);
 
   // ------------------------------------------------ mapa
   const tema = useTema();
@@ -129,16 +131,15 @@ export function TelaInteligencia() {
   );
 
   // ------------------------------------------------ decisões
-  const codigo = inc?.codigo;
   const aoConfirmar = useCallback(() => {
-    if (!codigo) return;
+    if (!inc) return;
     const t = Date.now();
     setAgora(t);
-    setDecisoes((d) => confirmar(d, codigo, t));
-  }, [codigo]);
-  const aoCancelar = () => codigo && setDecisoes((d) => cancelarEnvio(d, codigo, Date.now()));
-  const aoDescartar = (m: MotivoDeDescarte) => codigo && setDecisoes((d) => descartar(d, codigo, m));
-  const aoDesfazer = () => codigo && setDecisoes((d) => desfazerDescarte(d, codigo));
+    confirmar(inc, t);
+  }, [inc]);
+  const aoCancelar = () => inc && cancelar(inc.codigo, Date.now());
+  const aoDescartar = (m: MotivoDeDescarte) => inc && descartar(inc, m, Date.now());
+  const aoDesfazer = () => inc && desfazer(inc.codigo, Date.now());
 
   // ------------------------------------------------ teclas
   const atalhos = useRef({ aberto, total: resultado.incidentes.length, aoConfirmar, fechar });
@@ -168,7 +169,7 @@ export function TelaInteligencia() {
       {vista === 'grafo' ? (
         <Mapa margens={margens} camadas={camadas} animadas={animadas} alvo={alvo} semImagem dicaDasRas={false} clicaveis={CLICAVEIS} aoClicarObjeto={aoClicarObjeto} />
       ) : (
-        <PainelDeInsights resultado={resultado} resumo={resumo} decisaoDe={(c) => decisaoDe(decisoes, c)} aberto={aberto} aoAbrir={abrir} comInsight={Boolean(inc)} />
+        <PainelDeInsights resultado={resultado} resumo={resumo} estado={estadoComum} decisaoDe={(c) => decisaoDe(decisoes, c)} aberto={aberto} aoAbrir={abrir} comInsight={Boolean(inc)} />
       )}
 
       {/* No alto: painel ou grafo e, no grafo, as três etapas. */}

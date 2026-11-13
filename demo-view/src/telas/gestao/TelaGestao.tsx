@@ -6,6 +6,10 @@
  * dos órgãos: hoje cada um está num sistema separado. Clicar num órgão abre a
  * visão do gestor dele. Tudo sobre dados SIMULADOS.
  */
+import { respostasPossiveis, ROTULO_DO_PASSO } from '../../inteligencia/encaminhamento';
+import { useInteligencia } from '../../inteligencia/estado';
+import { prazoEmTexto, ROTULO_DO_PAPEL } from '../../inteligencia/plano';
+import { BotoesDoOrgao } from '../inteligencia/Encaminhamento';
 import { type ReactNode, useMemo, useState } from 'react';
 import { cidade } from '../../dados/cidade';
 import { inicioDoDia } from '../../dados/gerador';
@@ -223,6 +227,13 @@ function VisaoDoGestor({ linha, dias, aoFechar }: { linha: LinhaDoOrgao; dias: n
   const operacao = operacaoDoOrgao(o.id);
   const casos = CASOS.filter((c) => c.sinais.some((s) => s.orgaoId === o.id));
   const maior = Math.max(1, ...regioes.map((r) => r.chamados));
+  // Os pedidos que o City View mandou a este órgão: é daqui que ele responde.
+  const inteligencia = useInteligencia();
+  const pedidos = Object.values(inteligencia.andamentos).flatMap((an) => {
+    const t = an.trilhas.find((x) => x.orgaoId === o.id);
+    const f = inteligencia.fichas[an.codigo];
+    return t && f ? [{ an, t, f, item: f.plano.find((p) => p.orgaoId === o.id) }] : [];
+  });
   return (
     <Painel className="min-w-0 p-5">
       <div className="flex items-start justify-between gap-3">
@@ -237,6 +248,31 @@ function VisaoDoGestor({ linha, dias, aoFechar }: { linha: LinhaDoOrgao; dias: n
           ✕
         </button>
       </div>
+
+      <h3 className="condensado mt-4 mb-1.5 text-micro text-texto-2">Incidentes do meu órgão · pedidos do City View</h3>
+      {pedidos.length === 0 ? (
+        <p className="rounded border border-dashed border-linha-forte px-3 py-2 text-rotulo text-texto-2">
+          Nenhum pedido ainda. Quando alguém confirma um insight na <a href="#/inteligencia" className="text-acento-claro hover:underline">Inteligência</a>, o pedido chega ao sistema do órgão, e a resposta dele volta para a sala.
+        </p>
+      ) : (
+        <ul className="space-y-2">
+          {pedidos.map(({ an, t, f, item }) => (
+            <li key={an.codigo} className={`rounded border px-3 py-2 ${t.passo === 'devolvido' ? 'border-alerta/50' : 'border-linha'}`}>
+              <p className="flex items-center justify-between gap-2">
+                <a href={`#/inteligencia?caso=${f.casoId ?? ''}`} className="min-w-0 truncate text-nota text-tinta hover:underline">{f.titulo}</a>
+                <span className={`condensado shrink-0 text-micro ${t.passo === 'resolvido' ? 'text-acento-claro' : t.passo === 'devolvido' ? 'text-alerta' : 'text-texto-2'}`}>{ROTULO_DO_PASSO[t.passo]}</span>
+              </p>
+              <p className="text-micro text-texto-2">
+                <span className="font-mono">{an.codigo}</span> · {ROTULO_DO_PAPEL[t.papel]}
+                {item && item.prazoH > 0 ? ` · prazo ${prazoEmTexto(item.prazoH)}` : ''}
+                {t.protocolo ? ` · ${t.protocolo} (fictício)` : ''}
+              </p>
+              {item && <p className="mt-1 text-rotulo text-texto">Pedido: {item.pedido}</p>}
+              {respostasPossiveis(t).length > 0 && <BotoesDoOrgao codigo={an.codigo} orgaoId={o.id} possiveis={respostasPossiveis(t)} />}
+            </li>
+          ))}
+        </ul>
+      )}
 
       <h3 className="condensado mt-4 mb-1.5 text-micro text-texto-2">O que chega, por tipo</h3>
       <ul>

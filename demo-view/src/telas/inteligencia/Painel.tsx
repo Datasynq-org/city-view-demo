@@ -10,10 +10,13 @@ import { REGIAO_POR_ID } from '../../dominio/ras';
 import { type Incidente, NOME_DO_TIPO, type Resultado } from '../../inteligencia/agrupamento';
 import { type Severidade, siglaDoOrgao } from '../../inteligencia/casos';
 import { type Decisao, ROTULO_DA_SITUACAO } from '../../inteligencia/decisoes';
+import { ROTULO_DA_SITUACAO_DO_INCIDENTE, situacaoDoIncidente } from '../../inteligencia/encaminhamento';
+import type { Estado } from '../../inteligencia/estado';
 import { type FiltroDeInsights, filtrarInsights, opcoesDeFiltro, type Resumo, SEM_FILTRO } from '../../inteligencia/resumo';
 import { reduzMovimento } from '../../mapa/vista';
 import { Painel } from '../../ui/Painel';
 import { useTema } from '../../ui/tema';
+import { EmAndamento, Registro } from './Encaminhamento';
 import { CorDoOrgao, Faixa, LegendaDasAreas } from './partes';
 
 const n = (v: number) => Math.round(v).toLocaleString('pt-BR');
@@ -40,7 +43,7 @@ function Opcao({ ativo, aoClicar, children }: { ativo: boolean; aoClicar: () => 
   );
 }
 
-function Cartao({ inc, decisao, ativo, recuado, aoAbrir }: { inc: Incidente; decisao: Decisao; ativo: boolean; /** Outro cartão está aberto: este recua. */ recuado: boolean; aoAbrir: () => void }) {
+function Cartao({ inc, decisao, andando, ativo, recuado, aoAbrir }: { inc: Incidente; decisao: Decisao; /** Confirmado: em que pé está com os órgãos. */ andando: string | null; ativo: boolean; /** Outro cartão está aberto: este recua. */ recuado: boolean; aoAbrir: () => void }) {
   const relatos = inc.evidencias.filter((e) => e.fonte === 'chamado');
   const operacao = inc.evidencias.filter((e) => e.fonte === 'operação');
   const descartado = decisao.situacao === 'descartado';
@@ -96,7 +99,7 @@ function Cartao({ inc, decisao, ativo, recuado, aoAbrir }: { inc: Incidente; dec
             <span>
               {n(inc.chamados)} chamados · {inc.orgaos.length} órgão{inc.orgaos.length === 1 ? '' : 's'} · confiança {Math.round(inc.confianca * 100)}%
             </span>
-            <span className={`condensado rounded border px-1.5 py-0.5 ${decisao.situacao === 'sugerido' ? 'border-dashed border-linha-forte' : descartado ? 'border-linha line-through' : 'border-acento-claro/60 text-acento-claro'}`}>{ROTULO_DA_SITUACAO[decisao.situacao]}</span>
+            <span className={`condensado rounded border px-1.5 py-0.5 ${decisao.situacao === 'sugerido' ? 'border-dashed border-linha-forte' : descartado ? 'border-linha line-through' : 'border-acento-claro/60 text-acento-claro'}`}>{andando ?? ROTULO_DA_SITUACAO[decisao.situacao]}</span>
           </span>
         </span>
       </motion.button>
@@ -104,9 +107,13 @@ function Cartao({ inc, decisao, ativo, recuado, aoAbrir }: { inc: Incidente; dec
   );
 }
 
-export function PainelDeInsights({ resultado, resumo, decisaoDe, aberto, aoAbrir, comInsight }: {
+type Aba = 'insights' | 'andamento' | 'registro';
+
+export function PainelDeInsights({ resultado, resumo, estado, decisaoDe, aberto, aoAbrir, comInsight }: {
   resultado: Resultado;
   resumo: Resumo;
+  /** O estado comum: o andamento de cada incidente confirmado e o registro. */
+  estado: Estado;
   decisaoDe: (codigo: string) => Decisao;
   aberto: number;
   aoAbrir: (k: number) => void;
@@ -114,6 +121,17 @@ export function PainelDeInsights({ resultado, resumo, decisaoDe, aberto, aoAbrir
   comInsight: boolean;
 }) {
   const [filtro, setFiltro] = useState<FiltroDeInsights>(SEM_FILTRO);
+  const [aba, setAba] = useState<Aba>('insights');
+  const emAndamento = Object.keys(estado.andamentos).length;
+  const abrirPeloCodigo = (codigo: string) => {
+    const k = resultado.incidentes.findIndex((i) => i.codigo === codigo);
+    if (k >= 0) aoAbrir(k);
+  };
+  const ABAS: { id: Aba; nome: string }[] = [
+    { id: 'insights', nome: `Insights · ${resultado.incidentes.length}` },
+    { id: 'andamento', nome: `Em andamento · ${emAndamento}` },
+    { id: 'registro', nome: `Registro · ${estado.registro.length}` },
+  ];
   const opcoes = useMemo(() => opcoesDeFiltro(resultado.incidentes), [resultado]);
   const visiveis = useMemo(() => filtrarInsights(resultado.incidentes, filtro), [resultado, filtro]);
   const mudar = <K extends keyof FiltroDeInsights>(k: K, v: FiltroDeInsights[K]) => setFiltro((f) => ({ ...f, [k]: f[k] === v ? null : v }));
@@ -132,6 +150,19 @@ export function PainelDeInsights({ resultado, resumo, decisaoDe, aberto, aoAbrir
         </div>
       </Painel>
 
+      <div role="tablist" aria-label="O que ver" className="flex gap-1 border-b border-linha">
+        {ABAS.map((a) => (
+          <button key={a.id} type="button" role="tab" aria-selected={a.id === aba} onClick={() => setAba(a.id)} className={`condensado -mb-px border-b-2 px-3 py-2 text-rotulo ${a.id === aba ? 'border-acento-claro text-tinta' : 'border-transparent text-texto-2 hover:text-tinta'}`}>
+            {a.nome}
+          </button>
+        ))}
+      </div>
+
+      {aba === 'andamento' && <EmAndamento estado={estado} aoAbrir={abrirPeloCodigo} />}
+      {aba === 'registro' && <Registro estado={estado} codigos={resultado.incidentes.map((i) => i.codigo)} />}
+
+      {aba === 'insights' && (
+      <>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2" role="group" aria-label="Filtros">
         <span className="flex flex-wrap items-center gap-1.5">
           {SEVERIDADES.map((s) => (
@@ -166,10 +197,12 @@ export function PainelDeInsights({ resultado, resumo, decisaoDe, aberto, aoAbrir
 
       <ul className="grade-de-insights">
         {visiveis.map(({ inc, k }) => (
-          <Cartao key={inc.codigo} inc={inc} decisao={decisaoDe(inc.codigo)} ativo={k === aberto} recuado={comInsight && k !== aberto} aoAbrir={() => aoAbrir(k)} />
+          <Cartao key={inc.codigo} inc={inc} decisao={decisaoDe(inc.codigo)} andando={estado.andamentos[inc.codigo] ? ROTULO_DA_SITUACAO_DO_INCIDENTE[situacaoDoIncidente(estado.andamentos[inc.codigo]!)] : null} ativo={k === aberto} recuado={comInsight && k !== aberto} aoAbrir={() => aoAbrir(k)} />
         ))}
       </ul>
       {visiveis.length === 0 && <p className="text-nota text-texto-2">Nenhum insight com esses filtros.</p>}
+      </>
+      )}
     </div>
   );
 }
