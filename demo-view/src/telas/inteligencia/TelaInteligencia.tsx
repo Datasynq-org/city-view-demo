@@ -25,7 +25,7 @@ import { ehReal } from '../../inteligencia/reais';
 import { PainelDeInsights } from './Painel';
 import { Fila, Insight, LegendaDasAreas, PorOrgao } from './partes';
 
-const CLICAVEIS = ['grafo-colunas', 'grafo-colunas-de-bairro', 'grafo-nos', 'grafo-chamados'] as const;
+const CLICAVEIS = ['grafo-colunas', 'grafo-colunas-de-bairro', 'grafo-nos', 'grafo-chamados', 'grafo-avulsos'] as const;
 const DF: Destino = { tipo: 'df' };
 
 /** `#/inteligencia?caso=apagao-planaltina` abre já no insight daquele caso; `?codigo=AC-01`, no incidente com esse código. */
@@ -290,7 +290,7 @@ export function TelaInteligencia() {
       </div>
 
       {vista === 'grafo' && (
-        <div className={`absolute bottom-10 z-10 hidden max-w-md rounded bg-base/85 px-3 py-1.5 empty:hidden lg:block ${filaAberta ? 'left-[24.5rem]' : 'left-8'}`}>
+        <div className={`absolute bottom-24 z-10 hidden max-w-md rounded bg-base/85 px-3 py-1.5 empty:hidden lg:block ${filaAberta ? 'left-[24.5rem]' : 'left-8'}`}>
           <LegendaDasAreas orgaos={todosOsOrgaos} />
         </div>
       )}

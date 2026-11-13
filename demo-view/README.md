@@ -394,6 +394,20 @@ misturam na conta: cada uma é agrupada pela sua regra (`inteligencia/juntos.ts`
 Capturas: `capturas/ac-painel.png`, `capturas/ac-insight.png`,
 `capturas/ac-grafo.png`. Testes: 370.
 
+*Acréscimo de 13/11/2026 · o grafo com volume.* Com os 853 relatos reais, o
+grafo de perto virava uma mancha: cada ponto tinha um brilho em volta. Agora a
+tinta vai para o que foi agrupado (`mapa/camadas/grafo.ts`):
+- **Etapa 1 (chamados):** todo chamado é um ponto pequeno, sem brilho; quanto
+  mais pontos, mais transparente cada um, para a sobreposição mostrar onde
+  concentra.
+- **Etapas 2 e 3:** só quem está num incidente leva brilho, tamanho e cor; o
+  chamado avulso recua para um ponto pequeno e neutro.
+- A legenda das áreas subiu, para não ficar sobre a barra do tempo.
+- O selo da Inteligência ficou mais curto ("Águas Claras: dado real · DF e
+  fluxo simulados"); a data da leitura está no painel.
+
+Testes: 373.
+
 **Previsões** (feita, aguardando revisão; proposta): as próximas duas semanas
 com a margem, o que está fora do normal agora, o que deve subir e cair, onde
 reforçar as equipes e o acerto do método, medido ao prever as duas últimas

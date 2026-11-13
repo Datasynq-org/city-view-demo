@@ -264,18 +264,45 @@ export function camadasDoGrafo(e: EstadoDoGrafo): Layer[] {
     );
   }
 
+  // Com volume, mil pontos com brilho viram uma mancha. Por isso a tinta vai para o que foi
+  // agrupado: quem está num incidente leva brilho e tamanho; o avulso é um ponto pequeno e
+  // discreto, sem brilho. Na etapa 1 ninguém foi agrupado ainda: todos são pontos pequenos.
+  const agrupado = (p: PontoDoGrafo) => etapa > 0 && noIncidente(p.i);
+  const avulsos = base.pontos.filter((p) => !agrupado(p));
+  const membros = base.pontos.filter(agrupado);
+  // Muitos pontos no mesmo lugar: cada um mais transparente, para a sobreposição mostrar a concentração.
+  const denso = Math.min(1, Math.max(0.45, 600 / Math.max(1, avulsos.length)));
+
   camadas.push(
     new ScatterplotLayer<PontoDoGrafo>({
+      id: 'grafo-avulsos',
+      data: avulsos,
+      getPosition: (p) => p.ponto,
+      getRadius: (p) => 26 + Math.sqrt(p.peso) * 10,
+      radiusMinPixels: claro ? 2 : 1.6,
+      radiusMaxPixels: 5,
+      // Na etapa 1 o ponto leva a cor do dado; depois, quem ficou avulso recua para o neutro.
+      getFillColor: (p) => {
+        const [r, g, b, a] = etapa === 0 ? corDoPonto(p) : [...NEUTRO, alfaDoPonto(p)];
+        return [r!, g!, b!, Math.round(a! * denso)];
+      },
+      pickable: true,
+      transitions: { getFillColor: 300 },
+      updateTriggers: { getFillColor: chave },
+      ...SEMPRE_POR_CIMA,
+      ...NA_PILHA,
+    }),
+    new ScatterplotLayer<PontoDoGrafo>({
       id: 'grafo-halo',
-      data: base.pontos,
+      data: membros,
       getPosition: posicao,
-      getRadius: (p) => 160 + Math.sqrt(p.peso) * 60,
-      radiusMinPixels: 7,
-      radiusMaxPixels: 26,
+      getRadius: (p) => 70 + Math.sqrt(p.peso) * 60,
+      radiusMinPixels: 5,
+      radiusMaxPixels: 18,
       getFillColor: (p) => {
         const [r, g, b, a] = corDoPonto(p);
         // No incidente aberto os pontos ficam juntos: brilho menor, para não virar uma mancha.
-        return [r, g, b, Math.round(a * (haAberto ? (claro ? 0.16 : 0.07) : claro ? 0.26 : 0.2))];
+        return [r, g, b, Math.round(a * (haAberto ? (claro ? 0.16 : 0.07) : claro ? 0.22 : 0.16))];
       },
       transitions: { getPosition: 900 },
       updateTriggers: { getPosition: chave, getFillColor: chave },
@@ -284,7 +311,7 @@ export function camadasDoGrafo(e: EstadoDoGrafo): Layer[] {
     }),
     new ScatterplotLayer<PontoDoGrafo>({
       id: 'grafo-chamados',
-      data: base.pontos,
+      data: membros,
       getPosition: posicao,
       getRadius: (p) => 45 + Math.sqrt(p.peso) * 22,
       // No claro a cor é o dado: o ponto é um pouco maior, para a cor ser lida de longe.

@@ -9,7 +9,6 @@ import { TelaPrevisoes } from './telas/previsoes/TelaPrevisoes';
 import { TelaRegioes } from './telas/regioes/TelaRegioes';
 import { TelaResumo } from './telas/resumo/TelaResumo';
 import { TelaSala } from './telas/sala/TelaSala';
-import { dataDaLeitura } from './dados/aguasClaras/demandas';
 import { TelaEntrada } from './telas/entrada/TelaEntrada';
 import { BarraLateral } from './ui/BarraLateral';
 import { usePerfil } from './ui/perfil';
@@ -48,7 +47,7 @@ export function App() {
   const [aberta, setAberta] = useState(() => window.innerWidth >= 1536);
   const atual = TELAS.find((t) => t.id === tela)!;
   // Na Inteligência há dado real junto do simulado: o selo diz qual é qual.
-  const selo = tela === 'inteligencia' ? `Águas Claras: dado real de ${dataDaLeitura()} · DF e fluxo simulados` : undefined;
+  const selo = tela === 'inteligencia' ? 'Águas Claras: dado real · DF e fluxo simulados' : undefined;
   // Quem chega pela raiz, sem ter escolhido, vê a entrada. Um endereço de tela abre direto, em qualquer perfil.
   const { perfil } = usePerfil();
   const semEndereco = !/^#\/?\w/.test(window.location.hash) && !new URLSearchParams(window.location.search).has('tela');

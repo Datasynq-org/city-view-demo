@@ -566,3 +566,14 @@ Testes: 365.
 
 Testes: 370.
 
+*Acréscimo de 13/11/2026 · o grafo com volume.* O Sammuel mostrou o grafo de
+Águas Claras de perto, no tema claro: "com volume (que vai ter) a view fica
+poluída". Cada um dos 853 pontos tinha um brilho, e os brilhos se somavam numa
+mancha. Regra nova: **a tinta vai para o que foi agrupado.** Antes de agrupar,
+todo chamado é um ponto pequeno; depois, só os de incidente levam brilho e cor,
+e o avulso vira um ponto neutro. É a regra da I3 ("cor só para função") levada
+ao volume. Não há agregação por zoom: se o volume crescer outra ordem de
+grandeza, o passo seguinte é juntar os avulsos em células, como o calor da sala.
+
+Testes: 373.
+

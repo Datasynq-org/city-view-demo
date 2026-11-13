@@ -26,9 +26,9 @@ describe('grafo da inteligência', () => {
   });
 
   it('cada etapa mostra só o que é dela', () => {
-    expect(ids(estado(0))).toEqual(['grafo-halo', 'grafo-chamados']);
-    expect(ids(estado(1))).toEqual(['grafo-ligacoes', 'grafo-nos', 'grafo-halo', 'grafo-chamados']);
-    expect(ids(estado(2))).toEqual(['grafo-ligacoes', 'grafo-halo', 'grafo-chamados', 'grafo-colunas', 'grafo-numeros']);
+    expect(ids(estado(0))).toEqual(['grafo-avulsos', 'grafo-halo', 'grafo-chamados']);
+    expect(ids(estado(1))).toEqual(['grafo-ligacoes', 'grafo-nos', 'grafo-avulsos', 'grafo-halo', 'grafo-chamados']);
+    expect(ids(estado(2))).toEqual(['grafo-ligacoes', 'grafo-avulsos', 'grafo-halo', 'grafo-chamados', 'grafo-colunas', 'grafo-numeros']);
     expect(ids(estado(2, 0))).toContain('grafo-raios');
   });
 
@@ -85,5 +85,28 @@ describe('voltar no tempo no grafo', () => {
     const colunasEm = (corte: number) => (camadasDoGrafo({ ...estado(2), corte }).find((c) => c.id === 'grafo-colunas')!.props.data as unknown[]).length;
     expect(colunasEm(1e9)).toBe(0);
     expect(colunasEm(0)).toBe(resultado.incidentes.length);
+  });
+});
+
+describe('com volume, a tinta vai para o que foi agrupado', () => {
+  const dados = (e: ReturnType<typeof estado>, id: string) => camadasDoGrafo(e).find((c) => c.id === id)!.props.data as unknown[];
+
+  it('antes de agrupar, todo chamado é um ponto pequeno, sem brilho', () => {
+    expect(dados(estado(0), 'grafo-avulsos')).toHaveLength(chamados.length);
+    expect(dados(estado(0), 'grafo-halo')).toHaveLength(0);
+    expect(dados(estado(0), 'grafo-chamados')).toHaveLength(0);
+  });
+
+  it('depois, só quem está num incidente leva brilho; avulso e agrupado somam todos', () => {
+    const agrupados = resultado.incidentes.reduce((s, i) => s + i.membros.length, 0);
+    expect(dados(estado(1), 'grafo-halo')).toHaveLength(agrupados);
+    expect(dados(estado(1), 'grafo-chamados')).toHaveLength(agrupados);
+    expect(dados(estado(1), 'grafo-avulsos')).toHaveLength(chamados.length - agrupados);
+  });
+
+  it('descartar um incidente devolve os chamados dele aos avulsos', () => {
+    const k = 0;
+    const antes = dados(estado(1), 'grafo-avulsos').length;
+    expect(dados(estado(1, -1, [k]), 'grafo-avulsos')).toHaveLength(antes + resultado.incidentes[k]!.membros.length);
   });
 });
