@@ -408,6 +408,17 @@ tinta vai para o que foi agrupado (`mapa/camadas/grafo.ts`):
 
 Testes: 373.
 
+*Acréscimo de 13/11/2026 · seletor de região na Inteligência.* No alto da tela,
+ao lado de Painel/Grafo, um seletor com as regiões que têm insight e a contagem
+de cada uma ("Águas Claras (29)"); `?ra=aguas-claras` abre já escolhida.
+- **A fila, o painel e as setas** passam a olhar só para a região.
+- **O mapa** voa até ela e fica de perto: as colunas vão para a escala de
+  bairro, e os incidentes de outras regiões saem de foco (sem coluna, com os
+  pontos neutros).
+- "Todo o DF" devolve a visão inteira.
+- O selo da Inteligência ficou "Águas Claras real · DF simulado", para caber
+  ao lado da barra.
+
 **Previsões** (feita, aguardando revisão; proposta): as próximas duas semanas
 com a margem, o que está fora do normal agora, o que deve subir e cair, onde
 reforçar as equipes e o acerto do método, medido ao prever as duas últimas

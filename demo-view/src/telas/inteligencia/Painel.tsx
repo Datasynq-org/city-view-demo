@@ -185,7 +185,9 @@ function AguasClarasEmNumeros() {
 
 type Aba = 'insights' | 'andamento' | 'registro';
 
-export function PainelDeInsights({ resultado, resumo, estado, decisaoDe, aberto, aoAbrir, comInsight }: {
+export function PainelDeInsights({ resultado, resumo, estado, ra = null, decisaoDe, aberto, aoAbrir, comInsight }: {
+  /** A região escolhida no seletor do alto: a grade mostra só os insights dela. */
+  ra?: string | null;
   resultado: Resultado;
   resumo: Resumo;
   /** O estado comum: o andamento de cada incidente confirmado e o registro. */
@@ -215,7 +217,7 @@ export function PainelDeInsights({ resultado, resumo, estado, decisaoDe, aberto,
     { id: 'registro', nome: `Registro · ${estado.registro.length}` },
   ];
   const opcoes = useMemo(() => opcoesDeFiltro(resultado.incidentes), [resultado]);
-  const visiveis = useMemo(() => filtrarInsights(resultado.incidentes, filtro).filter((x) => origem === null || ehReal(x.inc) === (origem === 'real')), [resultado, filtro, origem]);
+  const visiveis = useMemo(() => filtrarInsights(resultado.incidentes, filtro).filter((x) => (origem === null || ehReal(x.inc) === (origem === 'real')) && (ra === null || x.inc.raId === ra)), [resultado, filtro, origem, ra]);
   const mudar = <K extends keyof FiltroDeInsights>(k: K, v: FiltroDeInsights[K]) => setFiltro((f) => ({ ...f, [k]: f[k] === v ? null : v }));
 
   return (
@@ -284,6 +286,7 @@ export function PainelDeInsights({ resultado, resumo, estado, decisaoDe, aberto,
         </label>
         <span className="text-rotulo text-texto-2">
           {visiveis.length} de {resultado.incidentes.length}
+          {ra && REGIAO_POR_ID[ra] ? ` · só ${REGIAO_POR_ID[ra]!.nome}` : ''}
         </span>
       </div>
       <LegendaDasAreas orgaos={opcoes.orgaos} />

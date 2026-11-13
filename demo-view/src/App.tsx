@@ -47,7 +47,7 @@ export function App() {
   const [aberta, setAberta] = useState(() => window.innerWidth >= 1536);
   const atual = TELAS.find((t) => t.id === tela)!;
   // Na Inteligência há dado real junto do simulado: o selo diz qual é qual.
-  const selo = tela === 'inteligencia' ? 'Águas Claras: dado real · DF e fluxo simulados' : undefined;
+  const selo = tela === 'inteligencia' ? 'Águas Claras real · DF simulado' : undefined;
   // Quem chega pela raiz, sem ter escolhido, vê a entrada. Um endereço de tela abre direto, em qualquer perfil.
   const { perfil } = usePerfil();
   const semEndereco = !/^#\/?\w/.test(window.location.hash) && !new URLSearchParams(window.location.search).has('tela');

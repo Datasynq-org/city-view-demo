@@ -577,3 +577,10 @@ grandeza, o passo seguinte é juntar os avulsos em células, como o calor da sal
 
 Testes: 373.
 
+*Acréscimo de 13/11/2026 · seletor de região.* Pedido do Sammuel, depois de ver
+o grafo com as duas fontes: "podemos fazer um seletor de RA também". Entrou no
+alto da Inteligência e vale para o painel e para o grafo. Com uma região
+escolhida o mapa fica de perto, então todas as colunas passam à escala de
+bairro e o que é de outra região sai de foco. É também a resposta de curto
+prazo ao volume: de perto, olha-se uma região por vez.
+

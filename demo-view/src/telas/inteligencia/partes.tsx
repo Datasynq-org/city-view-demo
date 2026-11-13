@@ -80,13 +80,16 @@ const Rotulo = ({ children }: { children: ReactNode }) => <p className="condensa
 
 // ---------------------------------------------------------------- fila
 
-export function Fila({ resultado, aberto, decisaoDe, aoAbrir }: {
+export function Fila({ resultado, ra = null, aberto, decisaoDe, aoAbrir }: {
   resultado: Resultado;
+  /** A região escolhida no seletor: a fila mostra só os insights dela. */
+  ra?: string | null;
   aberto: number;
   decisaoDe: (codigo: string) => Decisao;
   aoAbrir: (k: number) => void;
 }) {
   const { incidentes, total, avulsos } = resultado;
+  const daRegiao = incidentes.filter((i) => ra === null || i.raId === ra);
   // Quem anda pela fila com as setas não perde o item de vista.
   const ativoRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -102,9 +105,13 @@ export function Fila({ resultado, aberto, decisaoDe, aoAbrir }: {
           <span className="text-valor leading-8 font-semibold text-tinta tabular-nums">{incidentes.length}</span> incidentes sugeridos
           <span className="text-rotulo"> · {n(avulsos)} seguem avulsos</span>
         </p>
+        <p className={`text-rotulo text-acento-claro ${ra ? '' : 'hidden'}`}>
+          {daRegiao.length} em {(ra && REGIAO_POR_ID[ra]?.nome) || ''}
+        </p>
       </header>
       <ol className="min-h-0 flex-1 overflow-y-auto" aria-label="Insights, do mais urgente ao menos">
         {incidentes.map((inc, k) => {
+          if (ra !== null && inc.raId !== ra) return null;
           const ativo = k === aberto;
           return (
             <li key={inc.codigo}>

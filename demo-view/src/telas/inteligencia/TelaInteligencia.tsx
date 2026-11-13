@@ -16,6 +16,7 @@ import { camadasDoGrafo, camadasVivas, chegadosAte, chegadosPorIncidente, COR_DA
 import { BarraDoTempo, HORAS_DA_BARRA } from './BarraDoTempo';
 import { Mapa } from '../../mapa/Mapa';
 import { type Destino, reduzMovimento } from '../../mapa/vista';
+import { REGIAO_POR_ID, REGIOES } from '../../dominio/ras';
 import { parametrosDoHash } from '../../navegacao';
 import { Painel } from '../../ui/Painel';
 import { useTema } from '../../ui/tema';
@@ -58,6 +59,28 @@ export function TelaInteligencia() {
   const [porOrgao, setPorOrgao] = useState(false);
   const [ajustes, setAjustes] = useState(false);
   const [filaAberta, setFilaAberta] = useState(true);
+  // O seletor de região: a fila, o painel e o mapa passam a olhar só para ela. `?ra=aguas-claras` abre já escolhida.
+  const [ra, setRa] = useState<string | null>(() => {
+    const pedida = parametrosDoHash().get('ra');
+    return pedida && REGIAO_POR_ID[pedida] ? pedida : null;
+  });
+  // As regiões que têm algum insight, com a contagem, em ordem alfabética.
+  const regioesComInsight = useMemo(() => {
+    const conta = new Map<string, number>();
+    for (const i of resultado.incidentes) if (i.raId) conta.set(i.raId, (conta.get(i.raId) ?? 0) + 1);
+    return REGIOES.filter((r) => conta.has(r.id))
+      .map((r) => ({ id: r.id, nome: r.nome, insights: conta.get(r.id)! }))
+      .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+  }, [resultado]);
+  // Para onde o mapa volta quando nada está aberto: a região escolhida, ou o DF.
+  const casa = useMemo((): Destino => (ra ? { tipo: 'ra', ra } : DF), [ra]);
+  const mudarRa = (nova: string | null) => {
+    setRa(nova);
+    // O insight aberto pode ser de outra região: fecha, e o mapa vai para a região.
+    setAberto(-1);
+    setPorOrgao(false);
+    voar(nova ? { tipo: 'ra', ra: nova } : DF);
+  };
   const inc = aberto >= 0 ? resultado.incidentes[aberto] : undefined;
 
   const descartados = useMemo(() => new Set(resultado.incidentes.flatMap((i, k) => (decisaoDe(decisoes, i.codigo).situacao === 'descartado' ? [k] : []))), [resultado, decisoes]);
@@ -139,7 +162,15 @@ export function TelaInteligencia() {
   // Com um insight aberto, a conta é a dele; sem, a da cidade.
   const chegaramAteAqui = useMemo(() => (aberto >= 0 ? (chegadosPorIncidente(base, resultado, corte)[aberto]?.chamados ?? 0) : chegadosAte(base, corte)), [base, resultado, corte, aberto]);
 
-  const estado = useMemo(() => ({ base, resultado, etapa, aberto, descartados, corte, pequenos }), [base, resultado, etapa, aberto, descartados, corte, pequenos, tema]);
+  // Com uma região escolhida, o mapa está de perto: todas as colunas ficam na escala de bairro,
+  // e os incidentes de outras regiões saem de foco (no mapa, como os descartados: sem coluna, pontos neutros).
+  const noMapa = useMemo(() => {
+    if (!ra) return { descartados, pequenos };
+    const todos = new Set(resultado.incidentes.map((_, k) => k));
+    const fora = resultado.incidentes.flatMap((i, k) => (i.raId === ra ? [] : [k]));
+    return { descartados: new Set([...descartados, ...fora]), pequenos: todos };
+  }, [ra, resultado, descartados, pequenos]);
+  const estado = useMemo(() => ({ base, resultado, etapa, aberto, descartados: noMapa.descartados, corte, pequenos: noMapa.pequenos }), [base, resultado, etapa, aberto, noMapa, corte, tema]);
   const camadas = useMemo(() => camadasDoGrafo(estado), [estado]);
   const animadas = useCallback((t: number) => camadasVivas(estado, ondas, t), [estado, ondas]);
 
@@ -156,17 +187,18 @@ export function TelaInteligencia() {
   useEffect(() => {
     if (abertoAntes.current === aberto) return;
     const primeira = abertoAntes.current === null;
-    if (primeira && aberto < 0) {
+    // Quem chega com a região no endereço já vê o mapa nela.
+    if (primeira && aberto < 0 && !ra) {
       abertoAntes.current = aberto;
       return;
     }
     // Depois que as margens mudam (o painel do insight abre ou fecha). Na abertura, depois do mapa carregar.
     const t = setTimeout(() => {
       abertoAntes.current = aberto;
-      voar(inc ? { tipo: 'vista', vista: { centro: inc.centro, zoom: zoomDoIncidente(inc), inclinacao: 55, rotacao: -14 } } : DF);
+      voar(inc ? { tipo: 'vista', vista: { centro: inc.centro, zoom: zoomDoIncidente(inc), inclinacao: 55, rotacao: -14 } } : casa);
     }, primeira ? 3200 : 0);
     return () => clearTimeout(t);
-  }, [aberto, inc, voar]);
+  }, [aberto, inc, voar, casa]);
 
   const abrir = useCallback((k: number) => setAberto((a) => (a === k ? a : k)), []);
   const fechar = useCallback(() => {
@@ -196,8 +228,10 @@ export function TelaInteligencia() {
   const aoDesfazer = () => inc && desfazer(inc.codigo, Date.now());
 
   // ------------------------------------------------ teclas
-  const atalhos = useRef({ aberto, total: resultado.incidentes.length, aoConfirmar, fechar, alternarTempo, vista });
-  atalhos.current = { aberto, total: resultado.incidentes.length, aoConfirmar, fechar, alternarTempo, vista };
+  // As setas andam só pelos insights da região escolhida.
+  const daRegiao = useMemo(() => resultado.incidentes.flatMap((i, k) => (ra === null || i.raId === ra ? [k] : [])), [resultado, ra]);
+  const atalhos = useRef({ aberto, daRegiao, aoConfirmar, fechar, alternarTempo, vista });
+  atalhos.current = { aberto, daRegiao, aoConfirmar, fechar, alternarTempo, vista };
   useEffect(() => {
     const tecla = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement || e.metaKey || e.ctrlKey || e.altKey) return;
@@ -210,10 +244,14 @@ export function TelaInteligencia() {
       else if (e.key.toLowerCase() === 'g') setVista('grafo');
       else if (e.key === 'ArrowDown') {
         e.preventDefault();
-        setAberto(Math.min(a.total - 1, a.aberto + 1));
+        const p = a.daRegiao.indexOf(a.aberto);
+        const proximo = a.daRegiao[Math.min(a.daRegiao.length - 1, p + 1)];
+        if (proximo !== undefined) setAberto(proximo);
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        setAberto(Math.max(0, a.aberto - 1));
+        const p = a.daRegiao.indexOf(a.aberto);
+        const anterior = a.daRegiao[Math.max(0, p - 1)];
+        if (anterior !== undefined) setAberto(anterior);
       } else if (e.key === 'Enter' && a.aberto >= 0 && !(e.target instanceof HTMLButtonElement)) a.aoConfirmar();
       else if (e.key === 'Escape') a.fechar();
     };
@@ -226,11 +264,21 @@ export function TelaInteligencia() {
       {vista === 'grafo' ? (
         <Mapa margens={margens} camadas={camadas} animadas={animadas} alvo={alvo} semImagem dicaDasRas={false} clicaveis={CLICAVEIS} aoClicarObjeto={aoClicarObjeto} />
       ) : (
-        <PainelDeInsights resultado={resultado} resumo={resumo} estado={estadoComum} decisaoDe={(c) => decisaoDe(decisoes, c)} aberto={aberto} aoAbrir={abrir} comInsight={Boolean(inc)} />
+        <PainelDeInsights resultado={resultado} resumo={resumo} estado={estadoComum} ra={ra} decisaoDe={(c) => decisaoDe(decisoes, c)} aberto={aberto} aoAbrir={abrir} comInsight={Boolean(inc)} />
       )}
 
       {/* No alto: painel ou grafo e, no grafo, as três etapas. */}
       <div className="absolute top-3 left-1/2 z-20 hidden -translate-x-1/2 items-center gap-2 lg:flex">
+        <label className="flex items-center rounded-lg border border-linha bg-painel p-1 text-rotulo text-texto-2" title="Região: a fila, o painel e o mapa olham só para ela">
+          <select aria-label="Região" value={ra ?? ''} onChange={(e) => mudarRa(e.target.value || null)} className={`max-w-40 rounded-md border-0 bg-poco px-2 py-1 text-rotulo ${ra ? 'text-tinta' : 'text-texto'}`}>
+            <option value="">Todo o DF ({resultado.incidentes.length})</option>
+            {regioesComInsight.map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.nome} ({r.insights})
+              </option>
+            ))}
+          </select>
+        </label>
         <div role="group" aria-label="Como ver" className="flex rounded-lg border border-linha bg-painel p-0.5">
           {(['painel', 'grafo'] as const).map((v) => (
             <button key={v} type="button" aria-pressed={v === vista} onClick={() => setVista(v)} title={v === 'painel' ? 'Os insights em cartões (tecla P)' : 'Os chamados no mapa (tecla G)'} className={`condensado rounded-md px-3 py-1.5 text-rotulo ${v === vista ? 'bg-acento text-white' : 'text-texto-2 hover:text-tinta'}`}>
@@ -295,13 +343,13 @@ export function TelaInteligencia() {
         </div>
       )}
       <div className={`intel-coluna intel-esquerda ${filaAberta ? '' : 'intel-recolhida'} ${vista === 'grafo' ? '' : 'hidden!'}`}>
-        <Fila resultado={resultado} aberto={aberto} decisaoDe={(c) => decisaoDe(decisoes, c)} aoAbrir={abrir} />
+        <Fila resultado={resultado} ra={ra} aberto={aberto} decisaoDe={(c) => decisaoDe(decisoes, c)} aoAbrir={abrir} />
       </div>
       <button
         type="button"
         onClick={() => {
           setFilaAberta((v) => !v);
-          setTimeout(() => !inc && voar(DF), 0);
+          setTimeout(() => !inc && voar(casa), 0);
         }}
         aria-label={filaAberta ? 'Recolher a fila de insights' : 'Mostrar a fila de insights'}
         className={`absolute top-1/2 z-20 hidden h-12 w-5 -translate-y-1/2 place-items-center rounded-r border border-l-0 border-linha bg-painel text-texto-2 hover:text-tinta ${vista === 'grafo' ? 'lg:grid' : ''} ${filaAberta ? 'left-[23rem]' : 'left-0'}`}
